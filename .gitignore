@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+next-env.d.ts
+
+# production
+dist/
+
+# env files
+.env
+.env.local
+
+# database
+db/
+
+# payload generated
+src/payload-types.ts
+src/app/(payload)/admin/importMap.js
+
+# nix / direnv
+.direnv/
+
+# claude code local settings
+.claude/
+
+# misc
+.DS_Store
+*.pem
