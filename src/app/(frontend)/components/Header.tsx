@@ -18,6 +18,11 @@ export function Header() {
               Calendario
             </Link>
           </li>
+          <li>
+            <Link href="/adesione" className="hover:text-blue-600">
+              Adesione
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>
