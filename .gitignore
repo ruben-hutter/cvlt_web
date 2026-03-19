@@ -28,6 +28,9 @@ src/app/(payload)/admin/importMap.js
 # claude code local settings
 .claude/
 
+# personal notes
+TODO.md
+
 # misc
 .DS_Store
 *.pem
