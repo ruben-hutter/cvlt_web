@@ -1,6 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+
+type RelatedNews = { title: string; slug: string }
 
 type Event = {
   id: string
@@ -11,6 +14,7 @@ type Event = {
   location?: string | null
   status: 'confirmed' | 'tentative' | 'cancelled'
   externalLink?: string | null
+  relatedNews: RelatedNews[]
 }
 
 const DAYS = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
@@ -49,6 +53,77 @@ const statusDot = {
   cancelled: 'bg-red-400',
 }
 
+function EventDetail({ event, onClose }: { event: Event; onClose: () => void }) {
+  return (
+    <div className="mt-6 rounded-lg border border-gray-200 p-5">
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className={`inline-block h-2.5 w-2.5 rounded-full ${statusDot[event.status]}`} />
+            <h3 className="text-lg font-semibold">{event.title}</h3>
+          </div>
+          {event.status === 'cancelled' && (
+            <span className="text-sm font-medium text-red-600">Annullato</span>
+          )}
+          {event.status === 'tentative' && (
+            <span className="text-sm font-medium text-amber-600">Provvisorio</span>
+          )}
+        </div>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
+      </div>
+
+      <dl className="mt-4 space-y-2 text-sm">
+        <div className="flex gap-2">
+          <dt className="font-medium text-gray-500">Data:</dt>
+          <dd>
+            {new Date(event.startDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}
+            {event.endDate && (
+              <> — {new Date(event.endDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}</>
+            )}
+          </dd>
+        </div>
+        {event.backupDate && (
+          <div className="flex gap-2">
+            <dt className="font-medium text-gray-500">Data di riserva:</dt>
+            <dd>{new Date(event.backupDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
+          </div>
+        )}
+        {event.location && (
+          <div className="flex gap-2">
+            <dt className="font-medium text-gray-500">Luogo:</dt>
+            <dd>{event.location}</dd>
+          </div>
+        )}
+        {event.externalLink && (
+          <div className="flex gap-2">
+            <dt className="font-medium text-gray-500">Link:</dt>
+            <dd>
+              <a href={event.externalLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                {event.externalLink}
+              </a>
+            </dd>
+          </div>
+        )}
+      </dl>
+
+      {event.relatedNews.length > 0 && (
+        <div className="mt-4 border-t border-gray-100 pt-4">
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Notizie collegate</h4>
+          <ul className="mt-2 space-y-1">
+            {event.relatedNews.map((news) => (
+              <li key={news.slug}>
+                <Link href={`/notizie/${news.slug}`} className="text-sm text-blue-600 hover:underline">
+                  {news.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function CalendarGrid({ events }: { events: Event[] }) {
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
@@ -76,6 +151,10 @@ export function CalendarGrid({ events }: { events: Event[] }) {
     setSelectedEvent(null)
   }
 
+  function selectEvent(event: Event) {
+    setSelectedEvent(selectedEvent?.id === event.id ? null : event)
+  }
+
   function getEventsForDay(day: number): Event[] {
     const date = new Date(year, month, day)
     return events.filter((e) => {
@@ -83,6 +162,17 @@ export function CalendarGrid({ events }: { events: Event[] }) {
       const end = e.endDate ? new Date(e.endDate) : null
       return isInRange(date, start, end)
     })
+  }
+
+  function handleDayClick(day: number) {
+    const dayEvents = getEventsForDay(day)
+    if (dayEvents.length === 1) {
+      selectEvent(dayEvents[0])
+    } else if (dayEvents.length > 1) {
+      // If multiple events, select the first one not already selected
+      const next = dayEvents.find((e) => e.id !== selectedEvent?.id) || dayEvents[0]
+      selectEvent(next)
+    }
   }
 
   const cells: (number | null)[] = []
@@ -131,24 +221,25 @@ export function CalendarGrid({ events }: { events: Event[] }) {
 
             const dayEvents = getEventsForDay(day)
             const isToday = isSameDay(new Date(year, month, day), today)
+            const hasEvents = dayEvents.length > 0
 
             return (
               <div
                 key={day}
-                className={`min-h-[80px] border-b border-r border-gray-100 p-1 ${isToday ? 'bg-blue-50/50' : ''}`}
+                onClick={() => handleDayClick(day)}
+                className={`min-h-[80px] border-b border-r border-gray-100 p-1 ${isToday ? 'bg-blue-50/50' : ''} ${hasEvents ? 'cursor-pointer hover:bg-gray-50' : ''}`}
               >
                 <div className={`mb-1 flex h-6 w-6 items-center justify-center text-xs ${isToday ? 'rounded-full bg-blue-600 font-bold text-white' : 'text-gray-700'}`}>
                   {day}
                 </div>
                 <div className="space-y-0.5">
                   {dayEvents.map((e) => (
-                    <button
+                    <div
                       key={e.id}
-                      onClick={() => setSelectedEvent(selectedEvent?.id === e.id ? null : e)}
-                      className={`w-full truncate rounded px-1 py-0.5 text-left text-[11px] font-medium leading-tight ${statusColors[e.status]}`}
+                      className={`w-full truncate rounded px-1 py-0.5 text-left text-[11px] font-medium leading-tight ${statusColors[e.status]} ${selectedEvent?.id === e.id ? 'ring-2 ring-blue-400' : ''}`}
                     >
                       {e.title}
-                    </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -159,57 +250,7 @@ export function CalendarGrid({ events }: { events: Event[] }) {
 
       {/* Event Detail */}
       {selectedEvent && (
-        <div className="mt-6 rounded-lg border border-gray-200 p-5">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className={`inline-block h-2.5 w-2.5 rounded-full ${statusDot[selectedEvent.status]}`} />
-                <h3 className="text-lg font-semibold">{selectedEvent.title}</h3>
-              </div>
-              {selectedEvent.status === 'cancelled' && (
-                <span className="text-sm font-medium text-red-600">Annullato</span>
-              )}
-              {selectedEvent.status === 'tentative' && (
-                <span className="text-sm font-medium text-amber-600">Provvisorio</span>
-              )}
-            </div>
-            <button onClick={() => setSelectedEvent(null)} className="text-gray-400 hover:text-gray-600">✕</button>
-          </div>
-
-          <dl className="mt-4 space-y-2 text-sm">
-            <div className="flex gap-2">
-              <dt className="font-medium text-gray-500">Data:</dt>
-              <dd>
-                {new Date(selectedEvent.startDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}
-                {selectedEvent.endDate && (
-                  <> — {new Date(selectedEvent.endDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}</>
-                )}
-              </dd>
-            </div>
-            {selectedEvent.backupDate && (
-              <div className="flex gap-2">
-                <dt className="font-medium text-gray-500">Data di riserva:</dt>
-                <dd>{new Date(selectedEvent.backupDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
-              </div>
-            )}
-            {selectedEvent.location && (
-              <div className="flex gap-2">
-                <dt className="font-medium text-gray-500">Luogo:</dt>
-                <dd>{selectedEvent.location}</dd>
-              </div>
-            )}
-            {selectedEvent.externalLink && (
-              <div className="flex gap-2">
-                <dt className="font-medium text-gray-500">Link:</dt>
-                <dd>
-                  <a href={selectedEvent.externalLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                    {selectedEvent.externalLink}
-                  </a>
-                </dd>
-              </div>
-            )}
-          </dl>
-        </div>
+        <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
       )}
 
       {/* Upcoming list below calendar */}
@@ -228,7 +269,11 @@ export function CalendarGrid({ events }: { events: Event[] }) {
           return (
             <ul className="mt-3 space-y-3">
               {upcoming.map((e) => (
-                <li key={e.id} className="flex items-center gap-4 rounded border border-gray-100 px-4 py-3">
+                <li
+                  key={e.id}
+                  onClick={() => selectEvent(e)}
+                  className={`flex cursor-pointer items-center gap-4 rounded border px-4 py-3 transition-colors hover:bg-gray-50 ${selectedEvent?.id === e.id ? 'border-blue-300 bg-blue-50/50' : 'border-gray-100'}`}
+                >
                   <span className={`inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full ${statusDot[e.status]}`} />
                   <div className="min-w-0 flex-1">
                     <div className="font-medium">{e.title}</div>

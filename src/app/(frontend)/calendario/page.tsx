@@ -17,6 +17,31 @@ export default async function CalendarPage() {
     limit: 200,
   })
 
+  // Find related news for each event
+  const now = new Date().toISOString()
+  const newsResult = await payload.find({
+    collection: 'news',
+    where: {
+      status: { equals: 'published' },
+      publishDate: { less_than_equal: now },
+      relatedEvent: { exists: true },
+    },
+    limit: 200,
+    depth: 0,
+  })
+
+  // Build a map: eventId -> related news articles
+  const newsByEvent = new Map<number, Array<{ title: string; slug: string }>>()
+  for (const article of newsResult.docs) {
+    const eventId = typeof article.relatedEvent === 'object'
+      ? (article.relatedEvent as any)?.id
+      : article.relatedEvent
+    if (eventId != null) {
+      if (!newsByEvent.has(eventId)) newsByEvent.set(eventId, [])
+      newsByEvent.get(eventId)!.push({ title: article.title, slug: article.slug || '' })
+    }
+  }
+
   const events = result.docs.map((e) => ({
     id: String(e.id),
     title: e.title,
@@ -26,6 +51,7 @@ export default async function CalendarPage() {
     location: e.location || null,
     status: e.status as 'confirmed' | 'tentative' | 'cancelled',
     externalLink: e.externalLink || null,
+    relatedNews: newsByEvent.get(e.id as number) || [],
   }))
 
   return (

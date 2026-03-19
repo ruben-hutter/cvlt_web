@@ -11,10 +11,15 @@ export const metadata = {
 export default async function NewsPage() {
   const payload = await getPayload({ config })
 
+  const now = new Date().toISOString()
+
   const news = await payload.find({
     collection: 'news',
-    where: { status: { equals: 'published' } },
-    sort: '-date',
+    where: {
+      status: { equals: 'published' },
+      publishDate: { less_than_equal: now },
+    },
+    sort: '-publishDate',
     limit: 50,
   })
 
@@ -31,19 +36,17 @@ export default async function NewsPage() {
               <Link href={`/notizie/${article.slug}`} className="group block">
                 <div className="flex items-center gap-3 text-sm text-gray-500">
                   <time>
-                    {new Date(article.date).toLocaleDateString('it-CH', {
+                    {new Date(article.publishDate).toLocaleDateString('it-CH', {
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',
                     })}
                   </time>
-                  <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                    {article.category === 'featured'
-                      ? 'In evidenza'
-                      : article.category === 'activities'
-                        ? 'Attività'
-                        : 'Archivio'}
-                  </span>
+                  {(article.tags as string[] | undefined)?.map((tag) => (
+                    <span key={tag} className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                      {tag}
+                    </span>
+                  ))}
                 </div>
                 <h2 className="mt-2 text-xl font-semibold group-hover:text-blue-600">
                   {article.title}

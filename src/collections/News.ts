@@ -145,7 +145,7 @@ export const News: CollectionConfig = {
   slug: 'news',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'category', 'date', 'status'],
+    defaultColumns: ['title', 'tags', 'publishDate', 'status'],
   },
   access: {
     read: () => true,
@@ -159,7 +159,6 @@ export const News: CollectionConfig = {
     {
       name: 'slug',
       type: 'text',
-      required: true,
       unique: true,
       hooks: {
         beforeValidate: [formatSlug],
@@ -182,25 +181,33 @@ export const News: CollectionConfig = {
       },
     },
     {
-      name: 'category',
-      type: 'select',
-      required: true,
-      options: [
-        { label: 'In evidenza', value: 'featured' },
-        { label: 'Attività', value: 'activities' },
-        { label: 'Archivio', value: 'archive' },
-      ],
+      name: 'tags',
+      type: 'text',
+      hasMany: true,
       admin: {
         position: 'sidebar',
+        description: 'Tag liberi (es. "sociale", "competizione", "formazione").',
       },
     },
     {
-      name: 'date',
+      name: 'relatedEvent',
+      type: 'relationship',
+      relationTo: 'events',
+      label: 'Evento collegato',
+      admin: {
+        position: 'sidebar',
+        description: 'Collega questa notizia a un evento del calendario.',
+      },
+    },
+    {
+      name: 'publishDate',
       type: 'date',
       required: true,
       defaultValue: () => new Date().toISOString(),
+      label: 'Data di pubblicazione',
       admin: {
         position: 'sidebar',
+        description: 'La notizia sarà visibile solo a partire da questa data.',
         date: {
           pickerAppearance: 'dayOnly',
           displayFormat: 'dd/MM/yyyy',

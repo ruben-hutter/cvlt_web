@@ -7,10 +7,15 @@ import config from '@payload-config'
 export default async function HomePage() {
   const payload = await getPayload({ config })
 
+  const now = new Date().toISOString()
+
   const news = await payload.find({
     collection: 'news',
-    where: { status: { equals: 'published' } },
-    sort: '-date',
+    where: {
+      status: { equals: 'published' },
+      publishDate: { less_than_equal: now },
+    },
+    sort: '-publishDate',
     limit: 5,
   })
 
@@ -35,7 +40,7 @@ export default async function HomePage() {
               <li key={article.id} className="border-b border-gray-100 pb-6">
                 <Link href={`/notizie/${article.slug}`} className="group block">
                   <time className="text-sm text-gray-500">
-                    {new Date(article.date).toLocaleDateString('it-CH', {
+                    {new Date(article.publishDate).toLocaleDateString('it-CH', {
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',
