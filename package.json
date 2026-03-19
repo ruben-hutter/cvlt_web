@@ -2,10 +2,11 @@
   "name": "cvlt-web",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "payload generate:importmap && next build",
-    "start": "mkdir -p db && next start",
+    "start": "mkdir -p db && node .next/standalone/server.js",
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap"
   },
