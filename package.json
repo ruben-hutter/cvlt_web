@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "payload generate:importmap && next build && cp -r .next/static .next/standalone/.next/static",
     "start": "mkdir -p db && node .next/standalone/server.js",
     "generate:types": "payload generate:types",

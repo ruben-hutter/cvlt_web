@@ -1,2 +1,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+/* Clear floats after rich text content (for floated images) */
+.prose::after {
+  content: "";
+  display: table;
+  clear: both;
+}

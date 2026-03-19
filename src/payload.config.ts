@@ -1,9 +1,28 @@
 import { buildConfig } from 'payload'
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import {
+  lexicalEditor,
+  FixedToolbarFeature,
+  HeadingFeature,
+  LinkFeature,
+  AlignFeature,
+  BlockquoteFeature,
+  HorizontalRuleFeature,
+  BoldFeature,
+  ItalicFeature,
+  UnderlineFeature,
+  StrikethroughFeature,
+  OrderedListFeature,
+  UnorderedListFeature,
+  ChecklistFeature,
+  IndentFeature,
+  InlineCodeFeature,
+} from '@payloadcms/richtext-lexical'
 import { fileURLToPath } from 'url'
 import path from 'path'
 import sharp from 'sharp'
+import { Media } from './collections/Media'
+import { News } from './collections/News'
 import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -15,13 +34,31 @@ export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  collections: [Users],
+  collections: [News, Media, Users],
   db: sqliteAdapter({
     client: {
       url: process.env.DATABASE_URI || 'file:./db/payload.db',
     },
   }),
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: [
+      FixedToolbarFeature(),
+      HeadingFeature({ levels: [2, 3, 4] }),
+      BoldFeature(),
+      ItalicFeature(),
+      UnderlineFeature(),
+      StrikethroughFeature(),
+      InlineCodeFeature(),
+      LinkFeature(),
+      AlignFeature(),
+      BlockquoteFeature(),
+      HorizontalRuleFeature(),
+      OrderedListFeature(),
+      UnorderedListFeature(),
+      ChecklistFeature(),
+      IndentFeature(),
+    ],
+  }),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
