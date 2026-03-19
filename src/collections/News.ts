@@ -1,16 +1,43 @@
-import type { Block, CollectionConfig, FieldHook } from 'payload'
+import type { Access, Block, CollectionConfig, FieldHook } from 'payload'
+import { isAdmin } from './Users'
 
-const formatSlug: FieldHook = ({ data, value }) => {
-  if (typeof value === 'string' && value.length > 0) return value
-  if (data?.title) {
-    return data.title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
-  }
-  return value
+function titleToSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+}
+
+const formatSlug: FieldHook = async ({ data, req }) => {
+  if (!data?.title) return undefined
+  const baseSlug = titleToSlug(data.title)
+
+  if (!req.payload) return baseSlug
+
+  // Check for duplicates and append number if needed
+  const existing = await req.payload.find({
+    collection: 'news',
+    where: { slug: { like: `${baseSlug}%` }, ...(data.id ? { id: { not_equals: data.id } } : {}) },
+    limit: 100,
+    depth: 0,
+  })
+
+  if (existing.docs.length === 0) return baseSlug
+
+  const taken = new Set(existing.docs.map((d) => d.slug))
+  if (!taken.has(baseSlug)) return baseSlug
+
+  let i = 2
+  while (taken.has(`${baseSlug}-${i}`)) i++
+  return `${baseSlug}-${i}`
+}
+
+const isAdminOrAuthor: Access = ({ req: { user } }) => {
+  if (!user) return false
+  if (user.role === 'admin') return true
+  return { author: { equals: user.id } }
 }
 
 // --- Layout Blocks ---
@@ -143,12 +170,15 @@ const QuoteBlock: Block = {
 
 export const News: CollectionConfig = {
   slug: 'news',
+  labels: { singular: 'Notizia', plural: 'Notizie' },
+  lockDocuments: false,
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'tags', 'publishDate', 'status'],
   },
   access: {
     read: () => true,
+    delete: isAdminOrAuthor,
   },
   fields: [
     {
@@ -165,7 +195,8 @@ export const News: CollectionConfig = {
       },
       admin: {
         position: 'sidebar',
-        description: 'Generato automaticamente dal titolo. Modificabile.',
+        readOnly: true,
+        description: 'Generato automaticamente dal titolo.',
       },
     },
     {
@@ -205,9 +236,27 @@ export const News: CollectionConfig = {
       required: true,
       defaultValue: () => new Date().toISOString(),
       label: 'Data di pubblicazione',
+      hooks: {
+        beforeValidate: [
+          ({ value }) => {
+            // If cleared, reset to today
+            if (!value) return new Date().toISOString()
+            return value
+          },
+        ],
+      },
+      validate: (value) => {
+        if (!value) return true
+        const selected = new Date(value)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        selected.setHours(0, 0, 0, 0)
+        if (selected < today) return 'La data di pubblicazione non può essere nel passato.'
+        return true
+      },
       admin: {
         position: 'sidebar',
-        description: 'La notizia sarà visibile solo a partire da questa data.',
+        description: 'La notizia sarà visibile a partire da questa data. Predefinito: oggi.',
         date: {
           pickerAppearance: 'dayOnly',
           displayFormat: 'dd/MM/yyyy',
@@ -229,8 +278,19 @@ export const News: CollectionConfig = {
       name: 'author',
       type: 'relationship',
       relationTo: 'users',
+      hooks: {
+        beforeChange: [
+          ({ req, value }) => {
+            // Auto-assign author on creation if not set
+            if (!value && req.user) return req.user.id
+            return value
+          },
+        ],
+      },
       admin: {
         position: 'sidebar',
+        readOnly: true,
+        description: 'Assegnato automaticamente.',
       },
     },
   ],

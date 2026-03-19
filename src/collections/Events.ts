@@ -1,13 +1,23 @@
-import type { CollectionConfig } from 'payload'
+import type { Access, CollectionConfig } from 'payload'
+import { isAdmin } from './Users'
+
+const isAdminOrCreator: Access = ({ req: { user } }) => {
+  if (!user) return false
+  if (user.role === 'admin') return true
+  return { createdBy: { equals: user.id } }
+}
 
 export const Events: CollectionConfig = {
   slug: 'events',
+  labels: { singular: 'Evento', plural: 'Eventi' },
+  lockDocuments: false,
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'startDate', 'location', 'status'],
   },
   access: {
     read: () => true,
+    delete: isAdminOrCreator,
   },
   fields: [
     {
@@ -79,6 +89,24 @@ export const Events: CollectionConfig = {
       label: 'Link esterno',
       admin: {
         description: 'URL a pagina esterna (es. iscrizione, dettagli).',
+      },
+    },
+    {
+      name: 'createdBy',
+      type: 'relationship',
+      relationTo: 'users',
+      hooks: {
+        beforeChange: [
+          ({ req, value }) => {
+            if (!value && req.user) return req.user.id
+            return value
+          },
+        ],
+      },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Assegnato automaticamente.',
       },
     },
   ],

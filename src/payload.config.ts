@@ -18,11 +18,13 @@ import {
   IndentFeature,
   InlineCodeFeature,
 } from '@payloadcms/richtext-lexical'
+import { it } from '@payloadcms/translations/languages/it'
 import { fileURLToPath } from 'url'
 import path from 'path'
 import sharp from 'sharp'
 import { Events } from './collections/Events'
 import { Media } from './collections/Media'
+import { MembershipSubmissions } from './collections/MembershipSubmissions'
 import { News } from './collections/News'
 import { Users } from './collections/Users'
 
@@ -34,8 +36,11 @@ export default buildConfig({
   graphQL: { disable: true },
   admin: {
     user: Users.slug,
+    components: {
+      afterNavLinks: ['@/app/(payload)/components/LogoutLink#LogoutLink'],
+    },
   },
-  collections: [News, Events, Media, Users],
+  collections: [News, Events, MembershipSubmissions, Media, Users],
   db: sqliteAdapter({
     client: {
       url: process.env.DATABASE_URI || 'file:./db/payload.db',
@@ -60,6 +65,10 @@ export default buildConfig({
       IndentFeature(),
     ],
   }),
+  i18n: {
+    supportedLanguages: { it },
+    fallbackLanguage: 'it',
+  },
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
