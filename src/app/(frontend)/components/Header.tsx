@@ -13,6 +13,11 @@ export function Header() {
               Notizie
             </Link>
           </li>
+          <li>
+            <Link href="/calendario" className="hover:text-blue-600">
+              Calendario
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>

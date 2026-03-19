@@ -21,6 +21,7 @@ import {
 import { fileURLToPath } from 'url'
 import path from 'path'
 import sharp from 'sharp'
+import { Events } from './collections/Events'
 import { Media } from './collections/Media'
 import { News } from './collections/News'
 import { Users } from './collections/Users'
@@ -34,7 +35,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  collections: [News, Media, Users],
+  collections: [News, Events, Media, Users],
   db: sqliteAdapter({
     client: {
       url: process.env.DATABASE_URI || 'file:./db/payload.db',
@@ -43,7 +44,7 @@ export default buildConfig({
   editor: lexicalEditor({
     features: [
       FixedToolbarFeature(),
-      HeadingFeature({ levels: [2, 3, 4] }),
+      HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
       BoldFeature(),
       ItalicFeature(),
       UnderlineFeature(),
