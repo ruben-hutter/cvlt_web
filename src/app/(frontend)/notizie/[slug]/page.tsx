@@ -32,14 +32,15 @@ export default async function NewsArticlePage({ params }: Args) {
   const { slug } = await params
   const payload = await getPayload({ config })
 
-  const now = new Date().toISOString()
+  const endOfToday = new Date()
+  endOfToday.setHours(23, 59, 59, 999)
 
   const result = await payload.find({
     collection: 'news',
     where: {
       slug: { equals: slug },
       status: { equals: 'published' },
-      publishDate: { less_than_equal: now },
+      publishDate: { less_than_equal: endOfToday.toISOString() },
     },
     limit: 1,
     depth: 2,
@@ -69,16 +70,6 @@ export default async function NewsArticlePage({ params }: Args) {
             })}
           </time>
           <h1 className="mt-2 text-3xl font-bold">{article.title}</h1>
-
-          {(article.tags as string[] | undefined)?.length ? (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {(article.tags as string[]).map((tag) => (
-                <span key={tag} className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          ) : null}
 
           <div className="mt-8">
             <NewsLayout blocks={article.layout as any} />

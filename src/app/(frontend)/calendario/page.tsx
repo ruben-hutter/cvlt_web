@@ -18,12 +18,13 @@ export default async function CalendarPage() {
   })
 
   // Find related news for each event
-  const now = new Date().toISOString()
+  const endOfToday = new Date()
+  endOfToday.setHours(23, 59, 59, 999)
   const newsResult = await payload.find({
     collection: 'news',
     where: {
       status: { equals: 'published' },
-      publishDate: { less_than_equal: now },
+      publishDate: { less_than_equal: endOfToday.toISOString() },
       relatedEvent: { exists: true },
     },
     limit: 200,

@@ -4,19 +4,35 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 
+function getThumbnailUrl(article: any): string | null {
+  if (article.thumbnail && typeof article.thumbnail === 'object') {
+    return article.thumbnail.url
+  }
+  // Fallback: first image found in layout blocks
+  for (const block of article.layout || []) {
+    if (block.blockType === 'image' && block.image?.url) return block.image.url
+    if (block.blockType === 'textImage' && block.image?.url) return block.image.url
+    if (block.blockType === 'gallery' && block.images?.[0]?.image?.url) return block.images[0].image.url
+  }
+  return null
+}
+
 export default async function HomePage() {
   const payload = await getPayload({ config })
 
-  const now = new Date().toISOString()
+  // Use end of today to include all articles published "today"
+  const endOfToday = new Date()
+  endOfToday.setHours(23, 59, 59, 999)
 
   const news = await payload.find({
     collection: 'news',
     where: {
       status: { equals: 'published' },
-      publishDate: { less_than_equal: now },
+      publishDate: { less_than_equal: endOfToday.toISOString() },
     },
     sort: '-publishDate',
     limit: 5,
+    depth: 1,
   })
 
   return (
@@ -36,22 +52,37 @@ export default async function HomePage() {
           <p className="mt-6 text-gray-500">Nessuna notizia pubblicata.</p>
         ) : (
           <ul className="mt-6 space-y-6">
-            {news.docs.map((article) => (
-              <li key={article.id} className="border-b border-gray-100 pb-6">
-                <Link href={`/notizie/${article.slug}`} className="group block">
-                  <time className="text-sm text-gray-500">
-                    {new Date(article.publishDate).toLocaleDateString('it-CH', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </time>
-                  <h3 className="mt-1 text-lg font-semibold group-hover:text-blue-600">
-                    {article.title}
-                  </h3>
-                </Link>
-              </li>
-            ))}
+            {news.docs.map((article) => {
+              const thumb = getThumbnailUrl(article)
+              return (
+                <li key={article.id} className="border-b border-gray-100 pb-6">
+                  <Link href={`/notizie/${article.slug}`} className="group flex gap-4">
+                    {thumb && (
+                      <img
+                        src={thumb}
+                        alt=""
+                        width={56}
+                        height={56}
+                        style={{ width: 56, height: 56, objectFit: 'cover', flexShrink: 0 }}
+                        className="rounded"
+                      />
+                    )}
+                    <div>
+                      <time className="text-sm text-gray-500">
+                        {new Date(article.publishDate).toLocaleDateString('it-CH', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </time>
+                      <h3 className="mt-1 text-lg font-semibold group-hover:text-blue-600">
+                        {article.title}
+                      </h3>
+                    </div>
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         )}
       </section>
