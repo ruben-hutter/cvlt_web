@@ -16,6 +16,7 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
+      label: 'Testo alternativo',
       required: true,
     },
   ],

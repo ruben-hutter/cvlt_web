@@ -14,17 +14,41 @@ const isLoggedIn: Access = ({ req: { user } }) => {
   return !!user
 }
 
+function validatePassword(password: string): string | true {
+  if (password.length < 8) return 'La password deve avere almeno 8 caratteri.'
+  if (!/[A-Z]/.test(password)) return 'La password deve contenere almeno una lettera maiuscola.'
+  if (!/[a-z]/.test(password)) return 'La password deve contenere almeno una lettera minuscola.'
+  if (!/[0-9]/.test(password)) return 'La password deve contenere almeno un numero.'
+  return true
+}
+
 export const Users: CollectionConfig = {
   slug: 'users',
   labels: {
     singular: 'Utente',
     plural: 'Utenti',
   },
+  lockDocuments: false,
   admin: {
-    useAsTitle: 'email',
+    useAsTitle: 'name',
     hidden: ({ user }) => user?.role !== 'admin',
   },
-  auth: true,
+  auth: {
+    loginWithUsername: false,
+    maxLoginAttempts: 5,
+    lockTime: 10 * 60 * 1000, // 10 minutes
+  },
+  hooks: {
+    beforeValidate: [
+      ({ data, operation }) => {
+        if (data?.password && (operation === 'create' || operation === 'update')) {
+          const result = validatePassword(data.password)
+          if (result !== true) throw new Error(result)
+        }
+        return data
+      },
+    ],
+  },
   access: {
     read: isAdminOrSelf,
     create: isAdmin,
@@ -36,10 +60,12 @@ export const Users: CollectionConfig = {
     {
       name: 'name',
       type: 'text',
+      label: 'Nome',
     },
     {
       name: 'role',
       type: 'select',
+      label: 'Ruolo',
       required: true,
       defaultValue: 'editor',
       options: [

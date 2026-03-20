@@ -1,4 +1,6 @@
 import { buildConfig } from 'payload'
+import type { EmailAdapter } from 'payload'
+import nodemailer from 'nodemailer'
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import {
   lexicalEditor,
@@ -69,6 +71,25 @@ export default buildConfig({
     supportedLanguages: { it },
     fallbackLanguage: 'it',
   },
+  email: (() => {
+    const transporter = nodemailer.createTransport({
+      host: 'mail.infomaniak.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    })
+    return {
+      name: 'nodemailer',
+      defaultFromAddress: process.env.SMTP_FROM || 'no-reply@cvlt.ch',
+      defaultFromName: 'CVLT',
+      sendEmail: async (message) => {
+        await transporter.sendMail(message)
+      },
+    }
+  }) as EmailAdapter,
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

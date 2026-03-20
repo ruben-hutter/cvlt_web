@@ -23,11 +23,13 @@ export const Events: CollectionConfig = {
     {
       name: 'title',
       type: 'text',
+      label: 'Titolo',
       required: true,
     },
     {
       name: 'status',
       type: 'select',
+      label: 'Stato',
       defaultValue: 'confirmed',
       options: [
         { label: 'Confermato', value: 'confirmed' },
@@ -94,6 +96,7 @@ export const Events: CollectionConfig = {
     {
       name: 'createdBy',
       type: 'relationship',
+      label: 'Creato da',
       relationTo: 'users',
       hooks: {
         beforeChange: [
@@ -104,9 +107,7 @@ export const Events: CollectionConfig = {
         ],
       },
       admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: 'Assegnato automaticamente.',
+        hidden: true,
       },
     },
   ],

@@ -45,10 +45,12 @@ const isAdminOrAuthor: Access = ({ req: { user } }) => {
 const RichTextBlock: Block = {
   slug: 'richText',
   labels: { singular: 'Testo', plural: 'Testi' },
+  admin: { disableBlockName: true },
   fields: [
     {
       name: 'content',
       type: 'richText',
+      label: ' ',
       required: true,
     },
   ],
@@ -57,10 +59,12 @@ const RichTextBlock: Block = {
 const ImageBlock: Block = {
   slug: 'image',
   labels: { singular: 'Immagine', plural: 'Immagini' },
+  admin: { disableBlockName: true },
   fields: [
     {
       name: 'image',
       type: 'upload',
+      label: 'Immagine',
       relationTo: 'media',
       required: true,
     },
@@ -72,6 +76,7 @@ const ImageBlock: Block = {
     {
       name: 'size',
       type: 'select',
+      label: 'Dimensione',
       defaultValue: 'full',
       options: [
         { label: 'Piccola', value: 'small' },
@@ -86,10 +91,12 @@ const ImageBlock: Block = {
 const TextImageBlock: Block = {
   slug: 'textImage',
   labels: { singular: 'Testo + Immagine', plural: 'Testo + Immagine' },
+  admin: { disableBlockName: true },
   fields: [
     {
       name: 'layout',
       type: 'select',
+      label: 'Disposizione',
       defaultValue: 'imageRight',
       options: [
         { label: 'Immagine a destra', value: 'imageRight' },
@@ -99,11 +106,13 @@ const TextImageBlock: Block = {
     {
       name: 'text',
       type: 'richText',
+      label: 'Testo',
       required: true,
     },
     {
       name: 'image',
       type: 'upload',
+      label: 'Immagine',
       relationTo: 'media',
       required: true,
     },
@@ -118,10 +127,12 @@ const TextImageBlock: Block = {
 const GalleryBlock: Block = {
   slug: 'gallery',
   labels: { singular: 'Galleria', plural: 'Gallerie' },
+  admin: { disableBlockName: true },
   fields: [
     {
       name: 'columns',
       type: 'select',
+      label: 'Colonne',
       defaultValue: '3',
       options: [
         { label: '2 colonne', value: '2' },
@@ -132,17 +143,20 @@ const GalleryBlock: Block = {
     {
       name: 'images',
       type: 'array',
+      label: 'Immagini',
       minRows: 1,
       fields: [
         {
           name: 'image',
           type: 'upload',
+          label: 'Immagine',
           relationTo: 'media',
           required: true,
         },
         {
           name: 'caption',
           type: 'text',
+          label: 'Didascalia',
         },
       ],
     },
@@ -152,10 +166,12 @@ const GalleryBlock: Block = {
 const QuoteBlock: Block = {
   slug: 'quote',
   labels: { singular: 'Citazione', plural: 'Citazioni' },
+  admin: { disableBlockName: true },
   fields: [
     {
       name: 'text',
       type: 'textarea',
+      label: 'Testo',
       required: true,
     },
     {
@@ -174,7 +190,7 @@ export const News: CollectionConfig = {
   lockDocuments: false,
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'tags', 'publishDate', 'status'],
+    defaultColumns: ['title', 'publishDate', 'status'],
   },
   access: {
     read: () => true,
@@ -184,6 +200,7 @@ export const News: CollectionConfig = {
     {
       name: 'title',
       type: 'text',
+      label: 'Titolo',
       required: true,
     },
     {
@@ -194,14 +211,13 @@ export const News: CollectionConfig = {
         beforeValidate: [formatSlug],
       },
       admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: 'Generato automaticamente dal titolo.',
+        hidden: true,
       },
     },
     {
       name: 'status',
       type: 'select',
+      label: 'Stato',
       defaultValue: 'draft',
       options: [
         { label: 'Bozza', value: 'draft' },
@@ -209,15 +225,6 @@ export const News: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
-      },
-    },
-    {
-      name: 'tags',
-      type: 'text',
-      hasMany: true,
-      admin: {
-        position: 'sidebar',
-        description: 'Tag liberi (es. "sociale", "competizione", "formazione").',
       },
     },
     {
@@ -266,31 +273,31 @@ export const News: CollectionConfig = {
     {
       name: 'thumbnail',
       type: 'upload',
+      label: 'Miniatura',
       relationTo: 'media',
     },
     {
       name: 'layout',
       type: 'blocks',
+      label: 'Contenuto',
       required: true,
       blocks: [RichTextBlock, ImageBlock, TextImageBlock, GalleryBlock, QuoteBlock],
     },
     {
       name: 'author',
       type: 'relationship',
+      label: 'Autore',
       relationTo: 'users',
       hooks: {
         beforeChange: [
           ({ req, value }) => {
-            // Auto-assign author on creation if not set
             if (!value && req.user) return req.user.id
             return value
           },
         ],
       },
       admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: 'Assegnato automaticamente.',
+        hidden: true,
       },
     },
   ],
