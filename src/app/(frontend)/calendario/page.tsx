@@ -57,7 +57,7 @@ export default async function CalendarPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
-      <h1 className="mb-8 text-3xl font-bold">Calendario</h1>
+      <h1 className="mb-8 text-3xl font-bold text-cvlt-gray-900">Calendario</h1>
       <CalendarGrid events={events} />
     </main>
   )

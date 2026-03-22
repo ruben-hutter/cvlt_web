@@ -1,6 +1,23 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@theme {
+  --color-cvlt-blue: #1e73be;
+  --color-cvlt-blue-dark: #155a96;
+  --color-cvlt-blue-light: #e8f1fa;
+  --color-cvlt-red: #dd3333;
+  --color-cvlt-red-dark: #b82828;
+  --color-cvlt-navy: #0f2a45;
+  --color-cvlt-navy-light: #1a3a5c;
+  --color-cvlt-gray-50: #f8fafc;
+  --color-cvlt-gray-100: #f1f5f9;
+  --color-cvlt-gray-200: #e2e8f0;
+  --color-cvlt-gray-500: #64748b;
+  --color-cvlt-gray-700: #334155;
+  --color-cvlt-gray-900: #0f172a;
+  --font-sans: "Ubuntu", system-ui, sans-serif;
+}
+
 /* Clear floats after rich text content (for floated images) */
 .prose::after {
   content: "";

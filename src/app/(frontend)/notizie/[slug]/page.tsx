@@ -55,21 +55,27 @@ export default async function NewsArticlePage({ params }: Args) {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
-      <Link href="/notizie" className="text-sm text-blue-600 hover:underline">
-        ← Tutte le notizie
+      <Link
+        href="/notizie"
+        className="inline-flex items-center gap-1 text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
+      >
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+        </svg>
+        Tutte le notizie
       </Link>
 
       <div className="mt-8 flex flex-col gap-10 lg:flex-row">
         {/* Article */}
         <article className="min-w-0 flex-1">
-          <time className="text-sm text-gray-500">
+          <time className="text-sm font-medium text-cvlt-gray-500">
             {new Date(article.publishDate).toLocaleDateString('it-CH', {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
             })}
           </time>
-          <h1 className="mt-2 text-3xl font-bold">{article.title}</h1>
+          <h1 className="mt-2 text-3xl font-bold text-cvlt-gray-900">{article.title}</h1>
 
           <div className="mt-8">
             <NewsLayout blocks={article.layout as any} />
@@ -79,14 +85,16 @@ export default async function NewsArticlePage({ params }: Args) {
         {/* Sidebar: related event */}
         {relatedEvent && (
           <aside className="w-full flex-shrink-0 lg:w-72">
-            <div className="rounded-lg border border-gray-200 p-5">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Evento collegato</h3>
-              <h4 className="mt-2 text-lg font-semibold">{relatedEvent.title}</h4>
+            <div className="rounded-lg border border-cvlt-blue/20 bg-cvlt-blue-light p-5">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-cvlt-blue-dark">
+                Evento collegato
+              </h3>
+              <h4 className="mt-2 text-lg font-semibold text-cvlt-gray-900">{relatedEvent.title}</h4>
 
               <dl className="mt-4 space-y-2 text-sm">
                 <div>
-                  <dt className="font-medium text-gray-500">Data</dt>
-                  <dd>
+                  <dt className="font-medium text-cvlt-gray-500">Data</dt>
+                  <dd className="text-cvlt-gray-900">
                     {new Date(relatedEvent.startDate).toLocaleDateString('it-CH', {
                       day: 'numeric',
                       month: 'long',
@@ -103,8 +111,8 @@ export default async function NewsArticlePage({ params }: Args) {
                 </div>
                 {relatedEvent.backupDate && (
                   <div>
-                    <dt className="font-medium text-gray-500">Data di riserva</dt>
-                    <dd>{new Date(relatedEvent.backupDate).toLocaleDateString('it-CH', {
+                    <dt className="font-medium text-cvlt-gray-500">Data di riserva</dt>
+                    <dd className="text-cvlt-gray-900">{new Date(relatedEvent.backupDate).toLocaleDateString('it-CH', {
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',
@@ -113,29 +121,36 @@ export default async function NewsArticlePage({ params }: Args) {
                 )}
                 {relatedEvent.location && (
                   <div>
-                    <dt className="font-medium text-gray-500">Luogo</dt>
-                    <dd>{relatedEvent.location}</dd>
+                    <dt className="font-medium text-cvlt-gray-500">Luogo</dt>
+                    <dd className="text-cvlt-gray-900">{relatedEvent.location}</dd>
                   </div>
                 )}
                 {relatedEvent.status === 'tentative' && (
                   <div>
-                    <span className="rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">Provvisorio</span>
+                    <span className="rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                      Provvisorio
+                    </span>
                   </div>
                 )}
                 {relatedEvent.status === 'cancelled' && (
                   <div>
-                    <span className="rounded bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">Annullato</span>
+                    <span className="rounded bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
+                      Annullato
+                    </span>
                   </div>
                 )}
                 {relatedEvent.externalLink && (
-                  <div>
+                  <div className="pt-1">
                     <a
                       href={relatedEvent.externalLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
+                      className="inline-flex items-center gap-1 text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
                     >
-                      Dettagli / Iscrizione →
+                      Dettagli / Iscrizione
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-4.5-6H18m0 0v4.5m0-4.5L10.5 13.5" />
+                      </svg>
                     </a>
                   </div>
                 )}

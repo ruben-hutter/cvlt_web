@@ -67,7 +67,7 @@ type AddressSuggestion = {
 
 function useAddressSearch(query: string) {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
     if (query.length < 3) {
@@ -216,7 +216,7 @@ export function MembershipForm() {
         </p>
         <button
           onClick={() => setStatus('idle')}
-          className="mt-4 text-sm text-green-600 underline hover:text-green-800"
+          className="mt-4 text-sm text-cvlt-blue underline hover:text-cvlt-blue-dark"
         >
           Invia un&apos;altra richiesta
         </button>
@@ -243,7 +243,7 @@ export function MembershipForm() {
             required
             value={data.lastName}
             onChange={(e) => update('lastName', e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
           />
         </div>
         <div>
@@ -256,7 +256,7 @@ export function MembershipForm() {
             required
             value={data.firstName}
             onChange={(e) => update('firstName', e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
           />
         </div>
       </div>
@@ -278,7 +278,7 @@ export function MembershipForm() {
           }}
           onFocus={() => setShowSuggestions(true)}
           onKeyDown={handleAddressKeyDown}
-          className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
         />
         {showSuggestions && suggestions.length > 0 && (
           <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded border border-gray-200 bg-white shadow-lg">
@@ -288,7 +288,7 @@ export function MembershipForm() {
                   type="button"
                   onClick={() => selectAddress(s)}
                   className={`flex w-full items-baseline gap-2 px-3 py-2 text-left text-sm ${
-                    i === activeIndex ? 'bg-blue-50' : 'hover:bg-blue-50'
+                    i === activeIndex ? 'bg-blue-50' : 'hover:bg-cvlt-blue-light'
                   }`}
                 >
                   <span className="font-medium">{s.street}</span>
@@ -312,7 +312,7 @@ export function MembershipForm() {
             placeholder="6900"
             value={data.zip}
             onChange={(e) => update('zip', e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
           />
         </div>
         <div>
@@ -326,7 +326,7 @@ export function MembershipForm() {
             placeholder="Lugano"
             value={data.city}
             onChange={(e) => update('city', e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
           />
         </div>
       </div>
@@ -342,7 +342,7 @@ export function MembershipForm() {
             required
             value={data.email}
             onChange={(e) => update('email', e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
           />
         </div>
         <div>
@@ -356,7 +356,7 @@ export function MembershipForm() {
             placeholder="+41 79 123 45 67"
             value={data.phone}
             onChange={(e) => update('phone', formatPhone(e.target.value))}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
           />
         </div>
       </div>
@@ -375,7 +375,7 @@ export function MembershipForm() {
               key={option.value}
               className={`flex cursor-pointer items-center gap-3 rounded border px-4 py-3 transition-colors ${
                 data.membershipType === option.value
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-cvlt-blue bg-cvlt-blue-light'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -386,7 +386,7 @@ export function MembershipForm() {
                 required
                 checked={data.membershipType === option.value}
                 onChange={(e) => update('membershipType', e.target.value)}
-                className="accent-blue-600"
+                className="accent-cvlt-blue"
               />
               <span className="font-medium">{option.label}</span>
               <span className="text-sm text-gray-500">— {option.price}</span>
@@ -404,14 +404,14 @@ export function MembershipForm() {
           rows={3}
           value={data.notes}
           onChange={(e) => update('notes', e.target.value)}
-          className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
         />
       </div>
 
       <button
         type="submit"
         disabled={status === 'submitting'}
-        className="w-full rounded bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 disabled:bg-blue-400 sm:w-auto"
+        className="w-full rounded-md bg-cvlt-blue px-6 py-3 font-semibold text-white transition-colors hover:bg-cvlt-blue-dark disabled:opacity-60 sm:w-auto"
       >
         {status === 'submitting' ? 'Invio in corso...' : 'Invia richiesta'}
       </button>

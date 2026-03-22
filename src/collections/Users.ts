@@ -1,16 +1,16 @@
-import type { Access, CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 
-export const isAdmin: Access = ({ req: { user } }) => {
+export const isAdmin = ({ req: { user } }: { req: { user: any } }) => {
   return user?.role === 'admin'
 }
 
-export const isAdminOrSelf: Access = ({ req: { user } }) => {
+export const isAdminOrSelf = ({ req: { user } }: { req: { user: any } }) => {
   if (!user) return false
   if (user.role === 'admin') return true
   return { id: { equals: user.id } }
 }
 
-const isLoggedIn: Access = ({ req: { user } }) => {
+const isLoggedIn = ({ req: { user } }: { req: { user: any } }): boolean => {
   return !!user
 }
 

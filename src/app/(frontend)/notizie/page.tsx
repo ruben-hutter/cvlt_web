@@ -39,44 +39,51 @@ export default async function NewsPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
-      <h1 className="text-3xl font-bold">Notizie</h1>
+      <h1 className="text-3xl font-bold text-cvlt-gray-900">Notizie</h1>
 
       {news.docs.length === 0 ? (
-        <p className="mt-6 text-gray-500">Nessuna notizia pubblicata.</p>
+        <p className="mt-6 text-cvlt-gray-500">Nessuna notizia pubblicata.</p>
       ) : (
-        <ul className="mt-8 space-y-8">
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {news.docs.map((article) => {
             const thumb = getThumbnailUrl(article)
             return (
-              <li key={article.id} className="border-b border-gray-100 pb-8">
-                <Link href={`/notizie/${article.slug}`} className="group flex gap-5">
-                  {thumb && (
+              <Link
+                key={article.id}
+                href={`/notizie/${article.slug}`}
+                className="group overflow-hidden rounded-lg border border-cvlt-gray-200 transition-all hover:border-cvlt-blue/30 hover:shadow-lg"
+              >
+                {thumb ? (
+                  <div className="aspect-[16/9] overflow-hidden bg-cvlt-gray-100">
                     <img
                       src={thumb}
                       alt=""
-                      width={64}
-                      height={64}
-                      style={{ width: 64, height: 64, objectFit: 'cover', flexShrink: 0 }}
-                      className="rounded"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
-                  )}
-                  <div>
-                    <time className="text-sm text-gray-500">
-                      {new Date(article.publishDate).toLocaleDateString('it-CH', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </time>
-                    <h2 className="mt-2 text-xl font-semibold group-hover:text-blue-600">
-                      {article.title}
-                    </h2>
                   </div>
-                </Link>
-              </li>
+                ) : (
+                  <div className="flex aspect-[16/9] items-center justify-center bg-cvlt-gray-100">
+                    <svg className="h-10 w-10 text-cvlt-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
+                    </svg>
+                  </div>
+                )}
+                <div className="p-4">
+                  <time className="text-xs font-medium text-cvlt-gray-500">
+                    {new Date(article.publishDate).toLocaleDateString('it-CH', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </time>
+                  <h2 className="mt-1 text-base font-semibold text-cvlt-gray-900 group-hover:text-cvlt-blue">
+                    {article.title}
+                  </h2>
+                </div>
+              </Link>
             )
           })}
-        </ul>
+        </div>
       )}
     </main>
   )
