@@ -74,9 +74,37 @@ ${data.notes ? `\nOsservazioni: ${data.notes}` : ''}
 Abbiamo ricevuto la tua richiesta di adesione al Club Volo Libero Ticino.
 Ti contatteremo al più presto.
 
+Riepilogo dei dati inviati:
+  Cognome: ${data.lastName}
+  Nome: ${data.firstName}
+  Indirizzo: ${data.address}
+  NPA / Domicilio: ${data.city}
+  Email: ${data.email}
+  Telefono: ${data.phone}
+  Tipo di iscrizione: ${typeLabel}
+${data.notes ? `  Osservazioni: ${data.notes}\n` : ''}
+Se noti un errore nei dati, contattaci a ${membershipRecipient}.
+
 Cordiali saluti,
 Club Volo Libero Ticino
 https://cvlt.ch
+`,
+    html: `
+<p>Gentile ${data.firstName} ${data.lastName},</p>
+<p>Abbiamo ricevuto la tua richiesta di adesione al Club Volo Libero Ticino.<br>Ti contatteremo al più presto.</p>
+<h3 style="margin-top:20px;">Riepilogo dei dati inviati</h3>
+<table style="border-collapse:collapse;">
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Cognome</td><td>${data.lastName}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Nome</td><td>${data.firstName}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Indirizzo</td><td>${data.address}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">NPA / Domicilio</td><td>${data.city}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Email</td><td>${data.email}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Telefono</td><td>${data.phone}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Tipo di iscrizione</td><td>${typeLabel}</td></tr>
+  ${data.notes ? `<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Osservazioni</td><td>${data.notes}</td></tr>` : ''}
+</table>
+<p style="margin-top:16px;font-size:14px;color:#666;">Se noti un errore nei dati, contattaci a <a href="mailto:${membershipRecipient}">${membershipRecipient}</a>.</p>
+<p style="margin-top:20px;">Cordiali saluti,<br>Club Volo Libero Ticino<br><a href="https://cvlt.ch">cvlt.ch</a></p>
 `,
   })
 }

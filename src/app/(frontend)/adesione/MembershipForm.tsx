@@ -113,6 +113,7 @@ export function MembershipForm() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
   const suggestionsRef = useRef<HTMLDivElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
 
   const suggestions = useAddressSearch(data.address)
 
@@ -129,6 +130,7 @@ export function MembershipForm() {
     }))
     setShowSuggestions(false)
     setActiveIndex(-1)
+    setTimeout(() => emailRef.current?.focus(), 0)
   }
 
   function handleAddressKeyDown(e: React.KeyboardEvent) {
@@ -337,6 +339,7 @@ export function MembershipForm() {
             Email <span className="text-red-500">*</span>
           </label>
           <input
+            ref={emailRef}
             id="email"
             type="email"
             required
