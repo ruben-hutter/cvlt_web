@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 type FormData = {
   firstName: string
   lastName: string
   address: string
+  zip: string
   city: string
   email: string
   phone: string
@@ -17,6 +18,7 @@ const initialData: FormData = {
   firstName: '',
   lastName: '',
   address: '',
+  zip: '',
   city: '',
   email: '',
   phone: '',
@@ -24,17 +26,160 @@ const initialData: FormData = {
   notes: '',
 }
 
+function formatPhone(value: string): string {
+  const hasPlus = value.startsWith('+')
+  const digits = value.replace(/\D/g, '')
+
+  if (digits.length === 0) return hasPlus ? '+' : ''
+
+  // Swiss international: +41 79 123 45 67
+  if (digits.startsWith('41') && digits.length <= 11) {
+    const parts = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 7), digits.slice(7, 9), digits.slice(9, 11)]
+    return '+' + parts.filter(Boolean).join(' ')
+  }
+
+  // Swiss local: 079 123 45 67
+  if (digits.startsWith('0') && digits.length <= 10) {
+    const parts = [digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 8), digits.slice(8, 10)]
+    return parts.filter(Boolean).join(' ')
+  }
+
+  // International: +XX followed by digits
+  if (hasPlus) return '+' + digits
+  return digits
+}
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function isValidPhone(phone: string): boolean {
+  const digits = phone.replace(/\D/g, '')
+  return digits.length >= 10 && digits.length <= 15
+}
+
+type AddressSuggestion = {
+  label: string
+  street: string
+  zip: string
+  city: string
+}
+
+function useAddressSearch(query: string) {
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => {
+    if (query.length < 3) {
+      setSuggestions([])
+      return
+    }
+
+    clearTimeout(timeoutRef.current)
+    timeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://api3.geo.admin.ch/rest/services/api/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&origins=address&limit=5`
+        )
+        const data = await res.json()
+        const results = (data.results || []).map((r: any) => {
+          const label = (r.attrs?.label || '') as string
+          // label format: "Street Nr <b>ZIP City</b>"
+          const match = label.match(/^(.+?)\s*<b>(\d+)\s+(.+?)<\/b>/)
+          if (!match) return null
+          return {
+            label: label.replace(/<[^>]*>/g, ''),
+            street: match[1].trim(),
+            zip: match[2],
+            city: match[3].trim(),
+          }
+        }).filter(Boolean) as AddressSuggestion[]
+        setSuggestions(results)
+      } catch {
+        setSuggestions([])
+      }
+    }, 300)
+
+    return () => clearTimeout(timeoutRef.current)
+  }, [query])
+
+  return suggestions
+}
+
 export function MembershipForm() {
   const [data, setData] = useState<FormData>(initialData)
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const suggestionsRef = useRef<HTMLDivElement>(null)
+
+  const suggestions = useAddressSearch(data.address)
 
   function update(field: keyof FormData, value: string) {
     setData((prev) => ({ ...prev, [field]: value }))
   }
 
+  function selectAddress(suggestion: AddressSuggestion) {
+    setData((prev) => ({
+      ...prev,
+      address: suggestion.street,
+      zip: suggestion.zip,
+      city: suggestion.city,
+    }))
+    setShowSuggestions(false)
+    setActiveIndex(-1)
+  }
+
+  function handleAddressKeyDown(e: React.KeyboardEvent) {
+    if (!showSuggestions || suggestions.length === 0) return
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : 0))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveIndex((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1))
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault()
+      selectAddress(suggestions[activeIndex])
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false)
+      setActiveIndex(-1)
+    }
+  }
+
+  // Reset active index when suggestions change
+  useEffect(() => {
+    setActiveIndex(-1)
+  }, [suggestions])
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    if (!isValidEmail(data.email)) {
+      setStatus('error')
+      setErrorMsg('Indirizzo email non valido.')
+      return
+    }
+
+    if (!isValidPhone(data.phone)) {
+      setStatus('error')
+      setErrorMsg('Numero di telefono non valido (minimo 10 cifre).')
+      return
+    }
+
     setStatus('submitting')
     setErrorMsg('')
 
@@ -42,7 +187,10 @@ export function MembershipForm() {
       const res = await fetch('/api/membership', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          city: `${data.zip} ${data.city}`.trim(),
+        }),
       })
 
       if (!res.ok) {
@@ -113,7 +261,7 @@ export function MembershipForm() {
         </div>
       </div>
 
-      <div>
+      <div className="relative" ref={suggestionsRef}>
         <label htmlFor="address" className="mb-1 block text-sm font-medium">
           Via e Nr. <span className="text-red-500">*</span>
         </label>
@@ -121,24 +269,66 @@ export function MembershipForm() {
           id="address"
           type="text"
           required
+          autoComplete="off"
+          placeholder="Inizia a digitare per cercare..."
           value={data.address}
-          onChange={(e) => update('address', e.target.value)}
+          onChange={(e) => {
+            update('address', e.target.value)
+            setShowSuggestions(true)
+          }}
+          onFocus={() => setShowSuggestions(true)}
+          onKeyDown={handleAddressKeyDown}
           className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
+        {showSuggestions && suggestions.length > 0 && (
+          <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded border border-gray-200 bg-white shadow-lg">
+            {suggestions.map((s, i) => (
+              <li key={i}>
+                <button
+                  type="button"
+                  onClick={() => selectAddress(s)}
+                  className={`flex w-full items-baseline gap-2 px-3 py-2 text-left text-sm ${
+                    i === activeIndex ? 'bg-blue-50' : 'hover:bg-blue-50'
+                  }`}
+                >
+                  <span className="font-medium">{s.street}</span>
+                  <span className="text-gray-400">{s.zip} {s.city}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
-      <div>
-        <label htmlFor="city" className="mb-1 block text-sm font-medium">
-          NPA e Domicilio <span className="text-red-500">*</span>
-        </label>
-        <input
-          id="city"
-          type="text"
-          required
-          value={data.city}
-          onChange={(e) => update('city', e.target.value)}
-          className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
+      <div className="grid gap-6 sm:grid-cols-[8rem_1fr]">
+        <div>
+          <label htmlFor="zip" className="mb-1 block text-sm font-medium">
+            NPA <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="zip"
+            type="text"
+            required
+            placeholder="6900"
+            value={data.zip}
+            onChange={(e) => update('zip', e.target.value)}
+            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label htmlFor="city" className="mb-1 block text-sm font-medium">
+            Domicilio <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="city"
+            type="text"
+            required
+            placeholder="Lugano"
+            value={data.city}
+            onChange={(e) => update('city', e.target.value)}
+            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
@@ -163,8 +353,9 @@ export function MembershipForm() {
             id="phone"
             type="tel"
             required
+            placeholder="+41 79 123 45 67"
             value={data.phone}
-            onChange={(e) => update('phone', e.target.value)}
+            onChange={(e) => update('phone', formatPhone(e.target.value))}
             className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
