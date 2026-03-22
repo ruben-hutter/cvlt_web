@@ -3,6 +3,7 @@ export const revalidate = 60 // rebuild page every 60 seconds
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { TwintButton } from './components/TwintButton'
 
 function getThumbnailUrl(article: any): string | null {
   if (article.thumbnail && typeof article.thumbnail === 'object') {
@@ -53,8 +54,9 @@ export default async function HomePage() {
           <h1 className="text-4xl font-bold text-white sm:text-5xl">
             Club Volo Libero Ticino
           </h1>
-          <p className="mt-3 text-lg text-cvlt-gray-200 sm:text-xl">
-            Parapendio in Ticino dal 1988
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-gray-300 sm:text-lg">
+            La nostra associazione si prefigge di riunire gli amanti del volo libero,
+            di promuovere questo sport e rappresentare i parapendisti e i deltisti verso le autorità.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -128,51 +130,78 @@ export default async function HomePage() {
             )}
           </section>
 
-          {/* Sidebar: upcoming events */}
-          <aside>
-            <h2 className="text-lg font-bold text-cvlt-gray-900">Prossimi eventi</h2>
-            {events.docs.length === 0 ? (
-              <p className="mt-4 text-sm text-cvlt-gray-500">Nessun evento in programma.</p>
-            ) : (
-              <ul className="mt-4 space-y-3">
-                {events.docs.map((event) => (
-                  <li
-                    key={event.id}
-                    className="rounded-lg border border-cvlt-gray-200 p-3"
-                  >
-                    <time className="text-xs font-medium text-cvlt-blue">
-                      {new Date(event.startDate).toLocaleDateString('it-CH', {
-                        day: 'numeric',
-                        month: 'short',
-                      })}
-                      {event.endDate && (
-                        <> – {new Date(event.endDate).toLocaleDateString('it-CH', {
+          {/* Sidebar */}
+          <aside className="space-y-8">
+            {/* Upcoming events */}
+            <div>
+              <h2 className="text-lg font-bold text-cvlt-gray-900">Prossimi eventi</h2>
+              {events.docs.length === 0 ? (
+                <p className="mt-4 text-sm text-cvlt-gray-500">Nessun evento in programma.</p>
+              ) : (
+                <ul className="mt-4 space-y-3">
+                  {events.docs.map((event) => (
+                    <li
+                      key={event.id}
+                      className="rounded-lg border border-cvlt-gray-200 p-3"
+                    >
+                      <time className="text-xs font-medium text-cvlt-blue">
+                        {new Date(event.startDate).toLocaleDateString('it-CH', {
                           day: 'numeric',
                           month: 'short',
-                        })}</>
+                        })}
+                        {event.endDate && (
+                          <> – {new Date(event.endDate).toLocaleDateString('it-CH', {
+                            day: 'numeric',
+                            month: 'short',
+                          })}</>
+                        )}
+                      </time>
+                      <h3 className="mt-1 text-sm font-semibold text-cvlt-gray-900">
+                        {event.title}
+                      </h3>
+                      {event.location && (
+                        <p className="mt-0.5 text-xs text-cvlt-gray-500">{event.location}</p>
                       )}
-                    </time>
-                    <h3 className="mt-1 text-sm font-semibold text-cvlt-gray-900">
-                      {event.title}
-                    </h3>
-                    {event.location && (
-                      <p className="mt-0.5 text-xs text-cvlt-gray-500">{event.location}</p>
-                    )}
-                    {event.status === 'tentative' && (
-                      <span className="mt-1 inline-block rounded bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700">
-                        Provvisorio
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Link
-              href="/calendario"
-              className="mt-4 inline-block text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
-            >
-              Vedi calendario &rarr;
-            </Link>
+                      {event.status === 'tentative' && (
+                        <span className="mt-1 inline-block rounded bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700">
+                          Provvisorio
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Link
+                href="/calendario"
+                className="mt-4 inline-block text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
+              >
+                Vedi calendario &rarr;
+              </Link>
+            </div>
+
+            {/* Twint donations */}
+            <div className="rounded-lg border border-cvlt-gray-200 p-4">
+              <h2 className="text-lg font-bold text-cvlt-gray-900">Sostienici</h2>
+              <div className="mt-4 space-y-5">
+                <div>
+                  <p className="text-sm text-cvlt-gray-700">
+                    Voli nella Svizzera italiana ma non sei socio?
+                    Aiutaci con un Twint di 5.– CHF a mantenere decolli e atterraggi.
+                  </p>
+                  <div className="mt-2">
+                    <TwintButton solutionId="kcmhc" />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-cvlt-gray-700">
+                    Versa la quota sociale con Twint:
+                  </p>
+                  <div className="mt-2">
+                    <TwintButton solutionId="yjfqp" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </aside>
         </div>
       </div>

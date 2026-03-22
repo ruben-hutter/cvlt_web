@@ -17,3 +17,7 @@
 - [x] After subscription, send in confermation mail also the filled in data (probably you can take the same you send to us) so that the user has a copy of it and can check if everything is correct and if not, contact us to change it.
 - [ ] Preview bozze (notizie ed eventualmente anche eventi) prima di pubblicarle -> button in payload
     - Ancora meglio sarebbe una split view con a sinistra la form e a destra la preview, che si aggiorna in tempo reale mentre si scrive
+- [ ] Nuovo logo se approvato e aggiornare paletta colori
+- [ ] Link whatsapp community
+    - Check permissions to enter -> admin approval since the link is on the website
+- [ ] Immagine piccola per il tab del browser
