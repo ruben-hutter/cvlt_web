@@ -19,7 +19,11 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-cvlt-gray-200 bg-white/95 backdrop-blur-sm">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
-          <span className="text-2xl font-bold tracking-tight text-cvlt-blue">CVLT</span>
+          <img
+            src="/logo_CVLT.png"
+            alt="CVLT"
+            className="h-10 w-auto"
+          />
         </Link>
 
         {/* Desktop nav */}
