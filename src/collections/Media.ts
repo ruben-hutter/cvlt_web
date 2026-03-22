@@ -12,12 +12,28 @@ export const Media: CollectionConfig = {
     read: () => true,
     delete: isAdmin,
   },
+  hooks: {
+    beforeValidate: [
+      ({ data, req }) => {
+        if (data && !data.alt) {
+          // Use the uploaded filename (without extension) as alt text
+          const filename = data.filename || req?.file?.name || ''
+          if (filename) {
+            data.alt = filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
+          }
+        }
+        return data
+      },
+    ],
+  },
   fields: [
     {
       name: 'alt',
       type: 'text',
       label: 'Testo alternativo',
-      required: true,
+      admin: {
+        description: 'Se lasciato vuoto, verrà usato il nome del file.',
+      },
     },
   ],
 }

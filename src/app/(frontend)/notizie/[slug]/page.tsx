@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { NewsLayout } from '../../components/RichTextImage'
+import { ArticleLightbox } from '../../components/ArticleLightbox'
 import type { Metadata } from 'next'
 
 type Args = { params: Promise<{ slug: string }> }
@@ -53,6 +54,18 @@ export default async function NewsArticlePage({ params }: Args) {
     ? article.relatedEvent
     : null
 
+  // Collect all image URLs from layout blocks for lightbox
+  const allImages: string[] = []
+  for (const block of (article.layout as any[]) || []) {
+    if (block.blockType === 'image' && block.image?.url) allImages.push(block.image.url)
+    if (block.blockType === 'textImage' && block.image?.url) allImages.push(block.image.url)
+    if (block.blockType === 'gallery') {
+      for (const item of block.images || []) {
+        if (item.image?.url) allImages.push(item.image.url)
+      }
+    }
+  }
+
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
       <Link
@@ -77,9 +90,11 @@ export default async function NewsArticlePage({ params }: Args) {
           </time>
           <h1 className="mt-2 text-3xl font-bold text-cvlt-gray-900">{article.title}</h1>
 
-          <div className="mt-8">
-            <NewsLayout blocks={article.layout as any} />
-          </div>
+          <ArticleLightbox images={allImages}>
+            <div className="mt-8">
+              <NewsLayout blocks={article.layout as any} />
+            </div>
+          </ArticleLightbox>
         </article>
 
         {/* Sidebar: related event */}
@@ -89,7 +104,12 @@ export default async function NewsArticlePage({ params }: Args) {
               <h3 className="text-xs font-semibold uppercase tracking-wide text-cvlt-blue-dark">
                 Evento collegato
               </h3>
-              <h4 className="mt-2 text-lg font-semibold text-cvlt-gray-900">{relatedEvent.title}</h4>
+              <Link
+                href={`/calendario/${relatedEvent.id}`}
+                className="mt-2 block text-lg font-semibold text-cvlt-gray-900 transition-colors hover:text-cvlt-blue"
+              >
+                {relatedEvent.title}
+              </Link>
 
               <dl className="mt-4 space-y-2 text-sm">
                 <div>
@@ -109,14 +129,23 @@ export default async function NewsArticlePage({ params }: Args) {
                     )}
                   </dd>
                 </div>
-                {relatedEvent.backupDate && (
+                {relatedEvent.backupStartDate && (
                   <div>
                     <dt className="font-medium text-cvlt-gray-500">Data di riserva</dt>
-                    <dd className="text-cvlt-gray-900">{new Date(relatedEvent.backupDate).toLocaleDateString('it-CH', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}</dd>
+                    <dd className="text-cvlt-gray-900">
+                      {new Date(relatedEvent.backupStartDate).toLocaleDateString('it-CH', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                      {relatedEvent.backupEndDate && (
+                        <> — {new Date(relatedEvent.backupEndDate).toLocaleDateString('it-CH', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })}</>
+                      )}
+                    </dd>
                   </div>
                 )}
                 {relatedEvent.location && (

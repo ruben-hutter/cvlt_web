@@ -10,7 +10,8 @@ type Event = {
   title: string
   startDate: string
   endDate?: string | null
-  backupDate?: string | null
+  backupStartDate?: string | null
+  backupEndDate?: string | null
   location?: string | null
   status: 'confirmed' | 'tentative' | 'cancelled'
   externalLink?: string | null
@@ -82,10 +83,15 @@ function EventDetail({ event, onClose }: { event: Event; onClose: () => void }) 
             )}
           </dd>
         </div>
-        {event.backupDate && (
+        {event.backupStartDate && (
           <div className="flex gap-2">
             <dt className="font-medium text-gray-500">Data di riserva:</dt>
-            <dd>{new Date(event.backupDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
+            <dd>
+              {new Date(event.backupStartDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {event.backupEndDate && (
+                <> — {new Date(event.backupEndDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}</>
+              )}
+            </dd>
           </div>
         )}
         {event.location && (
@@ -106,13 +112,22 @@ function EventDetail({ event, onClose }: { event: Event; onClose: () => void }) 
         )}
       </dl>
 
+      <div className="mt-4 border-t border-gray-100 pt-4">
+        <Link
+          href={`/calendario/${event.id}`}
+          className="inline-flex items-center gap-1 text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
+        >
+          Pagina evento &rarr;
+        </Link>
+      </div>
+
       {event.relatedNews.length > 0 && (
         <div className="mt-4 border-t border-gray-100 pt-4">
           <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Notizie collegate</h4>
           <ul className="mt-2 space-y-1">
             {event.relatedNews.map((news) => (
               <li key={news.slug}>
-                <Link href={`/notizie/${news.slug}`} className="text-sm text-blue-600 hover:underline">
+                <Link href={`/notizie/${news.slug}`} className="text-sm text-cvlt-blue hover:underline">
                   {news.title}
                 </Link>
               </li>

@@ -46,6 +46,13 @@ export default async function HomePage() {
     limit: 3,
   })
 
+  const albums = await payload.find({
+    collection: 'photo-albums',
+    sort: '-date',
+    limit: 4,
+    depth: 1,
+  })
+
   return (
     <main>
       {/* Hero */}
@@ -204,6 +211,58 @@ export default async function HomePage() {
             </div>
           </aside>
         </div>
+
+        {/* Gallery teaser */}
+        {albums.docs.length > 0 && (
+          <section className="mt-12">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-cvlt-gray-900">Galleria</h2>
+              <Link
+                href="/galleria"
+                className="text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
+              >
+                Tutti gli album &rarr;
+              </Link>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {albums.docs.map((album) => {
+                const cover = album.photos?.[0]
+                const coverUrl = typeof cover === 'object' && cover?.url ? cover.url : null
+                return (
+                  <Link
+                    key={album.id}
+                    href={`/galleria/${album.id}`}
+                    className="group overflow-hidden rounded-lg border border-cvlt-gray-200 transition-all hover:border-cvlt-blue/30 hover:shadow-lg"
+                  >
+                    {coverUrl ? (
+                      <div className="aspect-[4/3] overflow-hidden bg-cvlt-gray-100">
+                        <img
+                          src={coverUrl}
+                          alt={album.title}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex aspect-[4/3] items-center justify-center bg-cvlt-gray-100">
+                        <svg className="h-8 w-8 text-cvlt-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="p-3">
+                      <h3 className="text-sm font-semibold text-cvlt-gray-900 group-hover:text-cvlt-blue">
+                        {album.title}
+                      </h3>
+                      <p className="mt-0.5 text-xs text-cvlt-gray-500">
+                        {album.photos?.length || 0} foto
+                      </p>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </section>
+        )}
       </div>
     </main>
   )

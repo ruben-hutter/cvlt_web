@@ -65,10 +65,22 @@ export const Events: CollectionConfig = {
       },
     },
     {
-      name: 'backupDate',
+      name: 'backupStartDate',
       type: 'date',
-      label: 'Data di riserva',
+      label: 'Data di riserva (inizio)',
       admin: {
+        date: {
+          pickerAppearance: 'dayOnly',
+          displayFormat: 'dd/MM/yyyy',
+        },
+      },
+    },
+    {
+      name: 'backupEndDate',
+      type: 'date',
+      label: 'Data di riserva (fine)',
+      admin: {
+        description: 'Lasciare vuoto se la data di riserva è di un solo giorno.',
         date: {
           pickerAppearance: 'dayOnly',
           displayFormat: 'dd/MM/yyyy',

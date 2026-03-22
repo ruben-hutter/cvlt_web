@@ -1,0 +1,130 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+
+type Album = {
+  id: string | number
+  title: string
+  date: string
+  coverUrl: string | null
+  photoCount: number
+}
+
+export function GalleryFilter({ albums }: { albums: Album[] }) {
+  const [search, setSearch] = useState('')
+  const [selectedYear, setSelectedYear] = useState<number | null>(null)
+
+  // Collect all years
+  const years = [...new Set(albums.map((a) => new Date(a.date).getFullYear()))].sort((a, b) => b - a)
+
+  // Filter albums
+  const filtered = albums.filter((a) => {
+    const year = new Date(a.date).getFullYear()
+    if (selectedYear && year !== selectedYear) return false
+    if (search && !a.title.toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  })
+
+  // Group by year
+  const grouped = new Map<number, Album[]>()
+  for (const album of filtered) {
+    const year = new Date(album.date).getFullYear()
+    if (!grouped.has(year)) grouped.set(year, [])
+    grouped.get(year)!.push(album)
+  }
+  const sortedYears = [...grouped.keys()].sort((a, b) => b - a)
+
+  return (
+    <div>
+      {/* Search + year filter */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <svg
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cvlt-gray-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Cerca album..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-md border border-cvlt-gray-200 py-2 pl-10 pr-3 text-sm focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+          />
+        </div>
+        <select
+          value={selectedYear ?? ''}
+          onChange={(e) => setSelectedYear(e.target.value ? Number(e.target.value) : null)}
+          className="rounded-md border border-cvlt-gray-200 px-3 py-2 text-sm text-cvlt-gray-700 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+        >
+          <option value="">Tutti gli anni</option>
+          {years.map((year) => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Results */}
+      {filtered.length === 0 ? (
+        <p className="mt-8 text-cvlt-gray-500">Nessun album trovato.</p>
+      ) : (
+        <div className="mt-8 space-y-12">
+          {sortedYears.map((year) => {
+            const yearAlbums = grouped.get(year)!
+            return (
+              <section key={year}>
+                <h2 className="text-xl font-bold text-cvlt-gray-900">{year}</h2>
+                <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {yearAlbums.map((album) => (
+                    <Link
+                      key={album.id}
+                      href={`/galleria/${album.id}`}
+                      className="group overflow-hidden rounded-lg border border-cvlt-gray-200 transition-all hover:border-cvlt-blue/30 hover:shadow-lg"
+                    >
+                      {album.coverUrl ? (
+                        <div className="aspect-[16/10] overflow-hidden bg-cvlt-gray-100">
+                          <img
+                            src={album.coverUrl}
+                            alt={album.title}
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex aspect-[16/10] items-center justify-center bg-cvlt-gray-100">
+                          <svg className="h-10 w-10 text-cvlt-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <h3 className="text-base font-semibold text-cvlt-gray-900 group-hover:text-cvlt-blue">
+                          {album.title}
+                        </h3>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-cvlt-gray-500">
+                          <time>
+                            {new Date(album.date).toLocaleDateString('it-CH', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric',
+                            })}
+                          </time>
+                          <span>&middot;</span>
+                          <span>{album.photoCount} foto</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}

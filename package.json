@@ -24,7 +24,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sharp": "^0.32.6",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.2.2",
+    "yet-another-react-lightbox": "^3.29.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

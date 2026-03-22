@@ -32,6 +32,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/galleria" className="transition-colors hover:text-white">
+                  Galleria
+                </Link>
+              </li>
+              <li>
                 <Link href="/adesione" className="transition-colors hover:text-white">
                   Adesione
                 </Link>

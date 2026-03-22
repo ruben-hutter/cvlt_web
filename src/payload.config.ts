@@ -28,6 +28,7 @@ import { Events } from './collections/Events'
 import { Media } from './collections/Media'
 import { MembershipSubmissions } from './collections/MembershipSubmissions'
 import { News } from './collections/News'
+import { PhotoAlbums } from './collections/PhotoAlbums'
 import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -42,7 +43,7 @@ export default buildConfig({
       afterNavLinks: ['@/app/(payload)/components/LogoutLink#LogoutLink'],
     },
   },
-  collections: [News, Events, MembershipSubmissions, Media, Users],
+  collections: [News, Events, PhotoAlbums, MembershipSubmissions, Media, Users],
   db: sqliteAdapter({
     client: {
       url: process.env.DATABASE_URI || 'file:./db/payload.db',

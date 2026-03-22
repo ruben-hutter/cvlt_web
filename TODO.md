@@ -21,3 +21,11 @@
 - [ ] Link whatsapp community
     - Check permissions to enter -> admin approval since the link is on the website
 - [ ] Immagine piccola per il tab del browser
+- [ ] Pagina quota sociale con cedolino e twint
+- [ ] Add possibility for users to add pictures to the gallery (with admin approval)
+    - Limit uploaded images
+    - DDOS protection
+- [ ] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
+    - If possible already put them in the right albums
+- [ ] News entry pushed to facebook page automatically. If possible it would be nice if also an instagram post could be created.
+- [ ] TMA Locarno from facebook page. Take a look how it is done on the old website.
