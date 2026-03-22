@@ -1,26 +1,14 @@
 # TODOs
 
 - [~] Cambiare indirizzo mail in `.env` a quello di Roti per production (formulario d'adesione)
-- [ ] Home page: News section, calendario miniatura o così, qualche info sul club, twint donazioni, ... (guardare sito swissleague.ch per ispirazione)
-    - Anche per le foto / galleria potrebbe esserci una libreria interessante usata da swissleague.ch
-- [x] Frecce ("Tutte le notizie") magari meglio con fontawesome o così, e non con testo
-- [x] Design sito! Colori, font, effetti hover, ...
-- [x] Consistenza lingua in payload -> italiano (labels su tutti i campi)
-- [x] Check valid email in form, autocomplete address (google maps i guess), check valid phone number ("format" it with spaces automatically: +41 79 123 45 67)
-- [x] Enforce password strength for users (min 8 chars, maiuscola, minuscola, numero)
 - [~] News tags: rimossi per ora, da riaggiungere se necessario
-- [x] Show name for author and not email.
-- [x] Thumbnail should be shown in news list and also on home page. If there is no thumbnail but in the news there is an image, use that as thumbnail.
-- [ ] Calendario: evento su più giorni dovrebbe avere data di riserva anche per più giorni.
-- [x] Created By -> Creato da, Author -> Autore, tutti i campi in italiano
+- [ ] Calendario: eventi su più giorni come barra continua, mostrare data di riserva nel calendario, legenda colori
 - [ ] Check password reset
-- [x] After subscription, send in confermation mail also the filled in data (probably you can take the same you send to us) so that the user has a copy of it and can check if everything is correct and if not, contact us to change it.
 - [ ] Preview bozze (notizie ed eventualmente anche eventi) prima di pubblicarle -> button in payload
     - Ancora meglio sarebbe una split view con a sinistra la form e a destra la preview, che si aggiorna in tempo reale mentre si scrive
 - [ ] Nuovo logo se approvato e aggiornare paletta colori
 - [ ] Link whatsapp community
     - Check permissions to enter -> admin approval since the link is on the website
-- [ ] Immagine piccola per il tab del browser
 - [ ] Pagina quota sociale con cedolino e twint
 - [ ] Add possibility for users to add pictures to the gallery (with admin approval)
     - Limit uploaded images
