@@ -3,9 +3,8 @@
 ## High priority
 
 - [x] Calendario: eventi su più giorni come barra continua, mostrare data di riserva nel calendario, legenda colori
-- [~] Preview bozze (notizie ed eventualmente anche eventi) prima di pubblicarle -> button in payload
-    - Ancora meglio sarebbe una split view con a sinistra la form e a destra la preview, che si aggiorna in tempo reale mentre si scrive
-- [ ] Cambiare indirizzo mail in `.env` a quello di Roti per production (formulario d'adesione)
+- [x] Preview bozze (notizie) con live preview panel in Payload admin
+- [x] Cambiare indirizzo mail in `.env` a quello di Roti per production (formulario d'adesione)
 - [ ] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
     - If possible already put them in the right albums
 
