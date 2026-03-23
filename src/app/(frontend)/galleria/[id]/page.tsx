@@ -73,15 +73,16 @@ export default async function AlbumPage({ params }: Args) {
           <span>&middot;</span>
           <span>{photos.length} foto</span>
           {relatedEvent && (
-            <>
-              <span>&middot;</span>
-              <Link
-                href={`/calendario/${relatedEvent.id}`}
-                className="font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
-              >
-                {relatedEvent.title}
-              </Link>
-            </>
+            <Link
+              href={`/calendario/${relatedEvent.id}`}
+              className="inline-flex items-center gap-1 rounded-full bg-cvlt-blue-light px-2.5 py-0.5 font-medium text-cvlt-blue transition-colors hover:bg-cvlt-blue hover:text-white"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+              </svg>
+              {relatedEvent.title}
+            </Link>
           )}
         </div>
       </div>

@@ -33,7 +33,7 @@ export default async function HomePage() {
     },
     sort: '-publishDate',
     limit: 5,
-    depth: 1,
+    depth: 2,
   })
 
   const events = await payload.find({
@@ -112,12 +112,15 @@ export default async function HomePage() {
               <div className="mt-6 space-y-4">
                 {news.docs.map((article) => {
                   const thumb = getThumbnailUrl(article)
+                  const event = article.relatedEvent && typeof article.relatedEvent === 'object'
+                    ? article.relatedEvent : null
                   return (
-                    <Link
+                    <div
                       key={article.id}
-                      href={`/notizie/${article.slug}`}
-                      className="group flex gap-4 rounded-lg border border-cvlt-gray-200 p-4 transition-all hover:border-cvlt-blue/30 hover:shadow-md"
+                      className="group relative flex gap-4 rounded-lg border border-cvlt-gray-200 p-4 transition-all hover:border-cvlt-blue/30 hover:shadow-md"
                     >
+                      {/* Full-card link overlay */}
+                      <Link href={`/notizie/${article.slug}`} className="absolute inset-0 z-0" aria-hidden="true" />
                       {thumb && (
                         <img
                           src={thumb}
@@ -125,10 +128,10 @@ export default async function HomePage() {
                           width={72}
                           height={72}
                           style={{ width: 72, height: 72, objectFit: 'cover', flexShrink: 0 }}
-                          className="rounded-md"
+                          className="relative rounded-md"
                         />
                       )}
-                      <div className="min-w-0">
+                      <div className="relative min-w-0">
                         <time className="text-xs font-medium text-cvlt-gray-500">
                           {new Date(article.publishDate).toLocaleDateString('it-CH', {
                             day: 'numeric',
@@ -139,8 +142,20 @@ export default async function HomePage() {
                         <h3 className="mt-1 text-base font-semibold text-cvlt-gray-900 group-hover:text-cvlt-blue">
                           {article.title}
                         </h3>
+                        {event && (
+                          <Link
+                            href={`/calendario/${event.id}`}
+                            className="relative z-10 mt-1.5 inline-flex items-center gap-1 rounded-full bg-cvlt-blue-light px-2 py-0.5 text-xs font-medium text-cvlt-blue transition-colors hover:bg-cvlt-blue hover:text-white"
+                          >
+                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+                            </svg>
+                            {event.title}
+                          </Link>
+                        )}
                       </div>
-                    </Link>
+                    </div>
                   )
                 })}
               </div>
@@ -199,24 +214,20 @@ export default async function HomePage() {
             {/* Twint donations */}
             <div className="rounded-lg border border-cvlt-gray-200 p-4">
               <h2 className="text-lg font-bold text-cvlt-gray-900">Sostienici</h2>
-              <div className="mt-4 space-y-5">
-                <div>
-                  <p className="text-sm text-cvlt-gray-700">
-                    Voli nella Svizzera italiana ma non sei socio?
-                    Aiutaci con un Twint di 5.– CHF a mantenere decolli e atterraggi.
-                  </p>
-                  <div className="mt-2">
-                    <TwintButton solutionId="kcmhc" />
-                  </div>
+              <div className="mt-4">
+                <p className="text-sm text-cvlt-gray-700">
+                  Voli nella Svizzera italiana ma non sei socio?
+                  Aiutaci con un Twint di 5.– CHF a mantenere decolli e atterraggi.
+                </p>
+                <div className="mt-2">
+                  <TwintButton solutionId="kcmhc" />
                 </div>
-                <div>
-                  <p className="text-sm text-cvlt-gray-700">
-                    Versa la quota sociale con Twint:
-                  </p>
-                  <div className="mt-2">
-                    <TwintButton solutionId="yjfqp" />
-                  </div>
-                </div>
+                <Link
+                  href="/quota-sociale"
+                  className="mt-4 inline-block text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
+                >
+                  Pagamento quota sociale &rarr;
+                </Link>
               </div>
             </div>
           </aside>

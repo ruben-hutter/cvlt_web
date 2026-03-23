@@ -81,14 +81,41 @@ export default async function NewsArticlePage({ params }: Args) {
       <div className="mt-8 flex flex-col gap-10 lg:flex-row">
         {/* Article */}
         <article className="min-w-0 flex-1">
-          <time className="text-sm font-medium text-cvlt-gray-500">
-            {new Date(article.publishDate).toLocaleDateString('it-CH', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-          </time>
-          <h1 className="mt-2 text-3xl font-bold text-cvlt-gray-900">{article.title}</h1>
+          <h1 className="text-3xl font-bold text-cvlt-gray-900">{article.title}</h1>
+
+          {/* Metadata row: author, date, event tag */}
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-cvlt-gray-500">
+            {article.author && typeof article.author === 'object' && article.author.name && (
+              <span className="inline-flex items-center gap-1.5">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0" />
+                </svg>
+                {article.author.name}
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1.5">
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+              </svg>
+              {new Date(article.publishDate).toLocaleDateString('it-CH', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </span>
+            {relatedEvent && (
+              <Link
+                href={`/calendario/${relatedEvent.id}`}
+                className="inline-flex items-center gap-1.5 rounded-full bg-cvlt-blue-light px-2.5 py-0.5 font-medium text-cvlt-blue transition-colors hover:bg-cvlt-blue hover:text-white"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+                </svg>
+                {relatedEvent.title}
+              </Link>
+            )}
+          </div>
 
           <ArticleLightbox images={allImages}>
             <div className="mt-8">
