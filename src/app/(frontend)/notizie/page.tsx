@@ -21,21 +21,27 @@ function getThumbnailUrl(article: any): string | null {
 }
 
 export default async function NewsPage() {
-  const payload = await getPayload({ config })
+  let news = { docs: [] as any[] }
 
-  const endOfToday = new Date()
-  endOfToday.setHours(23, 59, 59, 999)
+  try {
+    const payload = await getPayload({ config })
 
-  const news = await payload.find({
-    collection: 'news',
-    where: {
-      status: { equals: 'published' },
-      publishDate: { less_than_equal: endOfToday.toISOString() },
-    },
-    sort: '-publishDate',
-    limit: 50,
-    depth: 2,
-  })
+    const endOfToday = new Date()
+    endOfToday.setHours(23, 59, 59, 999)
+
+    news = await payload.find({
+      collection: 'news',
+      where: {
+        status: { equals: 'published' },
+        publishDate: { less_than_equal: endOfToday.toISOString() },
+      },
+      sort: '-publishDate',
+      limit: 50,
+      depth: 2,
+    })
+  } catch (e) {
+    console.warn('[NOTIZIE] DB query failed (build-time prerender?)', e)
+  }
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">

@@ -39,9 +39,6 @@ export default buildConfig({
   graphQL: { disable: true },
   admin: {
     user: Users.slug,
-    components: {
-      afterNavLinks: ['@/app/(payload)/components/LogoutLink#LogoutLink'],
-    },
     livePreview: {
       url: ({ data, collectionConfig }) => {
         const base = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'

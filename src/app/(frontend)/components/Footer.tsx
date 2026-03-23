@@ -37,6 +37,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/comitato" className="transition-colors hover:text-white">
+                  Comitato
+                </Link>
+              </li>
+              <li>
                 <Link href="/adesione" className="transition-colors hover:text-white">
                   Adesione
                 </Link>

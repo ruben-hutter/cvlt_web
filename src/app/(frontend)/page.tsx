@@ -19,39 +19,47 @@ function getThumbnailUrl(article: any): string | null {
 }
 
 export default async function HomePage() {
-  const payload = await getPayload({ config })
+  let news = { docs: [] as any[] }
+  let events = { docs: [] as any[] }
+  let albums = { docs: [] as any[] }
 
-  // Use end of today to include all articles published "today"
-  const endOfToday = new Date()
-  endOfToday.setHours(23, 59, 59, 999)
+  try {
+    const payload = await getPayload({ config })
 
-  const news = await payload.find({
-    collection: 'news',
-    where: {
-      status: { equals: 'published' },
-      publishDate: { less_than_equal: endOfToday.toISOString() },
-    },
-    sort: '-publishDate',
-    limit: 5,
-    depth: 2,
-  })
+    // Use end of today to include all articles published "today"
+    const endOfToday = new Date()
+    endOfToday.setHours(23, 59, 59, 999)
 
-  const events = await payload.find({
-    collection: 'events',
-    where: {
-      startDate: { greater_than_equal: new Date().toISOString() },
-      status: { not_equals: 'cancelled' },
-    },
-    sort: 'startDate',
-    limit: 3,
-  })
+    news = await payload.find({
+      collection: 'news',
+      where: {
+        status: { equals: 'published' },
+        publishDate: { less_than_equal: endOfToday.toISOString() },
+      },
+      sort: '-publishDate',
+      limit: 5,
+      depth: 2,
+    })
 
-  const albums = await payload.find({
-    collection: 'photo-albums',
-    sort: '-date',
-    limit: 4,
-    depth: 1,
-  })
+    events = await payload.find({
+      collection: 'events',
+      where: {
+        startDate: { greater_than_equal: new Date().toISOString() },
+        status: { not_equals: 'cancelled' },
+      },
+      sort: 'startDate',
+      limit: 3,
+    })
+
+    albums = await payload.find({
+      collection: 'photo-albums',
+      sort: '-date',
+      limit: 4,
+      depth: 1,
+    })
+  } catch (e) {
+    console.warn('[HOME] DB query failed (build-time prerender?)', e)
+  }
 
   return (
     <main>

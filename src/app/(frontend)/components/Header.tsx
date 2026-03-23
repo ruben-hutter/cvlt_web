@@ -9,6 +9,7 @@ const navLinks = [
   { href: '/calendario', label: 'Calendario' },
   { href: '/galleria', label: 'Galleria' },
   { href: '/info-volo', label: 'Info volo' },
+  { href: '/comitato', label: 'Comitato' },
   { href: '/adesione', label: 'Adesione' },
 ]
 

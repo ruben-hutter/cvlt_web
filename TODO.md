@@ -8,6 +8,7 @@
 - [~] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
     - If possible already put them in the right albums
 - [x] Rotate keys following guide (`.env` hardened, PAYLOAD_SECRET rotated)
+- [ ] Understand "Forza Sblocco" button in Payload
 - [ ] 2FA for login to Payload admin
 
 ## Medium priority
@@ -17,9 +18,11 @@
     - [ ] Controllare / aggiornare link webcam
 - [ ] Check password reset
 - [ ] News entry pushed to facebook page automatically. If possible it would be nice if also an instagram post could be created.
+- [ ] Design with three columns is perfect. If a row has only one entry (or two), make the entry/entries center aligned. (ex. "comitato" page put biagio in the center)
 
 ## Low priority
 
+- [ ] In "comitato" page make persons containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Nuovo logo
     - Concorso per membri
     - Aspettare 40esimo anniversario per lanciarlo
@@ -35,6 +38,11 @@
 
 ## Done
 
+- [x] Comitato page with committee members grid
+- [x] Fix build: ISR with try/catch for non-dynamic pages, empty generateStaticParams for dynamic routes
+- [x] Remove custom LogoutLink (Payload has built-in logout)
+- [x] Build-time warning for missing NEXT_PUBLIC_SERVER_URL
+- [x] Fresh-start script (`scripts/fresh-start.sh`) for clean DB setup on server
 - [x] News: listing + article pages with Payload CMS
 - [x] Events / Calendar: calendar UI, event detail pages
 - [x] Membership form with email confirmation via Infomaniak SMTP
