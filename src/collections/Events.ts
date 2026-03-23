@@ -88,6 +88,17 @@ export const Events: CollectionConfig = {
       },
     },
     {
+      name: 'useBackupDate',
+      type: 'checkbox',
+      label: 'Spostato alla data di riserva',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Attivare se l\'evento si svolge alla data di riserva.',
+        condition: (data) => Boolean(data?.backupStartDate),
+      },
+    },
+    {
       name: 'location',
       type: 'text',
       label: 'Luogo / Punto di ritrovo',

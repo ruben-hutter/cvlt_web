@@ -53,6 +53,7 @@ export default async function CalendarPage() {
     location: e.location || null,
     status: e.status as 'confirmed' | 'tentative' | 'cancelled',
     externalLink: e.externalLink || null,
+    useBackupDate: Boolean(e.useBackupDate),
     relatedNews: newsByEvent.get(e.id as number) || [],
   }))
 
