@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "mkdir -p db media && payload migrate && payload generate:importmap && next build && cp -r .next/static .next/standalone/.next/static && ln -sf ../../db .next/standalone/db && ln -sf ../../media .next/standalone/media",
+    "build": "mkdir -p db media && payload migrate && payload generate:importmap && next build && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && ln -sf ../../db .next/standalone/db && ln -sf ../../media .next/standalone/media",
     "start": "node .next/standalone/server.js",
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap"
