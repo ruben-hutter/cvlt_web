@@ -18,6 +18,9 @@ db/
 # media uploads
 media/
 
+# seed data (contains passwords)
+seed/users.json
+
 # payload generated
 src/payload-types.ts
 src/app/(payload)/admin/importMap.js
