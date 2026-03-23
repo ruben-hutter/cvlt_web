@@ -1,4 +1,4 @@
-export const revalidate = 60 // rebuild page every 60 seconds
+export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { getPayload } from 'payload'

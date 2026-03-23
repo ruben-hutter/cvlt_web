@@ -8,6 +8,7 @@
 - [~] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
     - If possible already put them in the right albums
 - [x] Rotate keys following guide (`.env` hardened, PAYLOAD_SECRET rotated)
+- [ ] 2FA for login to Payload admin
 
 ## Medium priority
 
