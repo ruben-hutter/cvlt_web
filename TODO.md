@@ -5,13 +5,15 @@
 - [x] Calendario: eventi su più giorni come barra continua, mostrare data di riserva nel calendario, legenda colori
 - [x] Preview bozze (notizie) con live preview panel in Payload admin
 - [x] Cambiare indirizzo mail in `.env` a quello di Roti per production (formulario d'adesione)
-- [ ] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
+- [~] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
     - If possible already put them in the right albums
+- [x] Rotate keys following guide (`.env` hardened, PAYLOAD_SECRET rotated)
 
 ## Medium priority
 
-- [ ] Sezione info volo: pagina concisa con link a SHV e fonti ufficiali
-- [ ] TMA Locarno / CTR / AWY: una pagina con sezioni collassabili
+- [~] Sezione info volo + TMA/CTR/AWY (pagina creata, da controllare contenuti e webcam)
+    - [ ] Controllare contenuti CTR, TMA, AWY, Zone di tranquillità
+    - [ ] Controllare / aggiornare link webcam
 - [ ] Check password reset
 - [ ] News entry pushed to facebook page automatically. If possible it would be nice if also an instagram post could be created.
 
@@ -24,12 +26,17 @@
 - [ ] Add possibility for users to add pictures to the gallery (with admin approval)
     - Limit uploaded images
     - DDOS protection
+- [ ] Multiple languages (german, french, english)
+    - Maybe start with just the homepage and the news section
+    - Use i18n in Next.js
+    - Add language switcher in header
+    - Translate just static content at first, then maybe also news and events
 
 ## Done
 
 - [x] News: listing + article pages with Payload CMS
 - [x] Events / Calendar: calendar UI, event detail pages
-- [x] Membership form with email confirmation via Resend
+- [x] Membership form with email confirmation via Infomaniak SMTP
 - [x] Photo gallery with year/event filters, lightbox, bulk upload
 - [x] Homepage: hero, news teaser, events sidebar, gallery teaser, Twint donations
 - [x] News tags: event tag pill badges on news, gallery, homepage
