@@ -8,6 +8,10 @@
 - [~] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
     - If possible already put them in the right albums
 - [x] Rotate keys following guide (`.env` hardened, PAYLOAD_SECRET rotated)
+- [x] Include on the website https://vento.cvlt.ch/
+    - Native /vento page with live data from vento.cvlt.ch API
+    - [ ] Verify data matches the old vento.cvlt.ch page
+- [ ] Gallery is linked to Event, but tag is not shown in the gallery. No link to Event page as expected.
 - [ ] Understand "Forza Sblocco" button in Payload
 - [ ] 2FA for login to Payload admin
 
@@ -18,7 +22,7 @@
     - [ ] Controllare / aggiornare link webcam
 - [ ] Check password reset
 - [ ] News entry pushed to facebook page automatically. If possible it would be nice if also an instagram post could be created.
-- [ ] Design with three columns is perfect. If a row has only one entry (or two), make the entry/entries center aligned. (ex. "comitato" page put biagio in the center)
+- [x] Design with three columns is perfect. If a row has only one entry (or two), make the entry/entries center aligned. (ex. "comitato" page put biagio in the center)
 
 ## Low priority
 
@@ -35,9 +39,12 @@
     - Use i18n in Next.js
     - Add language switcher in header
     - Translate just static content at first, then maybe also news and events
+- [ ] Aggiungere pin cartina per luogo eventi
 
 ## Done
 
+- [x] Vento & Meteo page: native dashboard with live data from vento.cvlt.ch (wind stations, flight forecast, pressure, lakes)
+- [x] Comitato grid: center-align last row (flexbox)
 - [x] Comitato page with committee members grid
 - [x] Fix build: ISR with try/catch for non-dynamic pages, empty generateStaticParams for dynamic routes
 - [x] Remove custom LogoutLink (Payload has built-in logout)

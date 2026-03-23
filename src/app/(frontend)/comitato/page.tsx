@@ -57,11 +57,11 @@ export default function ComitatoPage() {
         Il comitato direttivo del Club Volo Libero Ticino.
       </p>
 
-      <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 flex flex-wrap justify-center gap-8">
         {members.map((member) => (
           <div
             key={member.name}
-            className="flex flex-col items-center rounded-lg border border-cvlt-gray-200 p-6 text-center transition-shadow hover:shadow-lg"
+            className="flex w-full flex-col items-center rounded-lg border border-cvlt-gray-200 p-6 text-center transition-shadow hover:shadow-lg sm:w-56 lg:w-60"
           >
             <Image
               src={member.image}

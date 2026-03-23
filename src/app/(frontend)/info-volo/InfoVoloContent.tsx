@@ -199,9 +199,41 @@ export function InfoVoloContent() {
         </div>
       </div>
 
-      {/* Meteo */}
+      {/* Vento CVLT */}
       <div className="mt-10">
-        <h2 className="text-xl font-bold text-cvlt-gray-900">Meteo</h2>
+        <h2 className="text-xl font-bold text-cvlt-gray-900">Meteo &amp; Vento</h2>
+        <a
+          href="/vento"
+          className="group mt-4 flex items-center gap-4 rounded-lg border-2 border-cvlt-blue/20 bg-cvlt-blue-light p-5 transition-all hover:border-cvlt-blue/40 hover:shadow-md"
+        >
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-cvlt-blue text-white">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-bold text-cvlt-gray-900 group-hover:text-cvlt-blue">
+              Vento CVLT
+            </h3>
+            <p className="text-sm text-cvlt-gray-600">
+              Stazioni meteo, radiosondaggi, pressione e dati BAFU/MCH in tempo reale per il Sud delle Alpi.
+            </p>
+          </div>
+          <svg
+            className="h-5 w-5 flex-shrink-0 text-cvlt-gray-400 transition-colors group-hover:text-cvlt-blue"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+          </svg>
+        </a>
+      </div>
+
+      {/* Altri link meteo */}
+      <div className="mt-10">
+        <h2 className="text-xl font-bold text-cvlt-gray-900">Altri link meteo</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <LinkCard
             title="MeteoSvizzera"
