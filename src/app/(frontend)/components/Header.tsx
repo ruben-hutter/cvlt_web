@@ -8,6 +8,7 @@ const navLinks = [
   { href: '/notizie', label: 'Notizie' },
   { href: '/calendario', label: 'Calendario' },
   { href: '/galleria', label: 'Galleria' },
+  { href: '/info-volo', label: 'Info volo' },
   { href: '/adesione', label: 'Adesione' },
 ]
 
