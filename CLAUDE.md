@@ -12,7 +12,7 @@ Deployed at `dev.cvlt.ch` during development. Built by Ruben with Claude.
 | Database | **SQLite** via `@payloadcms/db-sqlite` |
 | Styling | **Tailwind CSS** |
 | Runtime | **Node.js 24 LTS** |
-| Email | **Resend** (transactional, for membership form) |
+| Email | **Nodemailer** via Infomaniak SMTP (transactional, for membership form) |
 | Hosting | **Infomaniak** shared hosting (one Node.js process per site) — this is why Astro was dropped |
 
 > Astro was considered and dropped. Single Next.js + Payload app is the right fit for Infomaniak shared hosting.
