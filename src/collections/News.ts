@@ -191,6 +191,7 @@ export const News: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'publishDate', 'status'],
+    preview: (doc) => `/notizie/preview/${doc.id}`,
   },
   access: {
     read: () => true,

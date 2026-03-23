@@ -42,6 +42,21 @@ export default buildConfig({
     components: {
       afterNavLinks: ['@/app/(payload)/components/LogoutLink#LogoutLink'],
     },
+    livePreview: {
+      url: ({ data, collectionConfig }) => {
+        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+        if (collectionConfig?.slug === 'news') {
+          return `${base}/notizie/preview/${data.id}?live=true`
+        }
+        return base
+      },
+      collections: ['news'],
+      breakpoints: [
+        { label: 'Mobile', name: 'mobile', width: 375, height: 667 },
+        { label: 'Tablet', name: 'tablet', width: 768, height: 1024 },
+        { label: 'Desktop', name: 'desktop', width: 1440, height: 900 },
+      ],
+    },
   },
   collections: [News, Events, PhotoAlbums, MembershipSubmissions, Media, Users],
   db: sqliteAdapter({
