@@ -25,6 +25,9 @@ seed/users.json
 src/payload-types.ts
 src/app/(payload)/admin/importMap.js
 
+# typescript
+tsconfig.tsbuildinfo
+
 # nix / direnv
 .direnv/
 

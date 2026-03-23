@@ -3,13 +3,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { VentoData, WindStation, ForecastDay, LakeLevel } from '../api/vento/route'
 
-function WindArrow({ degrees, size = 20 }: { degrees: number; size?: number }) {
+function WindArrow({ degrees, size = 28 }: { degrees: number; size?: number }) {
   return (
     <svg
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      style={{ transform: `rotate(${degrees}deg)` }}
+      style={{ transform: `rotate(${(degrees + 180) % 360}deg)` }}
       className="inline-block"
     >
       <path d="M12 2 L8 14 L12 11 L16 14 Z" fill="currentColor" />
@@ -90,20 +90,6 @@ function StationCard({ station }: { station: WindStation }) {
           <span className="text-xs text-green-700">{station.cloudBase}</span>
         )}
       </div>
-
-      {station.graphUrl && (
-        <a
-          href={station.graphUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-1.5 inline-flex items-center gap-1 text-xs text-cvlt-blue hover:underline"
-        >
-          Grafico
-          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-4.5-6H18m0 0v4.5m0-4.5L10.5 13.5" />
-          </svg>
-        </a>
-      )}
     </div>
   )
 }
@@ -239,29 +225,36 @@ function PressureSection({ images }: { images: VentoData['images'] }) {
 
 function Legend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-cvlt-gray-500">
-      <span className="flex items-center gap-1.5">
-        <svg className="h-3.5 w-3.5 text-cvlt-gray-400" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z" />
-        </svg>
-        Vetta
-      </span>
-      <span className="flex items-center gap-1.5">
-        <svg className="h-3.5 w-3.5 text-cvlt-gray-300" viewBox="0 0 24 24" fill="currentColor">
-          <rect x="2" y="16" width="20" height="2" rx="1" />
-        </svg>
-        Fondovalle
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className="inline-block h-2.5 w-2.5 rounded-full border border-red-300 bg-red-50" />
-        <span className="text-red-600">&gt;15 km/h</span>
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className="inline-block h-2.5 w-2.5 rounded-full border border-amber-200 bg-amber-50" />
-        <span className="text-amber-600">5–15 km/h</span>
-      </span>
-      <span>Velocità media – raffica</span>
-    </div>
+    <aside className="hidden flex-shrink-0 lg:block lg:w-44">
+      <div className="sticky top-20 space-y-3 rounded-lg border border-cvlt-gray-200 p-4">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-cvlt-gray-400">Legenda</h3>
+        <div className="space-y-2.5 text-xs text-cvlt-gray-600">
+          <div className="flex items-center gap-2">
+            <svg className="h-3.5 w-3.5 flex-shrink-0 text-cvlt-gray-400" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z" />
+            </svg>
+            Vetta
+          </div>
+          <div className="flex items-center gap-2">
+            <svg className="h-3.5 w-3.5 flex-shrink-0 text-cvlt-gray-300" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="2" y="16" width="20" height="2" rx="1" />
+            </svg>
+            Fondovalle
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-red-300 bg-red-50" />
+            <span className="text-red-600">&gt;15 km/h</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-amber-200 bg-amber-50" />
+            <span className="text-amber-600">5–15 km/h</span>
+          </div>
+          <div className="pt-1 text-cvlt-gray-400">
+            Velocità media – raffica
+          </div>
+        </div>
+      </div>
+    </aside>
   )
 }
 
@@ -332,55 +325,35 @@ export function VentoClient() {
       )}
 
       {data && (
-        <div className="mt-8 space-y-10">
+        <div className="mt-8 flex gap-6">
+          <div className="min-w-0 flex-1 space-y-10">
+            <StationsSection title="Stazioni MeteoSwiss" timestamp={data.mch.timestamp} stations={data.mch.stations} />
+            <StationsSection title="Altre stazioni" timestamp={data.others.timestamp} stations={data.others.stations} />
+            <PressureSection images={data.images} />
+            <ForecastSection forecast={data.forecast} />
+            <LakesSection lakes={data.lakes} />
+
+            {/* Radiosondaggi link */}
+            <section>
+              <h2 className="text-lg font-bold text-cvlt-gray-900">Radiosondaggi</h2>
+              <p className="mt-2 text-sm text-cvlt-gray-600">
+                I radiosondaggi di Milano e Payerne sono disponibili su MeteoSvizzera.
+              </p>
+              <a
+                href="https://www.meteosvizzera.admin.ch/home/sistemi-di-rilevamento-e-previsione/atmosfera/radiosondaggi.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
+              >
+                Vai a MeteoSvizzera
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-4.5-6H18m0 0v4.5m0-4.5L10.5 13.5" />
+                </svg>
+              </a>
+            </section>
+          </div>
+
           <Legend />
-          <ForecastSection forecast={data.forecast} />
-          <StationsSection title="Stazioni MeteoSwiss" timestamp={data.mch.timestamp} stations={data.mch.stations} />
-          <StationsSection title="Altre stazioni" timestamp={data.others.timestamp} stations={data.others.stations} />
-          <PressureSection images={data.images} />
-          <LakesSection lakes={data.lakes} />
-
-          {/* Radiosondaggi link */}
-          <section>
-            <h2 className="text-lg font-bold text-cvlt-gray-900">Radiosondaggi</h2>
-            <p className="mt-2 text-sm text-cvlt-gray-600">
-              I radiosondaggi di Milano e Payerne sono disponibili su MeteoSvizzera.
-            </p>
-            <a
-              href="https://www.meteosvizzera.admin.ch/home/sistemi-di-rilevamento-e-previsione/atmosfera/radiosondaggi.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
-            >
-              Vai a MeteoSvizzera
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-4.5-6H18m0 0v4.5m0-4.5L10.5 13.5" />
-              </svg>
-            </a>
-          </section>
-
-          {/* Quick links */}
-          <section>
-            <h2 className="text-lg font-bold text-cvlt-gray-900">Link rapidi</h2>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {[
-                { label: 'DABS', href: 'https://www.skybriefing.com/it/dabs' },
-                { label: 'XContest Ticino Sud', href: 'https://www.xcontest.org/world/en/flights-search/?list[sort]=time_start&filter[point]=8.99918+46.12722&filter[radius]=30000&filter[mode]=START' },
-                { label: 'XContest Ticino Nord', href: 'https://www.xcontest.org/world/en/flights-search/?list[sort]=time_start&filter[point]=8.79333+46.45913&filter[radius]=25000&filter[mode]=START' },
-                { label: 'ATIS Locarno', href: 'tel:+41918161744' },
-              ].map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target={link.href.startsWith('tel:') ? undefined : '_blank'}
-                  rel={link.href.startsWith('tel:') ? undefined : 'noopener noreferrer'}
-                  className="rounded-full border border-cvlt-gray-200 px-3 py-1.5 text-xs font-medium text-cvlt-gray-700 transition-colors hover:border-cvlt-blue hover:text-cvlt-blue"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          </section>
         </div>
       )}
     </main>
