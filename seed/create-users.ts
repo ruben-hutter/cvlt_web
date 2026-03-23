@@ -19,6 +19,11 @@ const users: UserSeed[] = JSON.parse(readFileSync(usersFile, 'utf-8'))
 const payload = await getPayload({ config })
 
 for (const user of users) {
+  if (!user.email) {
+    console.log(`Skipping ${user.name} — no email`)
+    continue
+  }
+
   const existing = await payload.find({
     collection: 'users',
     where: { email: { equals: user.email } },
