@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Fresh start script for CVLT Web on Infomaniak.
-# Run this via SSH before the first build, or whenever you need to
-# reset the DB and start clean.
+# ⚠️  DESTRUCTIVE: Deletes the database and starts fresh.
+# Only use this for initial setup or when you intentionally want to wipe all data.
+#
+# For normal deploys, just run: npm run build && npm run start
+# The build script automatically backs up and migrates the DB.
 #
 # Usage:  bash scripts/fresh-start.sh
 
 echo "=== CVLT fresh start ==="
+echo "⚠️  WARNING: This will DELETE the database and all its data!"
+read -p "Are you sure? (y/N) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  echo "Aborted."
+  exit 1
+fi
 
 # 1. Remove old DB (if any)
 if [ -f db/payload.db ]; then
   echo "Removing old database..."
-  rm -f db/payload.db
+  rm -f db/payload.db db/payload.db-wal db/payload.db-shm
 else
   echo "No existing database found."
 fi
@@ -26,5 +35,6 @@ npx payload migrate
 
 echo ""
 echo "Done! DB schema created. You can now run:"
+echo "  npx tsx --env-file .env seed/create-users.ts"
 echo "  npm run build"
 echo "  npm run start"
