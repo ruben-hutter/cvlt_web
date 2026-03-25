@@ -1,5 +1,4 @@
-export const revalidate = 60
-export async function generateStaticParams() { return [] }
+export const dynamic = 'force-dynamic'
 
 import { notFound } from 'next/navigation'
 import Link from 'next/link'

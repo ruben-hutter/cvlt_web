@@ -1,4 +1,4 @@
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { getPayload } from 'payload'
@@ -21,27 +21,21 @@ function getThumbnailUrl(article: any): string | null {
 }
 
 export default async function NewsPage() {
-  let news = { docs: [] as any[] }
+  const payload = await getPayload({ config })
 
-  try {
-    const payload = await getPayload({ config })
+  const endOfToday = new Date()
+  endOfToday.setHours(23, 59, 59, 999)
 
-    const endOfToday = new Date()
-    endOfToday.setHours(23, 59, 59, 999)
-
-    news = await payload.find({
-      collection: 'news',
-      where: {
-        status: { equals: 'published' },
-        publishDate: { less_than_equal: endOfToday.toISOString() },
-      },
-      sort: '-publishDate',
-      limit: 50,
-      depth: 2,
-    })
-  } catch (e) {
-    console.warn('[NOTIZIE] DB query failed (build-time prerender?)', e)
-  }
+  const news = await payload.find({
+    collection: 'news',
+    where: {
+      status: { equals: 'published' },
+      publishDate: { less_than_equal: endOfToday.toISOString() },
+    },
+    sort: '-publishDate',
+    limit: 50,
+    depth: 2,
+  })
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">

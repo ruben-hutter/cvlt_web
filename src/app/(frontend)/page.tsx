@@ -1,4 +1,4 @@
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { getPayload } from 'payload'
@@ -9,7 +9,6 @@ function getThumbnailUrl(article: any): string | null {
   if (article.thumbnail && typeof article.thumbnail === 'object') {
     return article.thumbnail.url
   }
-  // Fallback: first image found in layout blocks
   for (const block of article.layout || []) {
     if (block.blockType === 'image' && block.image?.url) return block.image.url
     if (block.blockType === 'textImage' && block.image?.url) return block.image.url
@@ -19,47 +18,38 @@ function getThumbnailUrl(article: any): string | null {
 }
 
 export default async function HomePage() {
-  let news = { docs: [] as any[] }
-  let events = { docs: [] as any[] }
-  let albums = { docs: [] as any[] }
+  const payload = await getPayload({ config })
 
-  try {
-    const payload = await getPayload({ config })
+  const endOfToday = new Date()
+  endOfToday.setHours(23, 59, 59, 999)
 
-    // Use end of today to include all articles published "today"
-    const endOfToday = new Date()
-    endOfToday.setHours(23, 59, 59, 999)
+  const news = await payload.find({
+    collection: 'news',
+    where: {
+      status: { equals: 'published' },
+      publishDate: { less_than_equal: endOfToday.toISOString() },
+    },
+    sort: '-publishDate',
+    limit: 5,
+    depth: 2,
+  })
 
-    news = await payload.find({
-      collection: 'news',
-      where: {
-        status: { equals: 'published' },
-        publishDate: { less_than_equal: endOfToday.toISOString() },
-      },
-      sort: '-publishDate',
-      limit: 5,
-      depth: 2,
-    })
+  const events = await payload.find({
+    collection: 'events',
+    where: {
+      startDate: { greater_than_equal: new Date().toISOString() },
+      status: { not_equals: 'cancelled' },
+    },
+    sort: 'startDate',
+    limit: 3,
+  })
 
-    events = await payload.find({
-      collection: 'events',
-      where: {
-        startDate: { greater_than_equal: new Date().toISOString() },
-        status: { not_equals: 'cancelled' },
-      },
-      sort: 'startDate',
-      limit: 3,
-    })
-
-    albums = await payload.find({
-      collection: 'photo-albums',
-      sort: '-date',
-      limit: 4,
-      depth: 1,
-    })
-  } catch (e) {
-    console.warn('[HOME] DB query failed (build-time prerender?)', e)
-  }
+  const albums = await payload.find({
+    collection: 'photo-albums',
+    sort: '-date',
+    limit: 4,
+    depth: 1,
+  })
 
   return (
     <main>
