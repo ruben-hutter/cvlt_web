@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "bash scripts/prebuild.sh",
-    "build": "mkdir -p db media && payload migrate && payload generate:importmap && next build && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && ln -sf ../../db .next/standalone/db && ln -sf ../../media .next/standalone/media && bash scripts/postbuild-check.sh",
+    "build": "mkdir -p db media && bash scripts/safe-migrate.sh && payload generate:importmap && next build && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && ln -sf ../../db .next/standalone/db && ln -sf ../../media .next/standalone/media && bash scripts/postbuild-check.sh",
     "start": "node .next/standalone/server.js",
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap"

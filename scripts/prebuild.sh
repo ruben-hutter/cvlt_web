@@ -5,7 +5,7 @@ echo "========================================"
 echo "  PREBUILD — $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================"
 
-mkdir -p db media db/backups
+mkdir -p db media .backups
 
 echo ""
 echo "📂 DB files before build:"
@@ -13,9 +13,8 @@ ls -la db/ 2>/dev/null || echo "  (empty)"
 
 echo ""
 if [ -s db/payload.db ]; then
-  BACKUP="db/backups/payload.db.$(date +%Y%m%d_%H%M%S)"
+  BACKUP=".backups/payload.db.$(date +%Y%m%d_%H%M%S)"
   cp db/payload.db "$BACKUP"
-  # Also back up WAL/SHM if they exist
   [ -f db/payload.db-wal ] && cp db/payload.db-wal "${BACKUP}-wal"
   [ -f db/payload.db-shm ] && cp db/payload.db-shm "${BACKUP}-shm"
   echo "✅ DB backed up to $BACKUP ($(wc -c < db/payload.db) bytes)"

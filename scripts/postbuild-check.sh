@@ -22,7 +22,7 @@ else
   echo "❌ DB file is EMPTY or missing after build!"
   echo ""
   # Try to restore from latest backup
-  LATEST_BACKUP=$(ls -t db/backups/payload.db.* 2>/dev/null | grep -v '\-wal$' | grep -v '\-shm$' | head -1)
+  LATEST_BACKUP=$(ls -t .backups/payload.db.* 2>/dev/null | grep -v '\-wal$' | grep -v '\-shm$' | head -1)
   if [ -n "$LATEST_BACKUP" ]; then
     echo "🔄 Restoring from latest backup: $LATEST_BACKUP"
     cp "$LATEST_BACKUP" db/payload.db

@@ -14,7 +14,7 @@ dist/
 
 # database
 db/
-db/backups/
+.backups/
 
 # media uploads
 media/
