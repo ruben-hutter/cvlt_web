@@ -11,9 +11,14 @@
 - [x] Include on the website https://vento.cvlt.ch/
     - Native /vento page with live data from vento.cvlt.ch API
     - [ ] Verify data matches the old vento.cvlt.ch page
-- [ ] Gallery is linked to Event, but tag is not shown in the gallery. No link to Event page as expected.
 - [ ] Understand "Forza Sblocco" button in Payload
 - [ ] 2FA for login to Payload admin
+- [ ] Setup CI/CD pipeline for automatic deployment on push to main branch
+    - Setup some checks and tests
+- [x] Why is package.json so complicated?
+    - `payload generate:importmap`: required by Payload, regenerates admin component map
+    - Copy/symlink commands: required by Next.js `output: 'standalone'` mode
+    - `payload migrate`: REMOVED from build — it destroys dev-mode DBs. Only in fresh-start.sh
 
 ## Medium priority
 
