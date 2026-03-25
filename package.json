@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "mkdir -p db media .backups && if [ -s db/payload.db ]; then cp db/payload.db .backups/payload.db.$(date +%Y%m%d_%H%M%S) && echo '✅ DB backed up'; fi",
-    "build": "payload generate:importmap && next build && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && ln -sf ../../db .next/standalone/db && ln -sf ../../media .next/standalone/media",
+    "prebuild": "mkdir -p db media .backups && node scripts/checkpoint-db.mjs && if [ -s db/payload.db ]; then ts=$(date +%Y%m%d_%H%M%S) && cp db/payload.db .backups/payload.db.$ts && [ -f db/payload.db-wal ] && cp db/payload.db-wal .backups/payload.db-wal.$ts; echo '✅ DB backed up'; fi",
+    "build": "payload generate:importmap && next build && { if [ -f db/payload.db ] && [ ! -s db/payload.db ]; then echo '❌ DB is 0 bytes after build — restoring backup'; cp \"$(ls -t .backups/payload.db.* 2>/dev/null | head -1)\" db/payload.db 2>/dev/null && echo '✅ Restored from backup' || echo '⚠️ No backup found'; fi; } && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && ln -sf ../../db .next/standalone/db && ln -sf ../../media .next/standalone/media",
     "start": "node .next/standalone/server.js",
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap"
