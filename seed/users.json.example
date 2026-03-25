@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Ruben",
+    "email": "your.email@gmail.com",
+    "password": "ChangeMe123",
+    "role": "admin"
+  },
+  {
+    "name": "Biagio",
+    "email": "your.email@gmail.com",
+    "password": "ChangeMe123",
+    "role": "editor"
+  },
+  {
+    "name": "Mirko",
+    "email": "your.email@gmail.com",
+    "password": "ChangeMe123",
+    "role": "editor"
+  },
+  {
+    "name": "Monze",
+    "email": "your.email@gmail.com",
+    "password": "ChangeMe123",
+    "role": "editor"
+  },
+  {
+    "name": "Roti",
+    "email": "your.email@gmail.com",
+    "password": "ChangeMe123",
+    "role": "editor"
+  },
+  {
+    "name": "Thio",
+    "email": "your.email@gmail.com",
+    "password": "ChangeMe123",
+    "role": "editor"
+  },
+  {
+    "name": "Elia",
+    "email": "your.email@gmail.com",
+    "password": "ChangeMe123",
+    "role": "editor"
+  }
+]

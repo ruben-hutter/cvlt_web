@@ -10,7 +10,7 @@ set -euo pipefail
 # Usage:  bash scripts/fresh-start.sh
 
 echo "=== CVLT fresh start ==="
-echo "⚠️  WARNING: This will DELETE the database and all its data!"
+echo "WARNING: This will DELETE the database and all its data!"
 read -p "Are you sure? (y/N) " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -38,6 +38,4 @@ echo "Running user seed..."
 npx tsx --env-file .env seed/create-users.ts
 
 echo ""
-echo "Done! DB schema created and users seeded. You can now run:"
-echo "  npm run build"
-echo "  npm run start"
+echo "Done! DB schema created and users seeded."
