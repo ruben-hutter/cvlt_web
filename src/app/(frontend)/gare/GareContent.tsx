@@ -97,7 +97,7 @@ const hikeAndFlyRaces = [
   { date: '16.5', backup: '', name: 'MisoXperience', organizer: 'Pietro Zala (Davide Joerger)', location: 'Grono', catOpen: true, catFun: false, href: '/calendario/misoxperience' },
   { date: '30.5', backup: '31.5', name: 'Ticino X-Race', organizer: 'Matteo Monzeglio', location: 'Tesserete', catOpen: true, catFun: true, href: '/calendario/ticino-x-race' },
   { date: '20.6', backup: '21.6', name: 'Coppa Monte Generoso', organizer: 'TVLMG', location: 'Mendrisio', catOpen: true, catFun: true, href: '/calendario/coppa-monte-generoso' },
-  { date: '19.9', backup: '20.9', name: 'Run in Fly', organizer: 'Gael Droz', location: 'Locarno', catOpen: true, catFun: true, href: '/calendario/run-in-fly-gia-belli-in-fly' },
+  { date: '19.9', backup: '20.9', name: 'Run in Fly', organizer: 'Gael Droz', location: 'Locarno', catOpen: true, catFun: true, href: '/calendario/run-in-fly-gia-belli-in-fly-2' },
   { date: '26–27.9', backup: '3–4.10', name: 'Lema Air', organizer: 'Claudio Cattaneo', location: 'Miglieglia', catOpen: true, catFun: false, href: '/calendario/lema-air' },
 ]
 
