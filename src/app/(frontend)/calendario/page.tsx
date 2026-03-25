@@ -11,6 +11,7 @@ export const metadata = {
 export default async function CalendarPage() {
   let events: Array<{
     id: string
+    slug: string
     title: string
     startDate: string
     endDate: string | null
@@ -58,6 +59,7 @@ export default async function CalendarPage() {
 
     events = result.docs.map((e) => ({
       id: String(e.id),
+      slug: (e.slug as string) || String(e.id),
       title: e.title,
       startDate: e.startDate,
       endDate: e.endDate || null,

@@ -7,6 +7,7 @@ type RelatedNews = { title: string; slug: string }
 
 type Event = {
   id: string
+  slug: string
   title: string
   startDate: string
   endDate?: string | null
@@ -129,7 +130,7 @@ function EventDetail({ event, onClose }: { event: Event; onClose: () => void }) 
 
       <div className="mt-4 border-t border-gray-100 pt-4">
         <Link
-          href={`/calendario/${event.id}`}
+          href={`/calendario/${event.slug}`}
           className="inline-flex items-center gap-1 text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
         >
           Pagina evento &rarr;

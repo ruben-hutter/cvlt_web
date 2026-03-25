@@ -1,5 +1,37 @@
-import type { Access, CollectionConfig } from 'payload'
+import type { Access, CollectionConfig, FieldHook } from 'payload'
 import { isAdmin } from './Users'
+
+function titleToSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+}
+
+const formatSlug: FieldHook = async ({ data, req }) => {
+  if (!data?.title) return undefined
+  const baseSlug = titleToSlug(data.title)
+
+  if (!req.payload) return baseSlug
+
+  const existing = await req.payload.find({
+    collection: 'events',
+    where: { slug: { like: `${baseSlug}%` }, ...(data.id ? { id: { not_equals: data.id } } : {}) },
+    limit: 100,
+    depth: 0,
+  })
+
+  if (existing.docs.length === 0) return baseSlug
+
+  const taken = new Set(existing.docs.map((d) => d.slug))
+  if (!taken.has(baseSlug)) return baseSlug
+
+  let i = 2
+  while (taken.has(`${baseSlug}-${i}`)) i++
+  return `${baseSlug}-${i}`
+}
 
 const isAdminOrCreator: Access = ({ req: { user } }) => {
   if (!user) return false
@@ -25,6 +57,17 @@ export const Events: CollectionConfig = {
       type: 'text',
       label: 'Titolo',
       required: true,
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      hooks: {
+        beforeValidate: [formatSlug],
+      },
+      admin: {
+        hidden: true,
+      },
     },
     {
       name: 'status',

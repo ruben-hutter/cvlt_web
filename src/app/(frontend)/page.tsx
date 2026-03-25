@@ -149,7 +149,7 @@ export default async function HomePage() {
                         </h3>
                         {event && (
                           <Link
-                            href={`/calendario/${event.id}`}
+                            href={`/calendario/${event.slug || event.id}`}
                             className="relative z-10 mt-1.5 inline-flex items-center gap-1 rounded-full bg-cvlt-blue-light px-2 py-0.5 text-xs font-medium text-cvlt-blue transition-colors hover:bg-cvlt-blue hover:text-white"
                           >
                             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -179,7 +179,7 @@ export default async function HomePage() {
                   {events.docs.map((event) => (
                     <li key={event.id}>
                       <Link
-                        href={`/calendario/${event.id}`}
+                        href={`/calendario/${event.slug || event.id}`}
                         className="block rounded-lg border border-cvlt-gray-200 p-3 transition-all hover:border-cvlt-blue/30 hover:shadow-md"
                       >
                         <time className="text-xs font-medium text-cvlt-blue">

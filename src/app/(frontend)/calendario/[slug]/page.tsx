@@ -7,14 +7,25 @@ import config from '@payload-config'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import type { Metadata } from 'next'
 
-type Args = { params: Promise<{ id: string }> }
+type Args = { params: Promise<{ slug: string }> }
+
+async function findEventBySlug(payload: any, slug: string) {
+  const result = await payload.find({
+    collection: 'events',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 0,
+  })
+  return result.docs[0] || null
+}
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { id } = await params
+  const { slug } = await params
   const payload = await getPayload({ config })
 
   try {
-    const event = await payload.findByID({ collection: 'events', id, depth: 0 })
+    const event = await findEventBySlug(payload, slug)
+    if (!event) return { title: 'Evento non trovato — CVLT' }
     return { title: `${event.title} — CVLT` }
   } catch {
     return { title: 'Evento non trovato — CVLT' }
@@ -22,12 +33,13 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 }
 
 export default async function EventPage({ params }: Args) {
-  const { id } = await params
+  const { slug } = await params
   const payload = await getPayload({ config })
 
   let event
   try {
-    event = await payload.findByID({ collection: 'events', id, depth: 0 })
+    event = await findEventBySlug(payload, slug)
+    if (!event) notFound()
   } catch {
     notFound()
   }
