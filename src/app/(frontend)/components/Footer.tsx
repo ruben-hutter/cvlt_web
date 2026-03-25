@@ -108,7 +108,7 @@ export function Footer() {
         </div>
 
         <div className="mt-10 border-t border-gray-700 pt-6 text-center text-xs text-gray-500">
-          © {new Date().getFullYear()} Club Volo Libero Ticino
+          © {new Date().getFullYear()} Club Volo Libero Ticino — Dal 1986
         </div>
       </div>
     </footer>
