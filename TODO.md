@@ -19,7 +19,13 @@
     - `payload generate:importmap`: required by Payload, regenerates admin component map
     - Copy/symlink commands: required by Next.js `output: 'standalone'` mode
     - `payload migrate`: REMOVED from build — it destroys dev-mode DBs. Only in fresh-start.sh
-- [ ] Vento & Meteo page: loading is slow. how is it managed now? can it be optimized? ignore "Previsione di volo"
+- [x] Vento & Meteo page: loading is slow — **fixed** with progressive loading
+    - 3 separate API routes call source APIs directly (no more vento.cvlt.ch proxy)
+    - MCH: MeteoSwiss S3 JSON API → ~0.2s
+    - Others: PWS, SLF, Holfuy, Windbird, Faido in parallel → ~0.3s
+    - Lakes: BAFU hydrodaten.admin.ch → ~0.2s
+    - Client renders each section as it arrives (progressive loading)
+    - "Previsione di volo" (Startleiter) commented out — re-enable if requested
 
 ## Medium priority
 
