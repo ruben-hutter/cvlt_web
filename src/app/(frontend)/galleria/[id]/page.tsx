@@ -40,9 +40,10 @@ export default async function AlbumPage({ params }: Args) {
         alt: (p.alt as string) || album.title,
         width: (p.width as number) || 1200,
         height: (p.height as number) || 800,
+        mimeType: (p.mimeType as string) || '',
       }
     })
-    .filter(Boolean) as { url: string; alt: string; width: number; height: number }[]
+    .filter(Boolean) as { url: string; alt: string; width: number; height: number; mimeType: string }[]
 
   const relatedEvent = album.relatedEvent && typeof album.relatedEvent === 'object'
     ? album.relatedEvent
@@ -71,7 +72,7 @@ export default async function AlbumPage({ params }: Args) {
             })}
           </time>
           <span>&middot;</span>
-          <span>{photos.length} foto</span>
+          <span>{photos.length} {photos.some(p => p.mimeType.startsWith('video/')) ? 'foto/video' : 'foto'}</span>
           {relatedEvent && (
             <Link
               href={`/calendario/${relatedEvent.id}`}

@@ -14,6 +14,7 @@ export default async function GalleryPage() {
     title: string
     date: string
     coverUrl: string | null
+    coverIsVideo: boolean
     photoCount: number
   }> = []
 
@@ -30,11 +31,13 @@ export default async function GalleryPage() {
     albums = result.docs.map((album) => {
       const cover = album.photos?.[0]
       const coverUrl = typeof cover === 'object' && cover?.url ? cover.url : null
+      const coverMimeType = typeof cover === 'object' && cover?.mimeType ? cover.mimeType : ''
       return {
         id: album.id,
         title: album.title,
         date: album.date,
         coverUrl,
+        coverIsVideo: coverMimeType.startsWith('video/'),
         photoCount: album.photos?.length || 0,
       }
     })

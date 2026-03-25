@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 export const PhotoAlbums: CollectionConfig = {
   slug: 'photo-albums',
-  labels: { singular: 'Album foto', plural: 'Album foto' },
+  labels: { singular: 'Galleria', plural: 'Galleria' },
   lockDocuments: false,
   admin: {
     useAsTitle: 'title',
@@ -42,7 +42,7 @@ export const PhotoAlbums: CollectionConfig = {
     {
       name: 'photos',
       type: 'upload',
-      label: 'Foto',
+      label: 'Foto / Video',
       relationTo: 'media',
       hasMany: true,
       required: true,

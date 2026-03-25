@@ -8,6 +8,7 @@ type Album = {
   title: string
   date: string
   coverUrl: string | null
+  coverIsVideo: boolean
   photoCount: number
 }
 
@@ -87,12 +88,30 @@ export function GalleryFilter({ albums }: { albums: Album[] }) {
                       className="group overflow-hidden rounded-lg border border-cvlt-gray-200 transition-all hover:border-cvlt-blue/30 hover:shadow-lg"
                     >
                       {album.coverUrl ? (
-                        <div className="aspect-[16/10] overflow-hidden bg-cvlt-gray-100">
-                          <img
-                            src={album.coverUrl}
-                            alt={album.title}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
+                        <div className="relative aspect-[16/10] overflow-hidden bg-cvlt-gray-100">
+                          {album.coverIsVideo ? (
+                            <>
+                              <video
+                                src={album.coverUrl}
+                                muted
+                                preload="metadata"
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white">
+                                  <svg className="h-5 w-5 translate-x-0.5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8 5v14l11-7z" />
+                                  </svg>
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <img
+                              src={album.coverUrl}
+                              alt={album.title}
+                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                          )}
                         </div>
                       ) : (
                         <div className="flex aspect-[16/10] items-center justify-center bg-cvlt-gray-100">

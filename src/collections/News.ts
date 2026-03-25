@@ -67,6 +67,7 @@ const ImageBlock: Block = {
       label: 'Immagine',
       relationTo: 'media',
       required: true,
+      filterOptions: { mimeType: { contains: 'image/' } },
     },
     {
       name: 'caption',
@@ -115,6 +116,7 @@ const TextImageBlock: Block = {
       label: 'Immagine',
       relationTo: 'media',
       required: true,
+      filterOptions: { mimeType: { contains: 'image/' } },
     },
     {
       name: 'caption',
@@ -152,6 +154,7 @@ const GalleryBlock: Block = {
           label: 'Immagine',
           relationTo: 'media',
           required: true,
+          filterOptions: { mimeType: { contains: 'image/' } },
         },
         {
           name: 'caption',
@@ -276,6 +279,7 @@ export const News: CollectionConfig = {
       type: 'upload',
       label: 'Miniatura',
       relationTo: 'media',
+      filterOptions: { mimeType: { contains: 'image/' } },
     },
     {
       name: 'layout',

@@ -54,7 +54,6 @@ export default async function NewsArticlePage({ params }: Args) {
     ? article.relatedEvent
     : null
 
-  // Collect all image URLs from layout blocks for lightbox
   const allImages: string[] = []
   for (const block of (article.layout as any[]) || []) {
     if (block.blockType === 'image' && block.image?.url) allImages.push(block.image.url)

@@ -3,10 +3,10 @@ import { isAdmin } from './Users'
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  labels: { singular: 'Immagine', plural: 'Immagini' },
+  labels: { singular: 'Media', plural: 'Media' },
   lockDocuments: false,
   upload: {
-    mimeTypes: ['image/*'],
+    mimeTypes: ['image/*', 'video/mp4', 'video/webm', 'video/quicktime'],
   },
   access: {
     read: () => true,
