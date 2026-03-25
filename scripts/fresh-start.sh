@@ -34,7 +34,10 @@ echo "Running payload migrate..."
 npx payload migrate
 
 echo ""
-echo "Done! DB schema created. You can now run:"
-echo "  npx tsx --env-file .env seed/create-users.ts"
+echo "Running user seed..."
+npx tsx --env-file .env seed/create-users.ts
+
+echo ""
+echo "Done! DB schema created and users seeded. You can now run:"
 echo "  npm run build"
 echo "  npm run start"
