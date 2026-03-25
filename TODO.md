@@ -19,6 +19,7 @@
     - `payload generate:importmap`: required by Payload, regenerates admin component map
     - Copy/symlink commands: required by Next.js `output: 'standalone'` mode
     - `payload migrate`: REMOVED from build — it destroys dev-mode DBs. Only in fresh-start.sh
+- [ ] Vento & Meteo page: loading is slow. how is it managed now? can it be optimized? ignore "Previsione di volo"
 
 ## Medium priority
 
