@@ -125,7 +125,6 @@ export default async function HomePage() {
                       key={article.id}
                       className="group relative flex gap-4 rounded-lg border border-cvlt-gray-200 p-4 transition-all hover:border-cvlt-blue/30 hover:shadow-md"
                     >
-                      {/* Full-card link overlay */}
                       <Link href={`/notizie/${article.slug}`} className="absolute inset-0 z-0" aria-hidden="true" />
                       {thumb && (
                         <img
@@ -178,33 +177,35 @@ export default async function HomePage() {
               ) : (
                 <ul className="mt-4 space-y-3">
                   {events.docs.map((event) => (
-                    <li
-                      key={event.id}
-                      className="rounded-lg border border-cvlt-gray-200 p-3"
-                    >
-                      <time className="text-xs font-medium text-cvlt-blue">
-                        {new Date(event.startDate).toLocaleDateString('it-CH', {
-                          day: 'numeric',
-                          month: 'short',
-                        })}
-                        {event.endDate && (
-                          <> – {new Date(event.endDate).toLocaleDateString('it-CH', {
+                    <li key={event.id}>
+                      <Link
+                        href={`/calendario/${event.id}`}
+                        className="block rounded-lg border border-cvlt-gray-200 p-3 transition-all hover:border-cvlt-blue/30 hover:shadow-md"
+                      >
+                        <time className="text-xs font-medium text-cvlt-blue">
+                          {new Date(event.startDate).toLocaleDateString('it-CH', {
                             day: 'numeric',
                             month: 'short',
-                          })}</>
+                          })}
+                          {event.endDate && (
+                            <> – {new Date(event.endDate).toLocaleDateString('it-CH', {
+                              day: 'numeric',
+                              month: 'short',
+                            })}</>
+                          )}
+                        </time>
+                        <h3 className="mt-1 text-sm font-semibold text-cvlt-gray-900">
+                          {event.title}
+                        </h3>
+                        {event.location && (
+                          <p className="mt-0.5 text-xs text-cvlt-gray-500">{event.location}</p>
                         )}
-                      </time>
-                      <h3 className="mt-1 text-sm font-semibold text-cvlt-gray-900">
-                        {event.title}
-                      </h3>
-                      {event.location && (
-                        <p className="mt-0.5 text-xs text-cvlt-gray-500">{event.location}</p>
-                      )}
-                      {event.status === 'tentative' && (
-                        <span className="mt-1 inline-block rounded bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700">
-                          Provvisorio
-                        </span>
-                      )}
+                        {event.status === 'tentative' && (
+                          <span className="mt-1 inline-block rounded bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700">
+                            Provvisorio
+                          </span>
+                        )}
+                      </Link>
                     </li>
                   ))}
                 </ul>
