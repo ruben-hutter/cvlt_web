@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { RichText } from '@payloadcms/richtext-lexical/react'
 import type { Metadata } from 'next'
 
 type Args = { params: Promise<{ id: string }> }
@@ -85,6 +86,12 @@ export default async function EventPage({ params }: Args) {
         {/* News linked to this event */}
         <div className="min-w-0 flex-1">
           <h1 className="text-3xl font-bold text-cvlt-gray-900">{event.title}</h1>
+
+          {event.description && (
+            <div className="mt-6 prose prose-gray max-w-none">
+              <RichText data={event.description} />
+            </div>
+          )}
 
           {newsResult.docs.length === 0 && albumResult.docs.length === 0 ? (
             <p className="mt-8 text-cvlt-gray-500">Nessuna notizia o album collegato a questo evento.</p>
