@@ -51,6 +51,9 @@ export const Events: CollectionConfig = {
     read: () => true,
     delete: isAdminOrCreator,
   },
+  custom: {
+    totp: { disableAccessWrapper: { read: true } },
+  },
   fields: [
     {
       name: 'title',

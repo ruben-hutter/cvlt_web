@@ -2,9 +2,7 @@
 
 ## High priority
 
-- [ ] Understand "Forza Sblocco" button in Payload
-- [ ] Check password reset
-- [ ] 2FA for login to Payload admin
+- [x] Check password reset
 - [ ] Shop
     - Checkout Saferpay or similar
 - [ ] TMA Locarno image from their Facebook page (was on old website)
@@ -25,6 +23,7 @@
 
 ## Low priority
 
+- [ ] Enforce 2FA for payload login
 - [ ] In "comitato" page make persons containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Nuovo logo
     - Concorso per membri

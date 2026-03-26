@@ -12,6 +12,9 @@ export const Media: CollectionConfig = {
     read: () => true,
     delete: isAdmin,
   },
+  custom: {
+    totp: { disableAccessWrapper: { read: true } },
+  },
   hooks: {
     beforeValidate: [
       ({ data, req }) => {

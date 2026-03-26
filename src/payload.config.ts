@@ -1,4 +1,5 @@
 import { buildConfig } from 'payload'
+import { payloadTotp } from 'payload-totp'
 import type { EmailAdapter } from 'payload'
 import nodemailer from 'nodemailer'
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
@@ -103,6 +104,14 @@ export default buildConfig({
       },
     }
   }) as EmailAdapter,
+  plugins: [
+    payloadTotp({
+      collection: 'users',
+      totp: {
+        issuer: 'CVLT',
+      },
+    }),
+  ],
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

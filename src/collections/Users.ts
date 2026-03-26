@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { ValidationError } from 'payload'
 
 export const isAdmin = ({ req: { user } }: { req: { user: any } }) => {
   return user?.role === 'admin'
@@ -43,7 +44,7 @@ export const Users: CollectionConfig = {
       ({ data, operation }) => {
         if (data?.password && (operation === 'create' || operation === 'update')) {
           const result = validatePassword(data.password)
-          if (result !== true) throw new Error(result)
+          if (result !== true) throw new ValidationError({ errors: [{ message: result, path: 'password' }] })
         }
         return data
       },

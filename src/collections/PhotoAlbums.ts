@@ -11,6 +11,9 @@ export const PhotoAlbums: CollectionConfig = {
   access: {
     read: () => true,
   },
+  custom: {
+    totp: { disableAccessWrapper: { read: true } },
+  },
   fields: [
     {
       name: 'title',

@@ -200,6 +200,9 @@ export const News: CollectionConfig = {
     read: () => true,
     delete: isAdminOrAuthor,
   },
+  custom: {
+    totp: { disableAccessWrapper: { read: true } },
+  },
   fields: [
     {
       name: 'title',

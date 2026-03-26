@@ -11,9 +11,12 @@ export const MembershipSubmissions: CollectionConfig = {
   },
   access: {
     read: isAdmin,
-    create: () => true, // Public form submissions
+    create: () => true,
     update: isAdmin,
     delete: isAdmin,
+  },
+  custom: {
+    totp: { disableAccessWrapper: { create: true } },
   },
   fields: [
     {
