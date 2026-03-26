@@ -136,7 +136,7 @@ export default async function HomePage() {
                           className="relative rounded-md"
                         />
                       )}
-                      <div className="relative min-w-0">
+                      <div className="min-w-0">
                         <time className="text-xs font-medium text-cvlt-gray-500">
                           {new Date(article.publishDate).toLocaleDateString('it-CH', {
                             day: 'numeric',
