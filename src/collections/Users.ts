@@ -33,6 +33,7 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     hidden: ({ user }) => user?.role !== 'admin',
+    defaultColumns: ['name', 'email', 'role', 'totpActive'],
   },
   auth: {
     loginWithUsername: false,
@@ -46,6 +47,15 @@ export const Users: CollectionConfig = {
           const result = validatePassword(data.password)
           if (result !== true) throw new ValidationError({ errors: [{ message: result, path: 'password' }] })
         }
+        return data
+      },
+    ],
+    beforeChange: [
+      async ({ data, originalDoc, req }) => {
+        if (data?.resetTotp && req.user?.role === 'admin' && originalDoc?.id !== req.user?.id) {
+          data.totpSecret = null
+        }
+        delete data?.resetTotp
         return data
       },
     ],
@@ -79,6 +89,41 @@ export const Users: CollectionConfig = {
       },
       admin: {
         position: 'sidebar',
+      },
+    },
+    {
+      name: 'totpActive',
+      type: 'checkbox',
+      label: '2FA attivo',
+      virtual: true,
+      access: {
+        read: isAdmin,
+      },
+      hooks: {
+        afterRead: [
+          ({ siblingData }) => Boolean(siblingData?.totpSecret),
+        ],
+      },
+      admin: {
+        readOnly: true,
+      },
+    },
+    {
+      name: 'resetTotp',
+      type: 'checkbox',
+      label: 'Reset TOTP',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Attiva e salva per rimuovere il 2FA di questo utente.',
+        disableListColumn: true,
+        disableListFilter: true,
+        condition: (data, siblingData, { user }) =>
+          user?.role === 'admin' && data?.id !== user?.id,
+      },
+      access: {
+        read: isAdmin,
+        update: isAdmin,
       },
     },
   ],
