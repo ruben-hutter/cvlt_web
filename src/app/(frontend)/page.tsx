@@ -237,6 +237,40 @@ export default async function HomePage() {
                 </Link>
               </div>
             </div>
+
+            {/* TMA Locarno */}
+            <div className="rounded-lg border border-cvlt-gray-200 p-4">
+              <h2 className="text-lg font-bold text-cvlt-gray-900">TMA Locarno</h2>
+              <a
+                href="https://www.facebook.com/TMA-Locarno-1037676889614177/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 block"
+              >
+                <img
+                  src="/tmalocarno.png"
+                  alt="TMA Locarno"
+                  className="mx-auto w-full rounded"
+                />
+              </a>
+              <p className="mt-2 text-xs text-cvlt-gray-500">
+                Pianificazione settimanale su{' '}
+                <a
+                  href="https://www.facebook.com/TMA-Locarno-1037676889614177/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-cvlt-blue hover:underline"
+                >
+                  Facebook
+                </a>
+              </p>
+              <p className="mt-1 text-xs text-cvlt-gray-500">
+                ATIS:{' '}
+                <a href="tel:+41918161744" className="font-medium text-cvlt-blue hover:underline">
+                  +41 91 816 17 44
+                </a>
+              </p>
+            </div>
           </aside>
         </div>
 

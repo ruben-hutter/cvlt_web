@@ -3,6 +3,8 @@
 ## High priority
 
 - [x] Check password reset
+- [ ] Info volo: mettere "Altri link meteo" sotto "Meteo & vento" e non come sezione a parte
+- [ ] Mostrare dropdown / submenu per sezioni Info volo
 - [ ] Shop
     - Checkout Saferpay or similar
 - [ ] TMA Locarno image from their Facebook page (was on old website)

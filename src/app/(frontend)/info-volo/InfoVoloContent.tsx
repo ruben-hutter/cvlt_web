@@ -151,6 +151,36 @@ export function InfoVoloContent() {
               Si può volare sotto la TMA senza autorizzazione, ma mai al suo interno senza
               permesso.
             </p>
+
+            <div className="mt-5 rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50 p-4">
+              <a
+                href="https://www.facebook.com/TMA-Locarno-1037676889614177/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <img
+                  src="/tmalocarno.png"
+                  alt="TMA Locarno"
+                  className="mx-auto w-full max-w-xs rounded"
+                />
+              </a>
+              <p className="mt-3 text-sm">
+                Su{' '}
+                <ExternalLink href="https://www.facebook.com/TMA-Locarno-1037676889614177/">
+                  Facebook
+                </ExternalLink>{' '}
+                è possibile consultare la pianificazione settimanale della TMA di Locarno.
+              </p>
+              <p className="mt-2 text-xs text-cvlt-gray-500">
+                La pagina FB ha una valenza puramente informativa e non vincolante.
+                Consultare sempre l&apos;ATIS ({' '}
+                <a href="tel:+41918161744" className="font-medium text-cvlt-blue hover:underline">
+                  +41 91 816 17 44
+                </a>
+                ) prima di decollare.
+              </p>
+            </div>
           </Section>
 
           <Section title="Aerovie (AWY)">
