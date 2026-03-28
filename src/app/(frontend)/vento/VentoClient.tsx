@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { WindStation, LakeLevel, StationsResponse, LakesResponse } from '../api/vento/types'
 
 function WindArrow({ degrees, size = 28 }: { degrees: number; size?: number }) {
@@ -155,62 +155,511 @@ function LakesSection({ lakes }: { lakes: LakeLevel[] }) {
   )
 }
 
-function PressureSection() {
+type PressurePoint = {
+  time: string
+  diffP: number | null
+  diffT: number | null
+  windMTR: number | null
+}
+
+type FoehnPoint = {
+  time: string
+  diffP: number
+}
+
+function PressureChart({ data }: { data: PressurePoint[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || data.length === 0) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const dpr = window.devicePixelRatio || 1
+    const rect = canvas.getBoundingClientRect()
+    canvas.width = rect.width * dpr
+    canvas.height = rect.height * dpr
+    ctx.scale(dpr, dpr)
+    const W = rect.width
+    const H = rect.height
+
+    const pad = { top: 10, right: 70, bottom: 25, left: 40 }
+    const cW = W - pad.left - pad.right
+    const cH = H - pad.top - pad.bottom
+
+    // Compute ranges
+    const pressures = data.map(d => d.diffP).filter((v): v is number => v !== null)
+    const temps = data.map(d => d.diffT).filter((v): v is number => v !== null)
+    const winds = data.map(d => d.windMTR).filter((v): v is number => v !== null)
+    const times = data.map(d => new Date(d.time).getTime())
+
+    const tMin = Math.min(...times)
+    const tMax = Math.max(...times)
+    const pMin = Math.min(...pressures, 0)
+    const pMax = Math.max(...pressures, 0)
+    const pRange = Math.max(Math.abs(pMin), Math.abs(pMax), 2)
+    const tempMin = Math.min(...temps, 0)
+    const tempMax = Math.max(...temps, 0)
+    const wMax = winds.length > 0 ? Math.max(...winds, 10) : 10
+
+    const xScale = (t: number) => pad.left + ((t - tMin) / (tMax - tMin)) * cW
+    const yP = (v: number) => pad.top + cH / 2 - (v / pRange) * (cH / 2)
+    const yT = (v: number) => {
+      const tRange = Math.max(Math.abs(tempMin), Math.abs(tempMax), 2)
+      return pad.top + cH / 2 - (v / tRange) * (cH / 2)
+    }
+    const yW = (v: number) => pad.top + cH - (v / wMax) * cH
+
+    // Background
+    ctx.fillStyle = '#fff'
+    ctx.fillRect(0, 0, W, H)
+
+    // Grid lines
+    const pStep = pRange > 8 ? 2 : 1
+    ctx.strokeStyle = '#e5e7eb'
+    ctx.lineWidth = 0.5
+    // Zero line
+    ctx.beginPath()
+    ctx.moveTo(pad.left, yP(0))
+    ctx.lineTo(W - pad.right, yP(0))
+    ctx.stroke()
+    // Horizontal grid — matches y-axis tick marks
+    for (let v = -Math.ceil(pRange); v <= Math.ceil(pRange); v += pStep) {
+      if (v !== 0 && Math.abs(v) <= pRange) {
+        ctx.beginPath()
+        ctx.setLineDash([3, 3])
+        ctx.moveTo(pad.left, yP(v))
+        ctx.lineTo(W - pad.right, yP(v))
+        ctx.stroke()
+        ctx.setLineDash([])
+      }
+    }
+
+    // Time labels on x-axis
+    ctx.fillStyle = '#6b7280'
+    ctx.font = '10px system-ui, sans-serif'
+    ctx.textAlign = 'center'
+    const dayMs = 24 * 60 * 60 * 1000
+    const startDay = new Date(tMin)
+    startDay.setHours(0, 0, 0, 0)
+    for (let d = startDay.getTime(); d <= tMax; d += dayMs) {
+      if (d >= tMin) {
+        const x = xScale(d)
+        ctx.fillText(new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' }), x, H - pad.bottom + 15)
+        ctx.strokeStyle = '#f3f4f6'
+        ctx.lineWidth = 0.5
+        ctx.beginPath()
+        ctx.moveTo(x, pad.top)
+        ctx.lineTo(x, pad.top + cH)
+        ctx.stroke()
+      }
+    }
+
+    // Y-axis labels (pressure) — dynamic range with step of 1
+    ctx.textAlign = 'right'
+    ctx.fillStyle = '#3b82f6'
+    for (let v = -Math.ceil(pRange); v <= Math.ceil(pRange); v += pStep) {
+      if (Math.abs(v) <= pRange) {
+        ctx.fillText(`${v}`, pad.left - 5, yP(v) + 3)
+      }
+    }
+    // Pressure bars
+    const barWidth = Math.max(1, (cW / data.length) * 0.7)
+    const zeroY = yP(0)
+    for (const point of data) {
+      if (point.diffP === null) continue
+      const x = xScale(new Date(point.time).getTime())
+      const y = yP(point.diffP)
+      const barH = zeroY - y
+
+      if (point.diffP <= -4) ctx.fillStyle = 'rgba(239, 68, 68, 0.7)'
+      else if (point.diffP <= -3) ctx.fillStyle = 'rgba(249, 115, 22, 0.7)'
+      else if (point.diffP <= -2) ctx.fillStyle = 'rgba(234, 179, 8, 0.7)'
+      else ctx.fillStyle = 'rgba(59, 130, 246, 0.4)'
+
+      ctx.fillRect(x - barWidth / 2, Math.min(y, zeroY), barWidth, Math.abs(barH))
+    }
+
+    // Temperature line
+    ctx.strokeStyle = '#1e293b'
+    ctx.lineWidth = 1.5
+    ctx.beginPath()
+    let started = false
+    for (const point of data) {
+      if (point.diffT === null) continue
+      const x = xScale(new Date(point.time).getTime())
+      const y = yT(point.diffT)
+      if (!started) { ctx.moveTo(x, y); started = true }
+      else ctx.lineTo(x, y)
+    }
+    ctx.stroke()
+
+    // Wind MTR area
+    ctx.fillStyle = 'rgba(34, 197, 94, 0.1)'
+    ctx.strokeStyle = 'rgba(34, 197, 94, 0.6)'
+    ctx.lineWidth = 1.5
+    ctx.beginPath()
+    const windPoints: { x: number; y: number }[] = []
+    for (const point of data) {
+      if (point.windMTR === null) continue
+      const x = xScale(new Date(point.time).getTime())
+      const y = yW(point.windMTR)
+      windPoints.push({ x, y })
+    }
+    if (windPoints.length > 0) {
+      ctx.moveTo(windPoints[0].x, yW(0))
+      for (const p of windPoints) ctx.lineTo(p.x, p.y)
+      ctx.lineTo(windPoints[windPoints.length - 1].x, yW(0))
+      ctx.fill()
+      ctx.beginPath()
+      ctx.moveTo(windPoints[0].x, windPoints[0].y)
+      for (let i = 1; i < windPoints.length; i++) ctx.lineTo(windPoints[i].x, windPoints[i].y)
+      ctx.stroke()
+    }
+
+    // Right axis labels (temp) — tick marks with values
+    ctx.textAlign = 'left'
+    ctx.fillStyle = '#1e293b'
+    ctx.font = '10px system-ui, sans-serif'
+    const tRange = Math.max(Math.abs(tempMin), Math.abs(tempMax), 2)
+    const tStep = tRange > 8 ? 2 : 1
+    for (let v = -Math.ceil(tRange); v <= Math.ceil(tRange); v += tStep) {
+      if (Math.abs(v) <= tRange) {
+        ctx.fillText(`${v}`, W - pad.right + 5, yT(v) + 3)
+      }
+    }
+    // Right axis labels (wind) — tick marks with values
+    ctx.textAlign = 'left'
+    ctx.fillStyle = 'rgba(34, 197, 94, 0.8)'
+    ctx.font = '10px system-ui, sans-serif'
+    for (let v = 0; v <= wMax; v += 5) {
+      const wy = yW(v)
+      if (wy >= pad.top && wy <= pad.top + cH) {
+        ctx.fillText(`${v}`, W - pad.right + 35, wy + 3)
+      }
+    }
+    // (Legend moved to sidebar)
+  }, [data])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="h-64 w-full rounded-lg border border-cvlt-gray-200 sm:h-80"
+      style={{ width: '100%' }}
+    />
+  )
+}
+
+function FoehnChart({ data }: { data: FoehnPoint[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || data.length === 0) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const dpr = window.devicePixelRatio || 1
+    const rect = canvas.getBoundingClientRect()
+    canvas.width = rect.width * dpr
+    canvas.height = rect.height * dpr
+    ctx.scale(dpr, dpr)
+    const W = rect.width
+    const H = rect.height
+
+    const pad = { top: 10, right: 30, bottom: 25, left: 40 }
+    const cW = W - pad.left - pad.right
+    const cH = H - pad.top - pad.bottom
+
+    const pressures = data.map(d => d.diffP)
+    const times = data.map(d => new Date(d.time).getTime())
+
+    const tMin = Math.min(...times)
+    const tMax = Math.max(...times)
+    const pMin = Math.min(...pressures, -4)
+    const pMax = Math.max(...pressures, 4)
+    const pRange = Math.max(Math.abs(pMin), Math.abs(pMax), 4)
+
+    const xScale = (t: number) => pad.left + ((t - tMin) / (tMax - tMin)) * cW
+    const yP = (v: number) => pad.top + cH / 2 - (v / pRange) * (cH / 2)
+
+    // Background
+    ctx.fillStyle = '#fff'
+    ctx.fillRect(0, 0, W, H)
+
+    // Threshold zones
+    ctx.fillStyle = 'rgba(239, 68, 68, 0.05)'
+    ctx.fillRect(pad.left, yP(pRange), cW, yP(4) - yP(pRange))
+    ctx.fillRect(pad.left, yP(-4), cW, yP(-pRange) - yP(-4))
+
+    // Grid + labels
+    ctx.font = '10px system-ui, sans-serif'
+    const pStep = pRange > 10 ? 2 : 1
+    // Zero line
+    ctx.strokeStyle = '#9ca3af'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(pad.left, yP(0))
+    ctx.lineTo(W - pad.right, yP(0))
+    ctx.stroke()
+    // Other grid lines
+    ctx.strokeStyle = '#e5e7eb'
+    ctx.lineWidth = 0.5
+    ctx.textAlign = 'right'
+    ctx.fillStyle = '#6b7280'
+    for (let v = -Math.ceil(pRange); v <= Math.ceil(pRange); v += pStep) {
+      if (Math.abs(v) <= pRange) {
+        ctx.fillText(`${v}`, pad.left - 5, yP(v) + 3)
+        if (v !== 0) {
+          ctx.beginPath()
+          ctx.setLineDash([3, 3])
+          ctx.moveTo(pad.left, yP(v))
+          ctx.lineTo(W - pad.right, yP(v))
+          ctx.stroke()
+          ctx.setLineDash([])
+        }
+      }
+    }
+
+    // ±4 threshold lines
+    ctx.strokeStyle = '#93c5fd'
+    ctx.lineWidth = 1.5
+    ctx.setLineDash([6, 4])
+    ctx.beginPath()
+    ctx.moveTo(pad.left, yP(4))
+    ctx.lineTo(W - pad.right, yP(4))
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(pad.left, yP(-4))
+    ctx.lineTo(W - pad.right, yP(-4))
+    ctx.stroke()
+    ctx.setLineDash([])
+
+    // Föhn labels at thresholds
+    ctx.fillStyle = '#3b82f6'
+    ctx.font = '9px system-ui, sans-serif'
+    ctx.textAlign = 'left'
+    ctx.fillText('SÜD FÖHN', W - pad.right - 55, yP(pRange) + 12)
+    ctx.fillText('NORD FÖHN', W - pad.right - 60, yP(-pRange) - 4)
+
+    // Time labels on x-axis
+    ctx.fillStyle = '#6b7280'
+    ctx.font = '10px system-ui, sans-serif'
+    ctx.textAlign = 'center'
+    const dayMs = 24 * 60 * 60 * 1000
+    const startDay = new Date(tMin)
+    startDay.setHours(0, 0, 0, 0)
+    for (let d = startDay.getTime() + dayMs; d <= tMax; d += dayMs) {
+      const x = xScale(d)
+      ctx.fillText(new Date(d).toLocaleDateString('it-CH', { weekday: 'short', day: 'numeric', month: 'short' }), x, H - pad.bottom + 15)
+      ctx.strokeStyle = '#f3f4f6'
+      ctx.lineWidth = 0.5
+      ctx.beginPath()
+      ctx.moveTo(x, pad.top)
+      ctx.lineTo(x, pad.top + cH)
+      ctx.stroke()
+    }
+
+    // "Now" marker
+    const now = Date.now()
+    if (now >= tMin && now <= tMax) {
+      const xNow = xScale(now)
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)'
+      ctx.lineWidth = 1.5
+      ctx.setLineDash([4, 4])
+      ctx.beginPath()
+      ctx.moveTo(xNow, pad.top)
+      ctx.lineTo(xNow, pad.top + cH)
+      ctx.stroke()
+      ctx.setLineDash([])
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.7)'
+      ctx.font = '9px system-ui, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.fillText('ora', xNow, pad.top - 2)
+    }
+
+    // Pressure line
+    ctx.strokeStyle = '#1e40af'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    let started = false
+    for (const point of data) {
+      const x = xScale(new Date(point.time).getTime())
+      const y = yP(point.diffP)
+      if (!started) { ctx.moveTo(x, y); started = true }
+      else ctx.lineTo(x, y)
+    }
+    ctx.stroke()
+
+    // Fill below line
+    ctx.lineTo(xScale(new Date(data[data.length - 1].time).getTime()), yP(0))
+    ctx.lineTo(xScale(new Date(data[0].time).getTime()), yP(0))
+    ctx.closePath()
+    ctx.fillStyle = 'rgba(30, 64, 175, 0.08)'
+    ctx.fill()
+  }, [data])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="h-64 w-full rounded-lg border border-cvlt-gray-200 sm:h-80"
+      style={{ width: '100%' }}
+    />
+  )
+}
+
+function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnError }: {
+  data: PressurePoint[] | null; loading: boolean; error: boolean
+  foehnData: FoehnPoint[] | null; foehnLoading: boolean; foehnError: boolean
+}) {
   return (
     <section>
       <h2 className="text-lg font-bold text-cvlt-gray-900">Pressione</h2>
-      <div className="mt-3 grid gap-4 lg:grid-cols-2">
+      <div className="mt-3 space-y-4">
         <div>
-          <h3 className="mb-2 text-sm font-medium text-cvlt-gray-600">Pressione attuale</h3>
-          <img
-            src="https://vento.cvlt.ch/hpa.cvlt.gif"
-            alt="Pressione attuale"
-            className="w-full rounded-lg border border-cvlt-gray-200"
-          />
+          <h3 className="mb-1 text-sm font-medium text-cvlt-gray-600">
+            Dati misurati: Magadino–Kloten (MAG-KLO) e Vento Matro
+          </h3>
+          <p className="mb-2 text-xs text-cvlt-gray-400">Ultimi 7 giorni — dati orari MeteoSwiss</p>
+          {loading && !data ? (
+            <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
+              <span className="text-sm text-cvlt-gray-400 animate-pulse">Caricamento dati pressione...</span>
+            </div>
+          ) : error && !data ? (
+            <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
+              <span className="text-sm text-cvlt-gray-400">Dati pressione non disponibili.</span>
+            </div>
+          ) : data && data.length > 0 ? (
+            <PressureChart data={data} />
+          ) : null}
         </div>
         <div>
-          <h3 className="mb-2 text-sm font-medium text-cvlt-gray-600">Diagramma del föhn</h3>
-          <img
-            src="https://vento.cvlt.ch/wp/cache_meteo//foehndiagramm.png"
-            alt="Diagramma del föhn"
-            className="w-full rounded-lg border border-cvlt-gray-200"
-          />
+          <h3 className="mb-1 text-sm font-medium text-cvlt-gray-600">
+            Previsione föhn: Lugano–Zürich
+          </h3>
+          <p className="mb-2 text-xs text-cvlt-gray-400">Prossimi ~10 giorni — prognosi MOSMIX (DWD)</p>
+          {foehnLoading && !foehnData ? (
+            <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
+              <span className="text-sm text-cvlt-gray-400 animate-pulse">Caricamento previsione föhn...</span>
+            </div>
+          ) : foehnError && !foehnData ? (
+            <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
+              <span className="text-sm text-cvlt-gray-400">Previsione föhn non disponibile.</span>
+            </div>
+          ) : foehnData && foehnData.length > 0 ? (
+            <FoehnChart data={foehnData} />
+          ) : null}
         </div>
       </div>
     </section>
   )
 }
 
+function WindLegend() {
+  return (
+    <div className="space-y-2.5 text-xs text-cvlt-gray-600">
+      <div className="flex items-center gap-2">
+        <svg className="h-3.5 w-3.5 flex-shrink-0 text-cvlt-gray-400" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z" />
+        </svg>
+        Vetta
+      </div>
+      <div className="flex items-center gap-2">
+        <svg className="h-3.5 w-3.5 flex-shrink-0 text-cvlt-gray-300" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="2" y="16" width="20" height="2" rx="1" />
+        </svg>
+        Fondovalle
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-red-300 bg-red-50" />
+        <span className="text-red-600">&gt;15 km/h</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-amber-200 bg-amber-50" />
+        <span className="text-amber-600">5–15 km/h</span>
+      </div>
+      <div className="pt-1 text-cvlt-gray-400">
+        Velocità media – raffica
+      </div>
+    </div>
+  )
+}
+
+function PressureLegend() {
+  return (
+    <div className="space-y-2.5 text-xs text-cvlt-gray-600">
+      <div className="flex items-center gap-2">
+        <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-blue-400/40" />
+        Δ Pressione (hPa)
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="inline-block h-0.5 w-4 flex-shrink-0 bg-gray-800" />
+        Δ Temperatura (°C)
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-green-500/20 border border-green-500/40" />
+        Vento Matro (km/h)
+      </div>
+      <div className="border-t border-cvlt-gray-200 pt-2 mt-1">
+        <p className="font-medium text-cvlt-gray-500 mb-1.5">Colori barre:</p>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-blue-400/40" />
+            &gt; -2 hPa
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-yellow-500/70" />
+            <span className="text-yellow-600">≤ -2 hPa</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-orange-500/70" />
+            <span className="text-orange-500">≤ -3 hPa</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-red-500/70" />
+            <span className="text-red-500">≤ -4 hPa</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const PRESSURE_SECTIONS = ['pressione']
+
 function Legend() {
+  const [activeSection, setActiveSection] = useState('')
+
+  useEffect(() => {
+    const sectionIds = ['stazioni-meteoswiss', 'altre-stazioni', 'pressione', 'laghi', 'radiosondaggi']
+    const handleScroll = () => {
+      const navHeight = 80
+      let current = ''
+      for (const id of sectionIds) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top <= navHeight + 10) {
+          current = id
+        }
+      }
+      setActiveSection(current)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const showPressure = PRESSURE_SECTIONS.includes(activeSection)
+
   return (
     <aside className="hidden flex-shrink-0 lg:block lg:w-44">
       <div className="sticky top-20 space-y-3 rounded-lg border border-cvlt-gray-200 p-4">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-cvlt-gray-400">Legenda</h3>
-        <div className="space-y-2.5 text-xs text-cvlt-gray-600">
-          <div className="flex items-center gap-2">
-            <svg className="h-3.5 w-3.5 flex-shrink-0 text-cvlt-gray-400" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z" />
-            </svg>
-            Vetta
-          </div>
-          <div className="flex items-center gap-2">
-            <svg className="h-3.5 w-3.5 flex-shrink-0 text-cvlt-gray-300" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="2" y="16" width="20" height="2" rx="1" />
-            </svg>
-            Fondovalle
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-red-300 bg-red-50" />
-            <span className="text-red-600">&gt;15 km/h</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-amber-200 bg-amber-50" />
-            <span className="text-amber-600">5–15 km/h</span>
-          </div>
-          <div className="pt-1 text-cvlt-gray-400">
-            Velocità media – raffica
-          </div>
-        </div>
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-cvlt-gray-400">
+          Legenda
+        </h3>
+        {showPressure ? <PressureLegend /> : <WindLegend />}
       </div>
     </aside>
   )
@@ -248,6 +697,8 @@ export function VentoClient() {
   const [mch, setMch] = useState<SectionState<StationsResponse>>({ data: null, loading: true, error: false })
   const [others, setOthers] = useState<SectionState<StationsResponse>>({ data: null, loading: true, error: false })
   const [lakes, setLakes] = useState<SectionState<LakesResponse>>({ data: null, loading: true, error: false })
+  const [pressure, setPressure] = useState<SectionState<{ data: PressurePoint[] }>>({ data: null, loading: true, error: false })
+  const [foehn, setFoehn] = useState<SectionState<{ data: FoehnPoint[] }>>({ data: null, loading: true, error: false })
   const [refreshing, setRefreshing] = useState(false)
 
   const fetchSection = useCallback(async <T,>(
@@ -271,6 +722,8 @@ export function VentoClient() {
       fetchSection<StationsResponse>('/api/vento/mch', setMch),
       fetchSection<StationsResponse>('/api/vento/others', setOthers),
       fetchSection<LakesResponse>('/api/vento/lakes', setLakes),
+      fetchSection<{ data: PressurePoint[] }>('/api/vento/pressure', setPressure),
+      fetchSection<{ data: FoehnPoint[] }>('/api/vento/foehn', setFoehn),
     ]).finally(() => setRefreshing(false))
   }, [fetchSection])
 
@@ -280,8 +733,8 @@ export function VentoClient() {
     return () => clearInterval(interval)
   }, [fetchAll])
 
-  const hasAnyData = mch.data || others.data || lakes.data
-  const allLoading = mch.loading && others.loading && lakes.loading && !hasAnyData
+  const hasAnyData = mch.data || others.data || lakes.data || pressure.data || foehn.data
+  const allLoading = mch.loading && others.loading && lakes.loading && pressure.loading && foehn.loading && !hasAnyData
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
@@ -317,48 +770,63 @@ export function VentoClient() {
         <div className="mt-8 flex gap-6">
           <div className="min-w-0 flex-1 space-y-10">
             {/* MeteoSwiss stations */}
-            {mch.loading && !mch.data ? (
-              <SectionSkeleton title="Stazioni MeteoSwiss" />
-            ) : mch.error && !mch.data ? (
-              <SectionError title="Stazioni MeteoSwiss" />
-            ) : mch.data ? (
-              <StationsSection
-                title="Stazioni MeteoSwiss"
-                timestamp={mch.data.timestamp}
-                stations={mch.data.stations}
-              />
-            ) : null}
+            <div id="stazioni-meteoswiss">
+              {mch.loading && !mch.data ? (
+                <SectionSkeleton title="Stazioni MeteoSwiss" />
+              ) : mch.error && !mch.data ? (
+                <SectionError title="Stazioni MeteoSwiss" />
+              ) : mch.data ? (
+                <StationsSection
+                  title="Stazioni MeteoSwiss"
+                  timestamp={mch.data.timestamp}
+                  stations={mch.data.stations}
+                />
+              ) : null}
+            </div>
 
             {/* Other stations */}
-            {others.loading && !others.data ? (
-              <SectionSkeleton title="Altre stazioni" />
-            ) : others.error && !others.data ? (
-              <SectionError title="Altre stazioni" />
-            ) : others.data ? (
-              <StationsSection
-                title="Altre stazioni"
-                timestamp={others.data.timestamp}
-                stations={others.data.stations}
-              />
-            ) : null}
+            <div id="altre-stazioni">
+              {others.loading && !others.data ? (
+                <SectionSkeleton title="Altre stazioni" />
+              ) : others.error && !others.data ? (
+                <SectionError title="Altre stazioni" />
+              ) : others.data ? (
+                <StationsSection
+                  title="Altre stazioni"
+                  timestamp={others.data.timestamp}
+                  stations={others.data.stations}
+                />
+              ) : null}
+            </div>
 
-            {/* Pressure — static images, no API needed */}
-            <PressureSection />
+            {/* Pressure */}
+            <div id="pressione">
+              <PressureSection
+                data={pressure.data?.data ?? null}
+                loading={pressure.loading}
+                error={pressure.error}
+                foehnData={foehn.data?.data ?? null}
+                foehnLoading={foehn.loading}
+                foehnError={foehn.error}
+              />
+            </div>
 
             {/* Forecast — commented out for now */}
             {/* <ForecastSection forecast={[]} /> */}
 
             {/* Lakes */}
-            {lakes.loading && !lakes.data ? (
-              <SectionSkeleton title="Laghi" />
-            ) : lakes.error && !lakes.data ? (
-              <SectionError title="Laghi" />
-            ) : lakes.data ? (
-              <LakesSection lakes={lakes.data.lakes} />
-            ) : null}
+            <div id="laghi">
+              {lakes.loading && !lakes.data ? (
+                <SectionSkeleton title="Laghi" />
+              ) : lakes.error && !lakes.data ? (
+                <SectionError title="Laghi" />
+              ) : lakes.data ? (
+                <LakesSection lakes={lakes.data.lakes} />
+              ) : null}
+            </div>
 
             {/* Radiosondaggi */}
-            <section>
+            <section id="radiosondaggi">
               <h2 className="text-lg font-bold text-cvlt-gray-900">Radiosondaggi</h2>
               <p className="mt-2 text-sm text-cvlt-gray-600">
                 I radiosondaggi di Milano e Payerne sono disponibili su MeteoSvizzera.
