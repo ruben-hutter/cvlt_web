@@ -4,13 +4,32 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
-const navLinks = [
+type SubLink = { href: string; label: string }
+type NavLink = { href: string; label: string; subLinks?: SubLink[] }
+
+const navLinks: NavLink[] = [
   { href: '/notizie', label: 'Notizie' },
   { href: '/calendario', label: 'Calendario' },
   { href: '/galleria', label: 'Galleria' },
-  { href: '/vento', label: 'Vento' },
-  { href: '/gare', label: 'Gare' },
-  { href: '/info-volo', label: 'Info volo' },
+  { href: '/vento', label: 'Vento', subLinks: [
+    { href: '/vento#stazioni-meteoswiss', label: 'Stazioni MeteoSwiss' },
+    { href: '/vento#altre-stazioni', label: 'Altre stazioni' },
+    { href: '/vento#pressione', label: 'Pressione' },
+    { href: '/vento#laghi', label: 'Laghi' },
+    { href: '/vento#radiosondaggi', label: 'Radiosondaggi' },
+  ]},
+  { href: '/gare', label: 'Gare', subLinks: [
+    { href: '/gare#ccc', label: 'CCC' },
+    { href: '/gare#hike-and-fly', label: 'Hike & Fly' },
+    { href: '/gare#regio-sud', label: 'Regio Sud' },
+  ]},
+  { href: '/info-volo', label: 'Info volo', subLinks: [
+    { href: '/info-volo#spazio-aereo', label: 'Spazio aereo' },
+    { href: '/info-volo#meteo-vento', label: 'Meteo & Vento' },
+    { href: '/info-volo#link-meteo', label: 'Link meteo' },
+    { href: '/info-volo#webcam', label: 'Webcam' },
+    { href: '/info-volo#link-utili', label: 'Link utili' },
+  ]},
   { href: '/comitato', label: 'Comitato' },
   { href: '/adesione', label: 'Adesione' },
 ]
@@ -35,7 +54,7 @@ export function Header() {
           {navLinks.map((link) => {
             const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
             return (
-              <li key={link.href}>
+              <li key={link.href} className={link.subLinks ? 'group relative' : ''}>
                 <Link
                   href={link.href}
                   className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
@@ -46,6 +65,22 @@ export function Header() {
                 >
                   {link.label}
                 </Link>
+                {link.subLinks && (
+                  <div className="invisible absolute left-0 top-full z-50 pt-1 opacity-0 transition-all group-hover:visible group-hover:opacity-100">
+                    <ul className="min-w-[180px] rounded-lg border border-cvlt-gray-200 bg-white py-1 shadow-lg">
+                      {link.subLinks.map((sub) => (
+                        <li key={sub.href}>
+                          <Link
+                            href={sub.href}
+                            className="block px-4 py-2 text-sm text-cvlt-gray-700 transition-colors hover:bg-cvlt-gray-50 hover:text-cvlt-blue"
+                          >
+                            {sub.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </li>
             )
           })}

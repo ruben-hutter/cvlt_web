@@ -103,7 +103,7 @@ export function InfoVoloContent() {
       </p>
 
       {/* Spazio aereo */}
-      <div className="mt-10">
+      <div id="spazio-aereo" className="mt-10">
         <h2 className="text-xl font-bold text-cvlt-gray-900">Spazio aereo</h2>
         <p className="mt-2 text-sm text-cvlt-gray-600">
           Il Ticino presenta diverse zone regolamentate. Prima di ogni volo consulta il{' '}
@@ -230,7 +230,7 @@ export function InfoVoloContent() {
       </div>
 
       {/* Vento CVLT */}
-      <div className="mt-10">
+      <div id="meteo-vento" className="mt-10">
         <h2 className="text-xl font-bold text-cvlt-gray-900">Meteo &amp; Vento</h2>
         <a
           href="/vento"
@@ -262,7 +262,7 @@ export function InfoVoloContent() {
       </div>
 
       {/* Altri link meteo */}
-      <div className="mt-10">
+      <div id="link-meteo" className="mt-10">
         <h2 className="text-xl font-bold text-cvlt-gray-900">Altri link meteo</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <LinkCard
@@ -299,7 +299,7 @@ export function InfoVoloContent() {
       </div>
 
       {/* Webcams */}
-      <div className="mt-10">
+      <div id="webcam" className="mt-10">
         <h2 className="text-xl font-bold text-cvlt-gray-900">Webcam</h2>
         <p className="mt-2 text-sm text-cvlt-gray-700">
           Webcam utili per valutare le condizioni di volo in Ticino.
@@ -329,7 +329,7 @@ export function InfoVoloContent() {
       </div>
 
       {/* Link utili */}
-      <div className="mt-10">
+      <div id="link-utili" className="mt-10">
         <h2 className="text-xl font-bold text-cvlt-gray-900">Link utili</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <LinkCard

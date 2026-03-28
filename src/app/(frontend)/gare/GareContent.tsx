@@ -313,7 +313,7 @@ export function GareContent() {
       </p>
 
       {/* ── CCC ── */}
-      <div className="mt-10">
+      <div id="ccc" className="mt-10">
         <h2 className="text-xl font-bold text-cvlt-gray-900">CCC — Cross Country Cup</h2>
         <p className="mt-2 text-sm text-cvlt-gray-600">
           La CCC è la competizione annuale di cross-country del CVLT, gestita tramite{' '}
@@ -396,7 +396,7 @@ export function GareContent() {
       </div>
 
       {/* ── Hike & Fly ── */}
-      <div className="mt-12">
+      <div id="hike-and-fly" className="mt-12">
         <h2 className="text-xl font-bold text-cvlt-gray-900">Campionato ticinese di Hike &amp; Fly</h2>
         <p className="mt-2 text-sm text-cvlt-gray-600">
           Il campionato ticinese di Hike &amp; Fly raggruppa diverse gare organizzate in Ticino e Moesano
@@ -492,7 +492,7 @@ export function GareContent() {
       </div>
 
       {/* ── Regio Sud ── */}
-      <div className="mt-12">
+      <div id="regio-sud" className="mt-12">
         <h2 className="text-xl font-bold text-cvlt-gray-900">Regio Sud (Miniliga)</h2>
         <p className="mt-2 text-sm text-cvlt-gray-600">
           La{' '}<ExternalLink href="https://www.swissleague.ch">Swiss League</ExternalLink>{' '}
