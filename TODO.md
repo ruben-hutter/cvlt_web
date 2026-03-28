@@ -3,6 +3,8 @@
 ## High priority
 
 - [x] Check password reset
+- [ ] Check before pull on server, that the last changes (2FA) did not alter the db or get help to integrate the changes without losing data
+- [ ] Update style on mobile for "Vento" page. A lot of scrolling needed now, you don't have the overview of all stations at a glance.
 - [ ] Info volo: mettere "Altri link meteo" sotto "Meteo & vento" e non come sezione a parte
 - [ ] Mostrare dropdown / submenu per sezioni Info volo
 - [ ] Shop
