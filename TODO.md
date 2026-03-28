@@ -3,11 +3,10 @@
 ## High priority
 
 - [x] Check password reset
-- [ ] Info volo: mettere "Altri link meteo" sotto "Meteo & vento" e non come sezione a parte
-- [ ] Mostrare dropdown / submenu per sezioni Info volo
+- [ ] Check before pull on server, that the last changes (2FA) did not alter the db or get help to integrate the changes without losing data
+- [ ] Update style on mobile for "Vento" page. A lot of scrolling needed now, you don't have the overview of all stations at a glance.
 - [ ] Shop
     - Checkout Saferpay or similar
-- [ ] TMA Locarno image from their Facebook page (was on old website)
 - [ ] Zone tranquillità: prendere dal sito vecchio
 - [ ] Pagina "Voli in Biposto" (https://cvlt.ch/voli-biposto/)
     - Non so ancora dove metterla.. pagina nel menu principale? (Menu principale inizia a diventare un po' affollato)
@@ -43,6 +42,9 @@
 
 ## Done
 
+- [x] Dropdown / submenu per sezioni Vento, Gare, Info volo con anchor links
+- [x] Live pressure chart (MAG-KLO) + föhn forecast (DWD MOSMIX Lugano-Zürich)
+- [x] TMA Locarno image on homepage sidebar and info volo page
 - [x] Verify vento data matches the old vento.cvlt.ch page
 - [x] Slug-based URLs for events + Payload migration
 - [x] Gare page (CCC, Hike & Fly, Regio Sud)
