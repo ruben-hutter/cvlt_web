@@ -2,9 +2,10 @@
 
 ## High priority
 
-- [x] Check password reset
-- [ ] Check before pull on server, that the last changes (2FA) did not alter the db or get help to integrate the changes without losing data
-- [ ] Update style on mobile for "Vento" page. A lot of scrolling needed now, you don't have the overview of all stations at a glance.
+- [x] Check before pull on server, that the last changes (2FA) did not alter the db or get help to integrate the changes without losing data
+- [x] Update style on mobile for "Vento" page. A lot of scrolling needed now, you don't have the overview of all stations at a glance.
+- [x] News cards fully clickable/touchable on mobile (whole card is a Link now)
+- [x] Checkout errors that Nico told me on Signal (font preload warnings — known Next.js behavior, not a bug)
 - [ ] Shop
     - Checkout Saferpay or similar
 - [ ] Zone tranquillità: prendere dal sito vecchio
@@ -42,6 +43,7 @@
 
 ## Done
 
+- [x] Check password reset
 - [x] Dropdown / submenu per sezioni Vento, Gare, Info volo con anchor links
 - [x] Live pressure chart (MAG-KLO) + föhn forecast (DWD MOSMIX Lugano-Zürich)
 - [x] TMA Locarno image on homepage sidebar and info volo page
