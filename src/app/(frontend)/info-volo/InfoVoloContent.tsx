@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import Lightbox from 'yet-another-react-lightbox'
+import 'yet-another-react-lightbox/styles.css'
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -92,7 +94,15 @@ function LinkCard({
   )
 }
 
+const ztSlides = [
+  { src: '/zt_02.jpg', alt: 'Scheda ZT.02 Capolago' },
+  { src: '/zt_20.jpg', alt: "Scheda ZT.20 Pizzo d'Orgnana" },
+  { src: '/zt_27.jpg', alt: 'Scheda ZT.27 Brogoldone' },
+]
+
 export function InfoVoloContent() {
+  const [ztIndex, setZtIndex] = useState(-1)
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="text-3xl font-bold text-cvlt-gray-900">Informazioni di volo</h1>
@@ -138,12 +148,12 @@ export function InfoVoloContent() {
             </p>
             <ul className="mt-3 list-inside list-disc space-y-1">
               <li>
-                <strong>TMA Locarno-Magadino</strong> — temporanea, attivata solo durante gli
+                <strong>TMA Locarno-Magadino</strong> &mdash; temporanea, attivata solo durante gli
                 orari operativi dell&apos;aeroporto. Quando attiva limita il volo sopra una
                 certa quota.
               </li>
               <li>
-                <strong>TMA Milano</strong> — permanente, può limitare la quota nel
+                <strong>TMA Milano</strong> &mdash; permanente, può limitare la quota nel
                 Sottoceneri (zona Lugano/Mendrisio). Verificare le altitudini sul DABS.
               </li>
             </ul>
@@ -190,11 +200,11 @@ export function InfoVoloContent() {
             </p>
             <ul className="mt-3 list-inside list-disc space-y-1">
               <li>
-                <strong>Durante orari militari (HX)</strong> — limite inferiore FL 130
+                <strong>Durante orari militari (HX)</strong> &mdash; limite inferiore FL 130
                 (~3950 m)
               </li>
               <li>
-                <strong>Al di fuori degli orari militari</strong> — limite inferiore FL 150
+                <strong>Al di fuori degli orari militari</strong> &mdash; limite inferiore FL 150
                 (~4550 m)
               </li>
             </ul>
@@ -206,25 +216,48 @@ export function InfoVoloContent() {
 
           <Section title="Zone di tranquillità">
             <p>
-              Zone di protezione della fauna con divieto di sorvolo sotto 200 m AGL (sopra il
-              livello del suolo). Attenzione alle restrizioni stagionali:
+              Zone di protezione della fauna con <strong>raccomandazione</strong> di sorvolo
+              ad una distanza minima dal suolo di 200 m. Attenzione alle restrizioni stagionali:
             </p>
             <ul className="mt-3 list-inside list-disc space-y-1">
               <li>
-                <strong>ZT.02 Capolago</strong> — 15 febbraio – 15 agosto
+                <strong>ZT.02 Capolago</strong> &mdash; 15 febbraio &ndash; 15 agosto
               </li>
               <li>
-                <strong>ZT.20 Pizzo d&apos;Orgnana</strong> — 1 gennaio – 31 marzo
+                <strong>ZT.20 Pizzo d&apos;Orgnana</strong> &mdash; 1 gennaio &ndash; 31 marzo
               </li>
               <li>
-                <strong>ZT.27 Brogoldone</strong> — 1 gennaio – 31 marzo
+                <strong>ZT.27 Brogoldone</strong> &mdash; 1 gennaio &ndash; 31 marzo
               </li>
             </ul>
-            <p className="mt-3">
-              <ExternalLink href="https://map.geo.admin.ch/?layers=ch.bafu.wrz-wildruhezonen_portal">
-                Mappa zone di tranquillità
-              </ExternalLink>
-            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {ztSlides.map((slide, i) => (
+                <img
+                  key={slide.src}
+                  src={slide.src}
+                  alt={slide.alt}
+                  className="w-full cursor-pointer rounded-lg border border-cvlt-gray-200 transition-opacity hover:opacity-80"
+                  onClick={() => setZtIndex(i)}
+                />
+              ))}
+            </div>
+            <ul className="mt-4 list-inside list-disc space-y-1">
+              <li>
+                <ExternalLink href="https://www.zone-di-tranquillita.ch/">
+                  zone-di-tranquillita.ch
+                </ExternalLink>
+              </li>
+              <li>
+                <ExternalLink href="https://www4.ti.ch/dt/da/ucp/temi/caccia/caccia/pubblicazione-decreto-delle-zone-di-tranquillita-per-la-fauna-selvatica/">
+                  Decreto cantonale
+                </ExternalLink>
+              </li>
+              <li>
+                <ExternalLink href="https://map.geo.admin.ch/?layers=ch.bafu.wrz-wildruhezonen_portal">
+                  Mappa zone vincolanti
+                </ExternalLink>
+              </li>
+            </ul>
           </Section>
         </div>
       </div>
@@ -364,6 +397,12 @@ export function InfoVoloContent() {
           />
         </div>
       </div>
+      <Lightbox
+        open={ztIndex >= 0}
+        close={() => setZtIndex(-1)}
+        index={ztIndex}
+        slides={ztSlides}
+      />
     </main>
   )
 }
