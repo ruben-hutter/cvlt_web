@@ -1,6 +1,6 @@
 # CVLT Web
 
-Sito web del **Club Volo Libero Ticino** (cvlt.ch) — paragliding club of Ticino, Switzerland.
+Website of the **Club Volo Libero Ticino** (cvlt.ch) — paragliding club of Ticino, Switzerland.
 
 Built with [Next.js](https://nextjs.org/) and [Payload CMS](https://payloadcms.com/).
 
