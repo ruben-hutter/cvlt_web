@@ -121,11 +121,11 @@ export default async function HomePage() {
                   const event = article.relatedEvent && typeof article.relatedEvent === 'object'
                     ? article.relatedEvent : null
                   return (
-                    <div
+                    <Link
                       key={article.id}
-                      className="group relative flex gap-4 rounded-lg border border-cvlt-gray-200 p-4 transition-all hover:border-cvlt-blue/30 hover:shadow-md"
+                      href={`/notizie/${article.slug}`}
+                      className="group flex gap-4 rounded-lg border border-cvlt-gray-200 p-4 transition-all hover:border-cvlt-blue/30 hover:shadow-md"
                     >
-                      <Link href={`/notizie/${article.slug}`} className="absolute inset-0 z-0" aria-hidden="true" />
                       {thumb && (
                         <img
                           src={thumb}
@@ -133,7 +133,7 @@ export default async function HomePage() {
                           width={72}
                           height={72}
                           style={{ width: 72, height: 72, objectFit: 'cover', flexShrink: 0 }}
-                          className="relative rounded-md"
+                          className="rounded-md"
                         />
                       )}
                       <div className="min-w-0">
@@ -148,19 +148,18 @@ export default async function HomePage() {
                           {article.title}
                         </h3>
                         {event && (
-                          <Link
-                            href={`/calendario/${event.slug || event.id}`}
-                            className="relative z-10 mt-1.5 inline-flex items-center gap-1 rounded-full bg-cvlt-blue-light px-2 py-0.5 text-xs font-medium text-cvlt-blue transition-colors hover:bg-cvlt-blue hover:text-white"
+                          <span
+                            className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-cvlt-blue-light px-2 py-0.5 text-xs font-medium text-cvlt-blue"
                           >
                             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
                               <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
                             </svg>
                             {event.title}
-                          </Link>
+                          </span>
                         )}
                       </div>
-                    </div>
+                    </Link>
                   )
                 })}
               </div>
