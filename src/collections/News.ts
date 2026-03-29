@@ -259,15 +259,6 @@ export const News: CollectionConfig = {
           },
         ],
       },
-      validate: (value) => {
-        if (!value) return true
-        const selected = new Date(value)
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        selected.setHours(0, 0, 0, 0)
-        if (selected < today) return 'La data di pubblicazione non può essere nel passato.'
-        return true
-      },
       admin: {
         position: 'sidebar',
         description: 'La notizia sarà visibile a partire da questa data. Predefinito: oggi.',
