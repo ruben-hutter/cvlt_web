@@ -8,7 +8,7 @@
 - [x] Checkout errors that Nico told me on Signal (font preload warnings — known Next.js behavior, not a bug)
 - [ ] Shop
     - Checkout Saferpay or similar
-- [ ] Zone tranquillità: prendere dal sito vecchio
+- [x] Zone tranquillità: prendere dal sito vecchio
 - [ ] Pagina "Voli in Biposto" (https://cvlt.ch/voli-biposto/)
     - Non so ancora dove metterla.. pagina nel menu principale? (Menu principale inizia a diventare un po' affollato)
     - [ ] Riorg. menu principale
