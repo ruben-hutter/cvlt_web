@@ -44,38 +44,6 @@ function Section({
   )
 }
 
-function MiniSection({
-  title,
-  children,
-  defaultOpen = false,
-}: {
-  title: string
-  children: React.ReactNode
-  defaultOpen?: boolean
-}) {
-  const [open, setOpen] = useState(defaultOpen)
-
-  return (
-    <div className="border-b border-cvlt-gray-100 last:border-b-0">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between py-2 text-left text-sm font-semibold text-cvlt-gray-900 transition-colors hover:text-cvlt-blue"
-      >
-        {title}
-        <svg
-          className={`h-4 w-4 flex-shrink-0 text-cvlt-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-        </svg>
-      </button>
-      {open && <div className="pb-3 text-sm">{children}</div>}
-    </div>
-  )
-}
 
 function ExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
@@ -102,6 +70,19 @@ const hikeAndFlyRaces = [
 ]
 
 const cccHallOfFame: { year: number; link?: string; results: { cat: string; name: string; points: string }[] }[] = [
+  {
+    year: 2025,
+    link: 'https://www.xcontest.org/2025/ccc-cvlt/voli',
+    results: [
+      { cat: 'Rondini (EN-A)', name: 'Alex Pugni', points: '428.69' },
+      { cat: 'Nibbi (EN-B)', name: 'Diego Verzaroli', points: '2043.97' },
+      { cat: 'Aquile (EN-C)', name: 'Diego Verzaroli', points: '2043.97' },
+      { cat: 'Gipeti (EN-D)', name: 'Diego Verzaroli', points: '2043.97' },
+      { cat: 'Merli', name: 'Mattia Vosti', points: '111.49' },
+      { cat: 'Falchi', name: 'Lorenz Barchi', points: '18.64' },
+      { cat: 'Miglior donna', name: 'Jasmine Vismara (EN-B)', points: '1436.49' },
+    ],
+  },
   {
     year: 2024,
     link: 'https://www.xcontest.org/2024/ccc-cvlt/voli',
@@ -280,26 +261,49 @@ const cccHallOfFame: { year: number; link?: string; results: { cat: string; name
   },
 ]
 
-function HallOfFameTable({ results }: { results: { cat: string; name: string; points: string }[] }) {
+function HallOfFame() {
+  const [selectedYear, setSelectedYear] = useState(cccHallOfFame[0].year)
+  const entry = cccHallOfFame.find((e) => e.year === selectedYear)!
+
   return (
-    <table className="w-full text-left text-sm">
-      <thead>
-        <tr className="border-b border-cvlt-gray-200 text-xs font-semibold uppercase tracking-wide text-cvlt-gray-500">
-          <th className="w-[40%] pb-2 pr-4">Categoria</th>
-          <th className="w-[40%] pb-2 pr-4">Nome</th>
-          <th className="w-[20%] pb-2 text-right">Punti</th>
-        </tr>
-      </thead>
-      <tbody>
-        {results.map((r) => (
-          <tr key={r.cat} className="border-b border-cvlt-gray-100 last:border-b-0">
-            <td className="py-1.5 pr-4 text-cvlt-gray-500">{r.cat}</td>
-            <td className="py-1.5 pr-4 font-medium text-cvlt-gray-900">{r.name}</td>
-            <td className="py-1.5 text-right tabular-nums">{r.points}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div>
+      <div className="mb-4 flex items-center gap-3">
+        <select
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(Number(e.target.value))}
+          className="rounded-lg border border-cvlt-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-cvlt-gray-900 shadow-sm focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+        >
+          {cccHallOfFame.map((e) => (
+            <option key={e.year} value={e.year}>
+              CCC {e.year}
+            </option>
+          ))}
+        </select>
+        {entry.link && (
+          <ExternalLink href={entry.link}>Classifica completa</ExternalLink>
+        )}
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-cvlt-gray-200 text-xs font-semibold uppercase tracking-wide text-cvlt-gray-500">
+              <th className="w-[40%] pb-2 pr-4">Categoria</th>
+              <th className="w-[40%] pb-2 pr-4">Nome</th>
+              <th className="w-[20%] pb-2 text-right">Punti</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entry.results.map((r) => (
+              <tr key={r.cat} className="border-b border-cvlt-gray-100 last:border-b-0">
+                <td className="py-1.5 pr-4 text-cvlt-gray-500">{r.cat}</td>
+                <td className="py-1.5 pr-4 font-medium text-cvlt-gray-900">{r.name}</td>
+                <td className="py-1.5 text-right tabular-nums">{r.points}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   )
 }
 
@@ -377,20 +381,7 @@ export function GareContent() {
           </Section>
 
           <Section title="Hall of Fame">
-            <div className="space-y-1">
-              {cccHallOfFame.map((year, i) => (
-                <MiniSection key={year.year} title={`CCC ${year.year}`} defaultOpen={i === 0}>
-                  <div className="overflow-x-auto">
-                    <HallOfFameTable results={year.results} />
-                  </div>
-                  {year.link && (
-                    <p className="mt-2">
-                      <ExternalLink href={year.link}>Voli e classifica completa</ExternalLink>
-                    </p>
-                  )}
-                </MiniSection>
-              ))}
-            </div>
+            <HallOfFame />
           </Section>
         </div>
       </div>
