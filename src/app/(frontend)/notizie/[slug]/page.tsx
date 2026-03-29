@@ -147,7 +147,7 @@ export default async function NewsArticlePage({ params }: Args) {
                       year: 'numeric',
                     })}
                     {relatedEvent.endDate && (
-                      <> — {new Date(relatedEvent.endDate).toLocaleDateString('it-CH', {
+                      <> &mdash; {new Date(relatedEvent.endDate).toLocaleDateString('it-CH', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',
@@ -165,7 +165,7 @@ export default async function NewsArticlePage({ params }: Args) {
                         year: 'numeric',
                       })}
                       {relatedEvent.backupEndDate && (
-                        <> — {new Date(relatedEvent.backupEndDate).toLocaleDateString('it-CH', {
+                        <> &mdash; {new Date(relatedEvent.backupEndDate).toLocaleDateString('it-CH', {
                           day: 'numeric',
                           month: 'long',
                           year: 'numeric',

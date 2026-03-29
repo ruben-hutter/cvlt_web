@@ -62,7 +62,7 @@ export default async function PreviewPage({ params, searchParams }: Args) {
       {/* Preview banner — only shown when opened in new tab, not in live preview panel */}
       {!isLivePreview && (
         <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-          Anteprima — questa notizia non è ancora pubblicata.
+          Anteprima &mdash; questa notizia non è ancora pubblicata.
           {article.status === 'draft' && ' Stato: Bozza.'}
           {article.publishDate && (
             <> Pubblicazione prevista: {new Date(article.publishDate).toLocaleDateString('it-CH', {
@@ -147,7 +147,7 @@ export default async function PreviewPage({ params, searchParams }: Args) {
                       day: 'numeric', month: 'long', year: 'numeric',
                     })}
                     {relatedEvent.endDate && (
-                      <> — {new Date(relatedEvent.endDate).toLocaleDateString('it-CH', {
+                      <> &mdash; {new Date(relatedEvent.endDate).toLocaleDateString('it-CH', {
                         day: 'numeric', month: 'long', year: 'numeric',
                       })}</>
                     )}
@@ -161,7 +161,7 @@ export default async function PreviewPage({ params, searchParams }: Args) {
                         day: 'numeric', month: 'long', year: 'numeric',
                       })}
                       {relatedEvent.backupEndDate && (
-                        <> — {new Date(relatedEvent.backupEndDate).toLocaleDateString('it-CH', {
+                        <> &mdash; {new Date(relatedEvent.backupEndDate).toLocaleDateString('it-CH', {
                           day: 'numeric', month: 'long', year: 'numeric',
                         })}</>
                       )}

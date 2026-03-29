@@ -187,7 +187,7 @@ export default async function HomePage() {
                             month: 'short',
                           })}
                           {event.endDate && (
-                            <> – {new Date(event.endDate).toLocaleDateString('it-CH', {
+                            <> &ndash; {new Date(event.endDate).toLocaleDateString('it-CH', {
                               day: 'numeric',
                               month: 'short',
                             })}</>
@@ -223,7 +223,7 @@ export default async function HomePage() {
               <div className="mt-4">
                 <p className="text-sm text-cvlt-gray-700">
                   Voli nella Svizzera italiana ma non sei socio?
-                  Aiutaci con un Twint di 5.– CHF a mantenere decolli e atterraggi.
+                  Aiutaci con un Twint di 5.&ndash; CHF a mantenere decolli e atterraggi.
                 </p>
                 <div className="mt-2">
                   <TwintButton solutionId="kcmhc" />

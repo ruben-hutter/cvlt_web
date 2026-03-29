@@ -93,7 +93,7 @@ function EventDetail({ event, onClose }: { event: Event; onClose: () => void }) 
           <dd className={event.useBackupDate ? 'text-gray-400 line-through' : ''}>
             {new Date(event.startDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}
             {event.endDate && (
-              <> — {new Date(event.endDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}</>
+              <> &mdash; {new Date(event.endDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}</>
             )}
           </dd>
         </div>
@@ -105,7 +105,7 @@ function EventDetail({ event, onClose }: { event: Event; onClose: () => void }) 
             <dd className={event.useBackupDate ? 'font-medium text-cvlt-gray-900' : ''}>
               {new Date(event.backupStartDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}
               {event.backupEndDate && (
-                <> — {new Date(event.backupEndDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}</>
+                <> &mdash; {new Date(event.backupEndDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}</>
               )}
             </dd>
           </div>
@@ -506,7 +506,7 @@ export function CalendarGrid({ events }: { events: Event[] }) {
                     <div className="text-sm text-gray-500">
                       {new Date(e.startDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long' })}
                       {e.endDate && (
-                        <> — {new Date(e.endDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long' })}</>
+                        <> &mdash; {new Date(e.endDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long' })}</>
                       )}
                       {e.location && <> · {e.location}</>}
                     </div>

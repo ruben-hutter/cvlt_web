@@ -392,7 +392,7 @@ export function MembershipForm() {
                 className="accent-cvlt-blue"
               />
               <span className="font-medium">{option.label}</span>
-              <span className="text-sm text-gray-500">— {option.price}</span>
+              <span className="text-sm text-gray-500">&mdash; {option.price}</span>
             </label>
           ))}
         </div>

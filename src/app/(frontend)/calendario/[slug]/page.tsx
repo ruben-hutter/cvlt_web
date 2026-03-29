@@ -209,7 +209,7 @@ export default async function EventPage({ params }: Args) {
                     year: 'numeric',
                   })}
                   {event.endDate && (
-                    <> — {new Date(event.endDate).toLocaleDateString('it-CH', {
+                    <> &mdash; {new Date(event.endDate).toLocaleDateString('it-CH', {
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',
@@ -227,7 +227,7 @@ export default async function EventPage({ params }: Args) {
                       year: 'numeric',
                     })}
                     {event.backupEndDate && (
-                      <> — {new Date(event.backupEndDate).toLocaleDateString('it-CH', {
+                      <> &mdash; {new Date(event.backupEndDate).toLocaleDateString('it-CH', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',

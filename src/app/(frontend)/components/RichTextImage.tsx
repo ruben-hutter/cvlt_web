@@ -122,7 +122,7 @@ function RenderBlock({ block }: { block: LayoutBlock }) {
         <blockquote className="border-l-4 border-gray-300 pl-6 italic text-gray-700">
           <p className="text-lg">{block.text}</p>
           {block.author && (
-            <footer className="mt-2 text-sm font-medium text-gray-500">— {block.author}</footer>
+            <footer className="mt-2 text-sm font-medium text-gray-500">&mdash; {block.author}</footer>
           )}
         </blockquote>
       )

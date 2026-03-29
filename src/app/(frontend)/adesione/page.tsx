@@ -28,11 +28,11 @@ export default function MembershipPage() {
         <ul className="mt-2 space-y-1">
           <li className="flex justify-between sm:justify-start sm:gap-6">
             <span>Soci attivi</span>
-            <span className="font-semibold text-cvlt-gray-900">CHF 40.–</span>
+            <span className="font-semibold text-cvlt-gray-900">CHF 40.&ndash;</span>
           </li>
           <li className="flex justify-between sm:justify-start sm:gap-6">
             <span>Famiglie</span>
-            <span className="font-semibold text-cvlt-gray-900">CHF 45.–</span>
+            <span className="font-semibold text-cvlt-gray-900">CHF 45.&ndash;</span>
           </li>
           <li className="flex justify-between sm:justify-start sm:gap-6">
             <span>Sostenitori</span>

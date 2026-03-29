@@ -314,7 +314,7 @@ export function GareContent() {
 
       {/* ── CCC ── */}
       <div id="ccc" className="mt-10">
-        <h2 className="text-xl font-bold text-cvlt-gray-900">CCC — Cross Country Cup</h2>
+        <h2 className="text-xl font-bold text-cvlt-gray-900">CCC &mdash; Cross Country Cup</h2>
         <p className="mt-2 text-sm text-cvlt-gray-600">
           La CCC è la competizione annuale di cross-country del CVLT, gestita tramite{' '}
           <ExternalLink href="https://www.xcontest.org/ccc-cvlt">XContest</ExternalLink>.
@@ -351,12 +351,12 @@ export function GareContent() {
               <div>
                 <h4 className="font-semibold text-cvlt-gray-900">Categorie</h4>
                 <ul className="mt-1 list-inside list-disc space-y-1">
-                  <li><strong>Rondini</strong> — vele fino a EN-A</li>
-                  <li><strong>Nibbi</strong> — vele fino a EN-B</li>
-                  <li><strong>Aquile</strong> — vele fino a EN-C</li>
-                  <li><strong>Gipeti</strong> — vele fino a EN-D</li>
-                  <li><strong>Merli</strong> — parapendio tandem</li>
-                  <li><strong>Falchi</strong> — delta, tutte le omologazioni</li>
+                  <li><strong>Rondini</strong> &mdash; vele fino a EN-A</li>
+                  <li><strong>Nibbi</strong> &mdash; vele fino a EN-B</li>
+                  <li><strong>Aquile</strong> &mdash; vele fino a EN-C</li>
+                  <li><strong>Gipeti</strong> &mdash; vele fino a EN-D</li>
+                  <li><strong>Merli</strong> &mdash; parapendio tandem</li>
+                  <li><strong>Falchi</strong> &mdash; delta, tutte le omologazioni</li>
                 </ul>
               </div>
               <div>
