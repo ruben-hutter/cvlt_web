@@ -579,9 +579,9 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
       <div className="mt-3 space-y-4">
         <div>
           <h3 className="mb-1 text-sm font-medium text-cvlt-gray-600">
-            Dati misurati: Magadino–Kloten (MAG-KLO) e Vento Matro
+            Dati misurati: Magadino&ndash;Kloten (MAG-KLO) e Vento Matro
           </h3>
-          <p className="mb-2 text-xs text-cvlt-gray-400">Ultimi 7 giorni — dati orari MeteoSwiss</p>
+          <p className="mb-2 text-xs text-cvlt-gray-400">Ultimi 7 giorni &mdash; dati orari MeteoSwiss</p>
           {loading && !data ? (
             <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
               <span className="text-sm text-cvlt-gray-400 animate-pulse">Caricamento dati pressione...</span>
@@ -596,9 +596,9 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
         </div>
         <div>
           <h3 className="mb-1 text-sm font-medium text-cvlt-gray-600">
-            Previsione föhn: Lugano–Zürich
+            Previsione föhn: Lugano&ndash;Zürich
           </h3>
-          <p className="mb-2 text-xs text-cvlt-gray-400">Prossimi ~10 giorni — prognosi MOSMIX (DWD)</p>
+          <p className="mb-2 text-xs text-cvlt-gray-400">Prossimi ~10 giorni &mdash; prognosi MOSMIX (DWD)</p>
           {foehnLoading && !foehnData ? (
             <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
               <span className="text-sm text-cvlt-gray-400 animate-pulse">Caricamento previsione föhn...</span>
@@ -637,10 +637,10 @@ function WindLegend() {
       </div>
       <div className="flex items-center gap-2">
         <span className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-amber-200 bg-amber-50" />
-        <span className="text-amber-600">5–15 km/h</span>
+        <span className="text-amber-600">5&ndash;15 km/h</span>
       </div>
       <div className="pt-1 text-cvlt-gray-400">
-        Velocità media – raffica
+        Velocità media &ndash; raffica
       </div>
     </div>
   )
@@ -762,6 +762,7 @@ export function VentoClient() {
   const fetchSection = useCallback(async <T,>(
     url: string,
     setter: React.Dispatch<React.SetStateAction<SectionState<T>>>,
+    cacheKey: string,
   ) => {
     setter((prev) => ({ ...prev, loading: true }))
     try {
@@ -769,6 +770,7 @@ export function VentoClient() {
       if (!res.ok) throw new Error()
       const data = await res.json()
       setter({ data, loading: false, error: false })
+      try { localStorage.setItem(cacheKey, JSON.stringify(data)) } catch {}
     } catch {
       setter((prev) => ({ ...prev, loading: false, error: true }))
     }
@@ -777,19 +779,49 @@ export function VentoClient() {
   const fetchAll = useCallback(() => {
     setRefreshing(true)
     Promise.all([
-      fetchSection<StationsResponse>('/api/vento/mch', setMch),
-      fetchSection<StationsResponse>('/api/vento/others', setOthers),
-      fetchSection<LakesResponse>('/api/vento/lakes', setLakes),
-      fetchSection<{ data: PressurePoint[] }>('/api/vento/pressure', setPressure),
-      fetchSection<{ data: FoehnPoint[] }>('/api/vento/foehn', setFoehn),
+      fetchSection<StationsResponse>('/api/vento/mch', setMch, 'vento:mch'),
+      fetchSection<StationsResponse>('/api/vento/others', setOthers, 'vento:others'),
+      fetchSection<LakesResponse>('/api/vento/lakes', setLakes, 'vento:lakes'),
+      fetchSection<{ data: PressurePoint[] }>('/api/vento/pressure', setPressure, 'vento:pressure'),
+      fetchSection<{ data: FoehnPoint[] }>('/api/vento/foehn', setFoehn, 'vento:foehn'),
     ]).finally(() => setRefreshing(false))
   }, [fetchSection])
 
+  // Load cached data instantly, then fetch fresh data
   useEffect(() => {
+    const cacheKeys = [
+      { key: 'vento:mch', setter: setMch },
+      { key: 'vento:others', setter: setOthers },
+      { key: 'vento:lakes', setter: setLakes },
+      { key: 'vento:pressure', setter: setPressure },
+      { key: 'vento:foehn', setter: setFoehn },
+    ]
+    for (const { key, setter } of cacheKeys) {
+      try {
+        const cached = localStorage.getItem(key)
+        if (cached) setter({ data: JSON.parse(cached), loading: true, error: false })
+      } catch {}
+    }
     fetchAll()
     const interval = setInterval(fetchAll, 5 * 60 * 1000)
     return () => clearInterval(interval)
   }, [fetchAll])
+
+  // Scroll to hash anchor after content renders
+  const hasScrolled = useRef(false)
+  useEffect(() => {
+    if (hasScrolled.current) return
+    const hash = window.location.hash.slice(1)
+    if (!hash) return
+    const hasAny = mch.data || others.data || lakes.data || pressure.data || foehn.data
+    if (!hasAny) return
+    hasScrolled.current = true
+    // Wait a tick for DOM to render
+    requestAnimationFrame(() => {
+      const el = document.getElementById(hash)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    })
+  }, [mch.data, others.data, lakes.data, pressure.data, foehn.data])
 
   const hasAnyData = mch.data || others.data || lakes.data || pressure.data || foehn.data
   const allLoading = mch.loading && others.loading && lakes.loading && pressure.loading && foehn.loading && !hasAnyData
