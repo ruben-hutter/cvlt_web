@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Lightbox from 'yet-another-react-lightbox'
+import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import Video from 'yet-another-react-lightbox/plugins/video'
 import 'yet-another-react-lightbox/styles.css'
 
@@ -86,7 +87,7 @@ export function PhotoGrid({ photos }: { photos: MediaItem[] }) {
         close={() => setIndex(-1)}
         index={index}
         slides={slides}
-        plugins={[Video]}
+        plugins={[Video, Fullscreen]}
         video={{ autoPlay: true, controls: true }}
       />
     </>

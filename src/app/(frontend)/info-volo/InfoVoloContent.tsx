@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import Lightbox from 'yet-another-react-lightbox'
+import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import 'yet-another-react-lightbox/styles.css'
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -402,6 +403,7 @@ export function InfoVoloContent() {
         close={() => setZtIndex(-1)}
         index={ztIndex}
         slides={ztSlides}
+        plugins={[Fullscreen]}
       />
     </main>
   )
