@@ -34,50 +34,74 @@ function windLevelBorder(level: WindStation['windLevel']) {
 }
 
 function StationCard({ station }: { station: WindStation }) {
+  const peakIcon = station.isPeak ? (
+    <svg className="h-3.5 w-3.5 flex-shrink-0 text-cvlt-gray-400 sm:h-4 sm:w-4" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z" />
+    </svg>
+  ) : (
+    <svg className="h-3.5 w-3.5 flex-shrink-0 text-cvlt-gray-300 sm:h-4 sm:w-4" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="2" y="16" width="20" height="2" rx="1" />
+    </svg>
+  )
+
   return (
-    <div className={`rounded-lg border p-3 transition-shadow hover:shadow-md ${windLevelBorder(station.windLevel)}`}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
-            {station.isPeak ? (
-              <svg className="h-4 w-4 flex-shrink-0 text-cvlt-gray-400" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z" />
-              </svg>
-            ) : (
-              <svg className="h-4 w-4 flex-shrink-0 text-cvlt-gray-300" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="2" y="16" width="20" height="2" rx="1" />
-              </svg>
-            )}
-            <span className="truncate text-sm font-semibold text-cvlt-gray-900">{station.name}</span>
-          </div>
-        </div>
-        {station.lastUpdate && (
-          <span className="flex-shrink-0 text-xs text-cvlt-gray-400">{station.lastUpdate}</span>
+    <div className={`rounded-lg border p-2 transition-shadow hover:shadow-md sm:p-3 ${windLevelBorder(station.windLevel)}`}>
+      {/* Mobile: single compact row */}
+      <div className="flex items-center gap-2 sm:hidden">
+        {peakIcon}
+        <span className="min-w-0 flex-1 truncate text-xs font-semibold text-cvlt-gray-900">{station.name}</span>
+        {station.windDir !== null && (
+          <span className="text-cvlt-gray-500" title={`${station.windDir}°`}>
+            <WindArrow degrees={station.windDir} size={20} />
+          </span>
+        )}
+        <span className={`text-sm font-bold tabular-nums ${windLevelColor(station.windLevel)}`}>
+          {station.windAvg !== null ? (
+            <>{station.windAvg}<span className="text-[10px] font-normal">-</span>{station.windGust}</>
+          ) : '—'}
+        </span>
+        {station.temp && (
+          <span className="text-xs text-cvlt-gray-500">{station.temp}</span>
         )}
       </div>
 
-      <div className="mt-2 flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          {station.windDir !== null && (
-            <span className="text-cvlt-gray-500" title={`${station.windDir}°`}>
-              <WindArrow degrees={station.windDir} />
-            </span>
+      {/* Desktop: original two-row layout */}
+      <div className="hidden sm:block">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              {peakIcon}
+              <span className="truncate text-sm font-semibold text-cvlt-gray-900">{station.name}</span>
+            </div>
+          </div>
+          {station.lastUpdate && (
+            <span className="flex-shrink-0 text-xs text-cvlt-gray-400">{station.lastUpdate}</span>
           )}
-          <span className={`text-lg font-bold tabular-nums ${windLevelColor(station.windLevel)}`}>
-            {station.windAvg !== null ? (
-              <>{station.windAvg}<span className="text-xs font-normal"> - </span>{station.windGust}</>
-            ) : '—'}
-          </span>
-          <span className="text-xs text-cvlt-gray-400">km/h</span>
         </div>
 
-        {station.temp && (
-          <span className="text-sm text-cvlt-gray-600">{station.temp}</span>
-        )}
+        <div className="mt-2 flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {station.windDir !== null && (
+              <span className="text-cvlt-gray-500" title={`${station.windDir}°`}>
+                <WindArrow degrees={station.windDir} />
+              </span>
+            )}
+            <span className={`text-lg font-bold tabular-nums ${windLevelColor(station.windLevel)}`}>
+              {station.windAvg !== null ? (
+                <>{station.windAvg}<span className="text-xs font-normal"> - </span>{station.windGust}</>
+              ) : '—'}
+            </span>
+            <span className="text-xs text-cvlt-gray-400">km/h</span>
+          </div>
 
-        {station.cloudBase && (
-          <span className="text-xs text-green-700">{station.cloudBase}</span>
-        )}
+          {station.temp && (
+            <span className="text-sm text-cvlt-gray-600">{station.temp}</span>
+          )}
+
+          {station.cloudBase && (
+            <span className="text-xs text-green-700">{station.cloudBase}</span>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -114,7 +138,7 @@ function StationsSection({ title, timestamp, stations }: { title: string; timest
         <h2 className="text-lg font-bold text-cvlt-gray-900">{title}</h2>
         {timestamp && <span className="text-xs text-cvlt-gray-400">{timestamp}</span>}
       </div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-2 grid grid-cols-1 gap-1.5 sm:mt-3 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
         {stations.map((s, i) => <StationCard key={`${s.name}-${i}`} station={s} />)}
       </div>
     </section>
@@ -174,18 +198,19 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
     const canvas = canvasRef.current
     if (!canvas || data.length === 0) return
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    function draw() {
+      const ctx = canvas!.getContext('2d')
+      if (!ctx) return
 
-    const dpr = window.devicePixelRatio || 1
-    const rect = canvas.getBoundingClientRect()
-    canvas.width = rect.width * dpr
-    canvas.height = rect.height * dpr
-    ctx.scale(dpr, dpr)
-    const W = rect.width
-    const H = rect.height
+      const dpr = window.devicePixelRatio || 1
+      const rect = canvas!.getBoundingClientRect()
+      canvas!.width = rect.width * dpr
+      canvas!.height = rect.height * dpr
+      ctx.scale(dpr, dpr)
+      const W = rect.width
+      const H = rect.height
 
-    const pad = { top: 10, right: 70, bottom: 25, left: 40 }
+      const pad = { top: 10, right: 70, bottom: 25, left: 40 }
     const cW = W - pad.left - pad.right
     const cH = H - pad.top - pad.bottom
 
@@ -242,18 +267,28 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
     ctx.font = '10px system-ui, sans-serif'
     ctx.textAlign = 'center'
     const dayMs = 24 * 60 * 60 * 1000
+    const totalDays = (tMax - tMin) / dayMs
+    const pxPerDay = cW / totalDays
+    const dayStep = pxPerDay < 40 ? 2 : 1
     const startDay = new Date(tMin)
     startDay.setHours(0, 0, 0, 0)
+    let dayIdx = 0
     for (let d = startDay.getTime(); d <= tMax; d += dayMs) {
       if (d >= tMin) {
         const x = xScale(d)
-        ctx.fillText(new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' }), x, H - pad.bottom + 15)
+        // Grid line always
         ctx.strokeStyle = '#f3f4f6'
         ctx.lineWidth = 0.5
         ctx.beginPath()
         ctx.moveTo(x, pad.top)
         ctx.lineTo(x, pad.top + cH)
         ctx.stroke()
+        // Label only every dayStep
+        if (dayIdx % dayStep === 0) {
+          ctx.fillStyle = '#6b7280'
+          ctx.fillText(new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' }), x, H - pad.bottom + 15)
+        }
+        dayIdx++
       }
     }
 
@@ -341,6 +376,10 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
       }
     }
     // (Legend moved to sidebar)
+    } // end draw()
+    draw()
+    window.addEventListener('resize', draw)
+    return () => window.removeEventListener('resize', draw)
   }, [data])
 
   return (
@@ -359,18 +398,19 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
     const canvas = canvasRef.current
     if (!canvas || data.length === 0) return
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    function draw() {
+      const ctx = canvas!.getContext('2d')
+      if (!ctx) return
 
-    const dpr = window.devicePixelRatio || 1
-    const rect = canvas.getBoundingClientRect()
-    canvas.width = rect.width * dpr
-    canvas.height = rect.height * dpr
-    ctx.scale(dpr, dpr)
-    const W = rect.width
-    const H = rect.height
+      const dpr = window.devicePixelRatio || 1
+      const rect = canvas!.getBoundingClientRect()
+      canvas!.width = rect.width * dpr
+      canvas!.height = rect.height * dpr
+      ctx.scale(dpr, dpr)
+      const W = rect.width
+      const H = rect.height
 
-    const pad = { top: 10, right: 30, bottom: 25, left: 40 }
+      const pad = { top: 10, right: 30, bottom: 25, left: 40 }
     const cW = W - pad.left - pad.right
     const cH = H - pad.top - pad.bottom
 
@@ -450,17 +490,31 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
     ctx.font = '10px system-ui, sans-serif'
     ctx.textAlign = 'center'
     const dayMs = 24 * 60 * 60 * 1000
+    const totalDays = (tMax - tMin) / dayMs
+    const pxPerDay = cW / totalDays
+    const dayStep = pxPerDay < 35 ? 2 : 1
+    const useShort = pxPerDay < 55
     const startDay = new Date(tMin)
     startDay.setHours(0, 0, 0, 0)
+    let dayIdx = 0
     for (let d = startDay.getTime() + dayMs; d <= tMax; d += dayMs) {
       const x = xScale(d)
-      ctx.fillText(new Date(d).toLocaleDateString('it-CH', { weekday: 'short', day: 'numeric', month: 'short' }), x, H - pad.bottom + 15)
+      // Grid line always
       ctx.strokeStyle = '#f3f4f6'
       ctx.lineWidth = 0.5
       ctx.beginPath()
       ctx.moveTo(x, pad.top)
       ctx.lineTo(x, pad.top + cH)
       ctx.stroke()
+      // Label only every dayStep
+      if (dayIdx % dayStep === 0) {
+        ctx.fillStyle = '#6b7280'
+        const label = useShort
+          ? new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' })
+          : new Date(d).toLocaleDateString('it-CH', { weekday: 'short', day: 'numeric', month: 'short' })
+        ctx.fillText(label, x, H - pad.bottom + 15)
+      }
+      dayIdx++
     }
 
     // "Now" marker
@@ -500,6 +554,10 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
     ctx.closePath()
     ctx.fillStyle = 'rgba(30, 64, 175, 0.08)'
     ctx.fill()
+    } // end draw()
+    draw()
+    window.addEventListener('resize', draw)
+    return () => window.removeEventListener('resize', draw)
   }, [data])
 
   return (
@@ -737,11 +795,11 @@ export function VentoClient() {
   const allLoading = mch.loading && others.loading && lakes.loading && pressure.loading && foehn.loading && !hasAnyData
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <main className="mx-auto max-w-5xl px-4 py-6 sm:py-12">
+      <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-cvlt-gray-900">Vento &amp; Meteo</h1>
-          <p className="mt-1 text-sm text-cvlt-gray-500">
+          <h1 className="text-2xl font-bold text-cvlt-gray-900 sm:text-3xl">Vento &amp; Meteo</h1>
+          <p className="mt-0.5 text-xs text-cvlt-gray-500 sm:mt-1 sm:text-sm">
             Dati in tempo reale per il volo libero nel Sud delle Alpi.
           </p>
         </div>
@@ -767,8 +825,8 @@ export function VentoClient() {
       )}
 
       {!allLoading && (
-        <div className="mt-8 flex gap-6">
-          <div className="min-w-0 flex-1 space-y-10">
+        <div className="mt-4 flex gap-6 sm:mt-8">
+          <div className="min-w-0 flex-1 space-y-6 sm:space-y-10">
             {/* MeteoSwiss stations */}
             <div id="stazioni-meteoswiss">
               {mch.loading && !mch.data ? (
