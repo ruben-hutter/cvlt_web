@@ -6,21 +6,24 @@
 - [x] Update style on mobile for "Vento" page. A lot of scrolling needed now, you don't have the overview of all stations at a glance.
 - [x] News cards fully clickable/touchable on mobile (whole card is a Link now)
 - [x] Checkout errors that Nico told me on Signal (font preload warnings — known Next.js behavior, not a bug)
-- [ ] Shop
-    - Checkout Saferpay or similar
 - [x] Zone tranquillità: prendere dal sito vecchio
+- [ ] Feature to subscribe to news (RSS feed or email subscription) and possibility to subscribe calendar
+- [ ] Full screen gallery view with F key shortcut
 - [ ] Pagina "Voli in Biposto" (https://cvlt.ch/voli-biposto/)
     - Non so ancora dove metterla.. pagina nel menu principale? (Menu principale inizia a diventare un po' affollato)
     - [ ] Riorg. menu principale
+- [ ] Shop
+    - Checkout Saferpay or similar
+- [ ] News entry pushed to facebook page automatically (I think currently the case on cvlt.ch). If possible it would be nice if also an instagram post could be created.
+    - I think "old" members will use anyway the website and younger ones will probably prefer instagram, so i would give more importance to insta instead of facebook
+    - Chekout if there is an API that i can use for this
 
 ## Medium priority
 
 - [~] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
     - If possible already put them in the right albums
-- [~] Sezione info volo + TMA/CTR/AWY (pagina creata, da controllare contenuti e webcam)
-    - [ ] Controllare contenuti CTR, TMA, AWY, Zone di tranquillità
-    - [ ] Controllare / aggiornare link webcam
-- [ ] News entry pushed to facebook page automatically. If possible it would be nice if also an instagram post could be created.
+- [~] Sezione info volo + TMA/CTR/AWY (pagina creata, da controllare contenuti)
+    - [~] Controllare contenuti CTR, TMA, AWY, Zone di tranquillità
 - [ ] Webcams
 
 ## Low priority
