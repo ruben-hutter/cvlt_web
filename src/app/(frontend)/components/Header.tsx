@@ -8,6 +8,12 @@ type SubLink = { href: string; label: string }
 type NavLink = { href: string; label: string; subLinks?: SubLink[] }
 
 const navLinks: NavLink[] = [
+  { href: '/comitato', label: 'Club', subLinks: [
+    { href: '/comitato', label: 'Comitato' },
+    { href: '/statuto', label: 'Statuto' },
+    { href: '/adesione', label: 'Adesione' },
+    { href: '/biposto', label: 'Voli in Biposto' },
+  ]},
   { href: '/notizie', label: 'Notizie' },
   { href: '/calendario', label: 'Calendario' },
   { href: '/galleria', label: 'Galleria' },
@@ -30,23 +36,29 @@ const navLinks: NavLink[] = [
     { href: '/info-volo#webcam', label: 'Webcam' },
     { href: '/info-volo#link-utili', label: 'Link utili' },
   ]},
-  { href: '/comitato', label: 'Comitato' },
-  { href: '/adesione', label: 'Adesione' },
 ]
 
 export function Header() {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileExpanded, setMobileExpanded] = useState<string | null>(null)
 
   useEffect(() => {
     if (!menuOpen) return
-    const close = () => setMenuOpen(false)
-    window.addEventListener('scroll', close, { once: true })
-    return () => window.removeEventListener('scroll', close)
+    const startY = window.scrollY
+    const onScroll = () => {
+      if (Math.abs(window.scrollY - startY) > 20) {
+        setMenuOpen(false)
+        setMobileExpanded(null)
+        window.removeEventListener('scroll', onScroll)
+      }
+    }
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
   }, [menuOpen])
 
   return (
-    <header className="sticky top-0 z-50 border-b border-cvlt-gray-200 bg-white/95 backdrop-blur-sm">
+    <header className="relative sticky top-0 z-50 border-b border-cvlt-gray-200 bg-white/95 backdrop-blur-sm">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
           <img
@@ -95,7 +107,7 @@ export function Header() {
 
         {/* Mobile hamburger */}
         <button
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={() => { setMenuOpen(!menuOpen); setMobileExpanded(null) }}
           className="rounded-md p-2 text-cvlt-gray-700 hover:bg-cvlt-gray-50 sm:hidden"
           aria-label="Menu"
         >
@@ -111,23 +123,63 @@ export function Header() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="border-t border-cvlt-gray-200 bg-white px-4 pb-4 sm:hidden">
+        <div className="absolute left-0 right-0 top-full z-50 border-t border-cvlt-gray-200 bg-white px-4 pb-4 shadow-lg sm:hidden">
           <ul className="space-y-1 pt-2">
             {navLinks.map((link) => {
               const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
+              const isExpanded = mobileExpanded === link.href
               return (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'bg-cvlt-blue-light text-cvlt-blue-dark'
-                        : 'text-cvlt-gray-700 hover:bg-cvlt-gray-50'
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
+                  {link.subLinks ? (
+                    <>
+                      <button
+                        onClick={() => setMobileExpanded(isExpanded ? null : link.href)}
+                        className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                          isActive
+                            ? 'bg-cvlt-blue-light text-cvlt-blue-dark'
+                            : 'text-cvlt-gray-700 hover:bg-cvlt-gray-50'
+                        }`}
+                      >
+                        {link.label}
+                        <svg
+                          className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                      </button>
+                      {isExpanded && (
+                        <ul className="ml-3 space-y-1 border-l border-cvlt-gray-200 pl-3 pt-1">
+                          {link.subLinks.map((sub) => (
+                            <li key={sub.href}>
+                              <Link
+                                href={sub.href}
+                                onClick={() => { setMenuOpen(false); setMobileExpanded(null) }}
+                                className="block rounded-md px-3 py-1.5 text-sm text-cvlt-gray-600 transition-colors hover:bg-cvlt-gray-50 hover:text-cvlt-blue"
+                              >
+                                {sub.label}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'bg-cvlt-blue-light text-cvlt-blue-dark'
+                          : 'text-cvlt-gray-700 hover:bg-cvlt-gray-50'
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               )
             })}
