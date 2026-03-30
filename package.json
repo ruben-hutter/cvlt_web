@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "mkdir -p db media ../backups logs && rm -f .next/standalone/db .next/standalone/media 2>/dev/null && [ -f db/payload.db ] && cp db/payload.db \"../backups/payload.db.$(date +%Y_%m_%d_%H%M%S)\" || true",
+    "prebuild": "mkdir -p db media .backups logs && rm -f .next/standalone/db .next/standalone/media 2>/dev/null && [ -f db/payload.db ] && cp db/payload.db \".backups/payload.db.$(date +%Y_%m_%d_%H%M%S)\" || true",
     "build": "payload migrate && payload generate:importmap && next build && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && ln -sf ../../db .next/standalone/db && ln -sf ../../media .next/standalone/media",
     "start": "node --max-old-space-size=512 .next/standalone/server.js 2>&1 | tee -a logs/server.log",
     "generate:types": "payload generate:types",
