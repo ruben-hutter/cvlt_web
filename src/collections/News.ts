@@ -10,8 +10,14 @@ function titleToSlug(title: string): string {
     .replace(/(^-|-$)/g, '')
 }
 
-const formatSlug: FieldHook = async ({ data, req }) => {
+const formatSlug: FieldHook = async ({ data, originalDoc, operation, req }) => {
   if (!data?.title) return undefined
+
+  // On update, only regenerate slug if the title changed
+  if (operation === 'update' && originalDoc?.slug && originalDoc?.title === data.title) {
+    return originalDoc.slug
+  }
+
   const baseSlug = titleToSlug(data.title)
 
   if (!req.payload) return baseSlug
