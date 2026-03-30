@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type SubLink = { href: string; label: string }
 type NavLink = { href: string; label: string; subLinks?: SubLink[] }
@@ -37,6 +37,13 @@ const navLinks: NavLink[] = [
 export function Header() {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const close = () => setMenuOpen(false)
+    window.addEventListener('scroll', close, { once: true })
+    return () => window.removeEventListener('scroll', close)
+  }, [menuOpen])
 
   return (
     <header className="sticky top-0 z-50 border-b border-cvlt-gray-200 bg-white/95 backdrop-blur-sm">
