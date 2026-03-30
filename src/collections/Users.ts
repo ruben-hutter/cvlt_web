@@ -119,7 +119,7 @@ export const Users: CollectionConfig = {
         disableListColumn: true,
         disableListFilter: true,
         condition: (data, siblingData, { user }) =>
-          user?.role === 'admin' && data?.id !== user?.id,
+          !!data?.id && user?.role === 'admin' && data?.id !== user?.id,
       },
       access: {
         read: isAdmin,
