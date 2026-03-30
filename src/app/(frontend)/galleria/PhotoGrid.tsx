@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Lightbox from 'yet-another-react-lightbox'
 import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import Video from 'yet-another-react-lightbox/plugins/video'
@@ -32,6 +32,19 @@ function PlayOverlay() {
 
 export function PhotoGrid({ photos }: { photos: MediaItem[] }) {
   const [index, setIndex] = useState(-1)
+  const fullscreenRef = useRef<{ fullscreen: boolean; disabled: boolean; enter: () => void; exit: () => void }>(null)
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'f' || e.key === 'F') {
+      fullscreenRef.current?.enter()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (index < 0) return
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [index, handleKeyDown])
 
   const slides = photos.map((item) => {
     if (isVideo(item.mimeType)) {
@@ -88,6 +101,7 @@ export function PhotoGrid({ photos }: { photos: MediaItem[] }) {
         index={index}
         slides={slides}
         plugins={[Video, Fullscreen]}
+        fullscreen={{ ref: fullscreenRef }}
         video={{ autoPlay: true, controls: true }}
       />
     </>

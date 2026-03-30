@@ -8,10 +8,9 @@
 - [x] Checkout errors that Nico told me on Signal (font preload warnings — known Next.js behavior, not a bug)
 - [x] Zone tranquillità: prendere dal sito vecchio
 - [ ] Feature to subscribe to news (RSS feed or email subscription) and possibility to subscribe calendar
-- [ ] Full screen gallery view with F key shortcut
-- [ ] Pagina "Voli in Biposto" (https://cvlt.ch/voli-biposto/)
-    - Non so ancora dove metterla.. pagina nel menu principale? (Menu principale inizia a diventare un po' affollato)
-    - [ ] Riorg. menu principale
+- [x] Full screen gallery view with F key shortcut
+- [x] Pagina "Voli in Biposto" (https://cvlt.ch/voli-biposto/)
+    - [x] Riorg. menu principale (Club dropdown)
 - [ ] Shop
     - Checkout Saferpay or similar
 - [ ] News entry pushed to facebook page automatically (I think currently the case on cvlt.ch). If possible it would be nice if also an instagram post could be created.
