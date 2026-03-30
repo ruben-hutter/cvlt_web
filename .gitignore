@@ -16,6 +16,10 @@ dist/
 db/
 .backups/
 
+# runtime
+logs/
+cache/
+
 # media uploads
 media/
 

@@ -253,11 +253,6 @@ export function InfoVoloContent() {
                   Decreto cantonale
                 </ExternalLink>
               </li>
-              <li>
-                <ExternalLink href="https://map.geo.admin.ch/?layers=ch.bafu.wrz-wildruhezonen_portal">
-                  Mappa zone vincolanti
-                </ExternalLink>
-              </li>
             </ul>
           </Section>
         </div>

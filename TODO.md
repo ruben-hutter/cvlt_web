@@ -2,20 +2,11 @@
 
 ## High priority
 
-- [x] Check before pull on server, that the last changes (2FA) did not alter the db or get help to integrate the changes without losing data
-- [x] Update style on mobile for "Vento" page. A lot of scrolling needed now, you don't have the overview of all stations at a glance.
-- [x] News cards fully clickable/touchable on mobile (whole card is a Link now)
-- [x] Checkout errors that Nico told me on Signal (font preload warnings — known Next.js behavior, not a bug)
-- [x] Zone tranquillità: prendere dal sito vecchio
-- [ ] Feature to subscribe to news (RSS feed or email subscription) and possibility to subscribe calendar
-- [x] Full screen gallery view with F key shortcut
-- [x] Pagina "Voli in Biposto" (https://cvlt.ch/voli-biposto/)
-    - [x] Riorg. menu principale (Club dropdown)
+- [x] RSS feed + iCal calendar subscription
 - [ ] Shop
-    - Checkout Saferpay or similar
-- [ ] News entry pushed to facebook page automatically (I think currently the case on cvlt.ch). If possible it would be nice if also an instagram post could be created.
-    - I think "old" members will use anyway the website and younger ones will probably prefer instagram, so i would give more importance to insta instead of facebook
-    - Chekout if there is an API that i can use for this
+    - Checkout Saferpay or similar (Raisenow also possible? I already have an account there)
+    - T-Shirt uomo e donna assieme con più immagini e selezione sesso
+    - Uguale per Giacca Fleece
 
 ## Medium priority
 
@@ -42,6 +33,9 @@
     - Add language switcher in header
     - Translate just static content at first, then maybe also news and events
 - [ ] Aggiungere pin cartina per luogo eventi
+- [ ] Auto-post news to Instagram/Facebook
+    - Instagram API requires paid tools (Zapier/Make.com); IFTTT free covers Facebook only
+    - Revisit when better free options exist
 
 ## Done
 
@@ -79,4 +73,17 @@
 - [x] Logo in header/hero, hero background image, favicon
 - [x] Social links in footer (WhatsApp, Instagram, Facebook)
 - [x] WhatsApp community: approvazione admin per nuovi membri
-
+- [x] Check before pull on server, that the last changes (2FA) did not alter the db
+- [x] Update style on mobile for "Vento" page
+- [x] News cards fully clickable/touchable on mobile
+- [x] Checkout errors that Nico told me on Signal (font preload warnings — known Next.js behavior)
+- [x] Zone di tranquillità content from old site
+- [x] Full screen gallery view with F key shortcut
+- [x] Pagina "Voli in Biposto" + riorg. menu principale (Club dropdown)
+- [x] Mobile menu overlay with expandable submenus
+- [x] Slug regeneration bug fix (only regenerate when title changes)
+- [x] Gallery cursor pointer on hover
+- [x] 2025 CCC Hall of Fame + year selector dropdown
+- [x] Replace unicode dashes with HTML entities
+- [x] localStorage caching + hash anchor scrolling for vento page
+- [x] Hide reset TOTP checkbox on user creation screen

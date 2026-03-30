@@ -25,6 +25,9 @@ import { it } from '@payloadcms/translations/languages/it'
 import { fileURLToPath } from 'url'
 import path from 'path'
 import sharp from 'sharp'
+
+sharp.cache(false)
+sharp.concurrency(1)
 import { Events } from './collections/Events'
 import { Media } from './collections/Media'
 import { MembershipSubmissions } from './collections/MembershipSubmissions'
