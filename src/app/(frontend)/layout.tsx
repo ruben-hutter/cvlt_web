@@ -19,6 +19,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="it" suppressHydrationWarning>
+      <head>
+        <link rel="alternate" type="application/rss+xml" title="CVLT Notizie" href="/feed" />
+      </head>
       <body className={`${ubuntu.className} bg-white text-cvlt-gray-900 antialiased`} suppressHydrationWarning>
         <Header />
         <div className="min-h-[calc(100vh-8rem)]">

@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { CalendarGrid } from './CalendarGrid'
+import { SubscribeButton } from './SubscribeButton'
 
 export const metadata = {
   title: 'Calendario — CVLT',
@@ -77,7 +78,22 @@ export default async function CalendarPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
-      <h1 className="mb-8 text-3xl font-bold text-cvlt-gray-900">Calendario</h1>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-cvlt-gray-900">Calendario</h1>
+        <div className="flex gap-2">
+          <SubscribeButton />
+          <a
+            href="/calendario.ics"
+            title="Scarica calendario"
+            className="flex items-center gap-1.5 rounded-md border border-cvlt-gray-200 px-3 py-1.5 text-xs font-medium text-cvlt-gray-500 transition-colors hover:border-cvlt-blue/30 hover:text-cvlt-blue"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            iCal
+          </a>
+        </div>
+      </div>
       <CalendarGrid events={events} />
     </main>
   )
