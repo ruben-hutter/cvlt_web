@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { WindStation, StationsResponse } from '../types'
 import { computeWindLevel, formatCloudBase, fetchWithTimeout } from '../types'
+import { cachedFetch } from '../cache'
 
 const MCH_URL =
   'https://s3-eu-central-1.amazonaws.com/app-prod-static-fra.meteoswiss-app.ch/v1/currentWeather.json'
@@ -29,70 +30,69 @@ const STATION_ORDER = [
   'CIM', 'OTL', 'MAG', 'LUG', 'GEN', 'SBO',
 ]
 
-export async function GET() {
-  try {
-    const res = await fetchWithTimeout(MCH_URL, 10000)
-    if (!res.ok) throw new Error(`MCH fetch failed: ${res.status}`)
-    const json = await res.json()
+async function fetchMCHData(): Promise<StationsResponse> {
+  const res = await fetchWithTimeout(MCH_URL, 10000)
+  if (!res.ok) throw new Error(`MCH fetch failed: ${res.status}`)
+  const json = await res.json()
 
-    const smnTime: number = json.smnTime
-    const timestamp = new Date(smnTime).toLocaleString('it-CH', {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit',
-      timeZone: 'Europe/Zurich',
+  const smnTime: number = json.smnTime
+  const timestamp = new Date(smnTime).toLocaleString('it-CH', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+    timeZone: 'Europe/Zurich',
+  })
+
+  const stations: WindStation[] = STATION_ORDER
+    .filter((id) => json.data?.[id])
+    .map((id) => {
+      const d = json.data[id]
+      const info = STATIONS[id]
+      const minutesAgo = Math.round((Date.now() - (d.smnTime || smnTime)) / 60000)
+
+      const windSpeed = d.windSpeed != null ? Math.round(d.windSpeed) : null
+      const windGust = d.windGust != null ? Math.round(d.windGust) : null
+      const windDir =
+        d.windDirection != null && d.windDirection >= 0 && d.windDirection <= 360
+          ? Math.round(d.windDirection)
+          : null
+      const temp =
+        d.temperature != null && Math.abs(d.temperature) < 100 ? d.temperature : null
+      const humidity =
+        d.humidity != null && d.humidity > 0 && d.humidity < 120 ? d.humidity : null
+
+      let cloudBase: string | null = null
+      if (info.elev > 1200 && humidity != null && temp != null) {
+        const hBaseDiff = (20 + temp / 5) * (100 - humidity)
+        const hBase = Math.round((hBaseDiff + info.elev - 50) / 200) * 200
+        cloudBase = formatCloudBase(hBase)
+      }
+
+      return {
+        name: info.name,
+        isPeak: info.elev > 700,
+        windDir,
+        windAvg: windSpeed != null && windSpeed >= 0 && windSpeed <= 360 ? windSpeed : null,
+        windGust: windGust != null && windGust >= 0 && windGust <= 360 ? windGust : null,
+        windLevel: computeWindLevel(windDir, windSpeed, windGust),
+        temp: temp != null ? `${Math.round(temp)}°C` : null,
+        cloudBase,
+        lastUpdate: minutesAgo >= 0 && minutesAgo < 120 ? `${minutesAgo}min` : null,
+      }
+    })
+    .filter((s) => {
+      if (s.windAvg === 0 && s.windDir === 0 && (s.windGust ?? 0) === 0) return false
+      if (s.lastUpdate == null) return false
+      return true
     })
 
-    const stations: WindStation[] = STATION_ORDER
-      .filter((id) => json.data?.[id])
-      .map((id) => {
-        const d = json.data[id]
-        const info = STATIONS[id]
-        const minutesAgo = Math.round((Date.now() - (d.smnTime || smnTime)) / 60000)
+  return { timestamp, stations, fetchedAt: new Date().toISOString() }
+}
 
-        const windSpeed = d.windSpeed != null ? Math.round(d.windSpeed) : null
-        const windGust = d.windGust != null ? Math.round(d.windGust) : null
-        const windDir =
-          d.windDirection != null && d.windDirection >= 0 && d.windDirection <= 360
-            ? Math.round(d.windDirection)
-            : null
-        const temp =
-          d.temperature != null && Math.abs(d.temperature) < 100 ? d.temperature : null
-        const humidity =
-          d.humidity != null && d.humidity > 0 && d.humidity < 120 ? d.humidity : null
-
-        let cloudBase: string | null = null
-        if (info.elev > 1200 && humidity != null && temp != null) {
-          const hBaseDiff = (20 + temp / 5) * (100 - humidity)
-          const hBase = Math.round((hBaseDiff + info.elev - 50) / 200) * 200
-          cloudBase = formatCloudBase(hBase)
-        }
-
-        return {
-          name: info.name,
-          isPeak: info.elev > 700,
-          windDir,
-          windAvg: windSpeed != null && windSpeed >= 0 && windSpeed <= 360 ? windSpeed : null,
-          windGust: windGust != null && windGust >= 0 && windGust <= 360 ? windGust : null,
-          windLevel: computeWindLevel(windDir, windSpeed, windGust),
-          temp: temp != null ? `${Math.round(temp)}°C` : null,
-          cloudBase,
-          lastUpdate: minutesAgo >= 0 && minutesAgo < 120 ? `${minutesAgo}min` : null,
-        }
-      })
-      .filter((s) => {
-        if (s.windAvg === 0 && s.windDir === 0 && (s.windGust ?? 0) === 0) return false
-        if (s.lastUpdate == null) return false
-        return true
-      })
-
-    const data: StationsResponse = {
-      timestamp,
-      stations,
-      fetchedAt: new Date().toISOString(),
-    }
-
+export async function GET() {
+  try {
+    const data = await cachedFetch('vento-mch', 300, fetchMCHData)
     return NextResponse.json(data, {
-      headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=300' },
+      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=120' },
     })
   } catch (e) {
     console.error('[VENTO MCH]', e)

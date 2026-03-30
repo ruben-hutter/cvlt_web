@@ -37,7 +37,7 @@ export default async function NewsPage() {
       },
       sort: '-publishDate',
       limit: 50,
-      depth: 2,
+      depth: 1,
     })
   } catch (e) {
     console.error('[NOTIZIE] DB query failed:', e)

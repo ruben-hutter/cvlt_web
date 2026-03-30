@@ -1,4 +1,7 @@
-import { inflateRawSync } from 'zlib'
+import { inflateRaw } from 'zlib'
+import { promisify } from 'util'
+
+const inflateRawAsync = promisify(inflateRaw)
 
 // Minimal ZIP extractor for KMZ files (single KML entry)
 export async function decompress(buffer: ArrayBuffer): Promise<string> {
@@ -27,6 +30,6 @@ export async function decompress(buffer: ArrayBuffer): Promise<string> {
   }
 
   const compressedData = buf.slice(dataOffset, dataOffset + compressedSize)
-  const decompressed = inflateRawSync(compressedData)
+  const decompressed = await inflateRawAsync(compressedData)
   return decompressed.toString('latin1')
 }

@@ -757,8 +757,6 @@ export function VentoClient() {
   const [lakes, setLakes] = useState<SectionState<LakesResponse>>({ data: null, loading: true, error: false })
   const [pressure, setPressure] = useState<SectionState<{ data: PressurePoint[] }>>({ data: null, loading: true, error: false })
   const [foehn, setFoehn] = useState<SectionState<{ data: FoehnPoint[] }>>({ data: null, loading: true, error: false })
-  const [refreshing, setRefreshing] = useState(false)
-
   const fetchSection = useCallback(async <T,>(
     url: string,
     setter: React.Dispatch<React.SetStateAction<SectionState<T>>>,
@@ -776,18 +774,7 @@ export function VentoClient() {
     }
   }, [])
 
-  const fetchAll = useCallback(() => {
-    setRefreshing(true)
-    Promise.all([
-      fetchSection<StationsResponse>('/api/vento/mch', setMch, 'vento:mch'),
-      fetchSection<StationsResponse>('/api/vento/others', setOthers, 'vento:others'),
-      fetchSection<LakesResponse>('/api/vento/lakes', setLakes, 'vento:lakes'),
-      fetchSection<{ data: PressurePoint[] }>('/api/vento/pressure', setPressure, 'vento:pressure'),
-      fetchSection<{ data: FoehnPoint[] }>('/api/vento/foehn', setFoehn, 'vento:foehn'),
-    ]).finally(() => setRefreshing(false))
-  }, [fetchSection])
-
-  // Load cached data instantly, then fetch fresh data
+  // Load cached data instantly, then fetch fresh data with differentiated intervals
   useEffect(() => {
     const cacheKeys = [
       { key: 'vento:mch', setter: setMch },
@@ -802,10 +789,34 @@ export function VentoClient() {
         if (cached) setter({ data: JSON.parse(cached), loading: true, error: false })
       } catch {}
     }
-    fetchAll()
-    const interval = setInterval(fetchAll, 5 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [fetchAll])
+
+    // Initial fetch for all sections
+    const fetchWind = () => {
+      fetchSection<StationsResponse>('/api/vento/mch', setMch, 'vento:mch')
+      fetchSection<StationsResponse>('/api/vento/others', setOthers, 'vento:others')
+    }
+    const fetchPressureFn = () => fetchSection<{ data: PressurePoint[] }>('/api/vento/pressure', setPressure, 'vento:pressure')
+    const fetchFoehnFn = () => fetchSection<{ data: FoehnPoint[] }>('/api/vento/foehn', setFoehn, 'vento:foehn')
+
+    fetchWind()
+    fetchSection<LakesResponse>('/api/vento/lakes', setLakes, 'vento:lakes')
+    fetchPressureFn()
+    fetchFoehnFn()
+
+    // Wind: every 5min
+    const windInterval = setInterval(fetchWind, 5 * 60_000)
+    // Pressure: every 10min
+    const pressureInterval = setInterval(fetchPressureFn, 10 * 60_000)
+    // Foehn: every 15min
+    const foehnInterval = setInterval(fetchFoehnFn, 15 * 60_000)
+    // Lakes: no polling (24h cache, only fetched on page load)
+
+    return () => {
+      clearInterval(windInterval)
+      clearInterval(pressureInterval)
+      clearInterval(foehnInterval)
+    }
+  }, [fetchSection])
 
   // Scroll to hash anchor after content renders
   const hasScrolled = useRef(false)
@@ -828,25 +839,11 @@ export function VentoClient() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:py-12">
-      <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-cvlt-gray-900 sm:text-3xl">Vento &amp; Meteo</h1>
-          <p className="mt-0.5 text-xs text-cvlt-gray-500 sm:mt-1 sm:text-sm">
-            Dati in tempo reale per il volo libero nel Sud delle Alpi.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={fetchAll}
-            disabled={refreshing}
-            className="inline-flex items-center gap-1.5 rounded-md border border-cvlt-gray-200 px-3 py-1.5 text-xs font-medium text-cvlt-gray-600 transition-colors hover:bg-cvlt-gray-50 disabled:opacity-50"
-          >
-            <svg className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
-            </svg>
-            Aggiorna
-          </button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-cvlt-gray-900 sm:text-3xl">Vento &amp; Meteo</h1>
+        <p className="mt-0.5 text-xs text-cvlt-gray-500 sm:mt-1 sm:text-sm">
+          Dati in tempo reale per il volo libero nel Sud delle Alpi.
+        </p>
       </div>
 
       {allLoading && (

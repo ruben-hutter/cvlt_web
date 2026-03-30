@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { LakeLevel, LakesResponse } from '../types'
+import { cachedFetch } from '../cache'
 
 const LAKES = [
   {
@@ -67,21 +68,19 @@ async function fetchLakeData(
   }
 }
 
+async function fetchAllLakes(): Promise<LakesResponse> {
+  const results = await Promise.all(
+    LAKES.map((lake) => fetchLakeData(lake.url, lake.name)),
+  )
+  const lakes: LakeLevel[] = results.filter((l): l is LakeLevel => l != null)
+  return { lakes, fetchedAt: new Date().toISOString() }
+}
+
 export async function GET() {
   try {
-    const results = await Promise.all(
-      LAKES.map((lake) => fetchLakeData(lake.url, lake.name)),
-    )
-
-    const lakes: LakeLevel[] = results.filter((l): l is LakeLevel => l != null)
-
-    const data: LakesResponse = {
-      lakes,
-      fetchedAt: new Date().toISOString(),
-    }
-
+    const data = await cachedFetch('vento-lakes', 86400, fetchAllLakes)
     return NextResponse.json(data, {
-      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
+      headers: { 'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=600' },
     })
   } catch (e) {
     console.error('[VENTO LAKES]', e)

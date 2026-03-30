@@ -36,7 +36,7 @@ export default async function HomePage() {
       },
       sort: '-publishDate',
       limit: 5,
-      depth: 2,
+      depth: 1,
     })
 
     events = await payload.find({

@@ -7,6 +7,7 @@ const logDir = join(projectRoot, 'logs')
 const logFile = join(logDir, 'server.log')
 
 mkdirSync(logDir, { recursive: true })
+mkdirSync(join(projectRoot, 'cache'), { recursive: true })
 
 const stamp = () => new Date().toISOString().slice(0, 19).replace('T', ' ')
 

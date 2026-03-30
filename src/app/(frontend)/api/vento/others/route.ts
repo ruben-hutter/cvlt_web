@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { WindStation, StationsResponse } from '../types'
 import { computeWindLevel, formatCloudBase, fetchWithTimeout } from '../types'
+import { cachedFetch } from '../cache'
 
 // ── PWS (Weather Underground) ──────────────────────────────────────────────
 const PWS_BASE =
@@ -322,40 +323,36 @@ async function fetchFaidoStation(): Promise<(WindStation & { lat: number }) | nu
 
 // ── Main route ─────────────────────────────────────────────────────────────
 
+async function fetchAllOthers(): Promise<StationsResponse> {
+  const [pwsList, slfList, holfuyList, windbirdList, faido] = await Promise.all([
+    fetchPWSStations().catch(() => [] as (WindStation & { lat: number })[]),
+    fetchSLFStations().catch(() => [] as (WindStation & { lat: number })[]),
+    fetchHolfuyStations().catch(() => [] as (WindStation & { lat: number })[]),
+    fetchWindbirdStations().catch(() => [] as (WindStation & { lat: number })[]),
+    fetchFaidoStation().catch(() => null),
+  ])
+
+  const all = [...pwsList, ...slfList, ...holfuyList, ...windbirdList]
+  if (faido) all.push(faido)
+
+  all.sort((a, b) => b.lat - a.lat)
+  const stations: WindStation[] = all.map(({ lat: _lat, ...rest }) => rest)
+
+  const now = new Date()
+  const timestamp = now.toLocaleString('it-CH', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+    timeZone: 'Europe/Zurich',
+  })
+
+  return { timestamp, stations, fetchedAt: now.toISOString() }
+}
+
 export async function GET() {
   try {
-    const [pwsList, slfList, holfuyList, windbirdList, faido] = await Promise.all([
-      fetchPWSStations().catch(() => [] as (WindStation & { lat: number })[]),
-      fetchSLFStations().catch(() => [] as (WindStation & { lat: number })[]),
-      fetchHolfuyStations().catch(() => [] as (WindStation & { lat: number })[]),
-      fetchWindbirdStations().catch(() => [] as (WindStation & { lat: number })[]),
-      fetchFaidoStation().catch(() => null),
-    ])
-
-    const all = [...pwsList, ...slfList, ...holfuyList, ...windbirdList]
-    if (faido) all.push(faido)
-
-    // Sort north → south by latitude
-    all.sort((a, b) => b.lat - a.lat)
-
-    // Strip lat from response
-    const stations: WindStation[] = all.map(({ lat: _lat, ...rest }) => rest)
-
-    const now = new Date()
-    const timestamp = now.toLocaleString('it-CH', {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit',
-      timeZone: 'Europe/Zurich',
-    })
-
-    const data: StationsResponse = {
-      timestamp,
-      stations,
-      fetchedAt: now.toISOString(),
-    }
-
+    const data = await cachedFetch('vento-others', 300, fetchAllOthers)
     return NextResponse.json(data, {
-      headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=300' },
+      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=120' },
     })
   } catch (e) {
     console.error('[VENTO OTHERS]', e)
