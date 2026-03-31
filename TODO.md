@@ -2,12 +2,7 @@
 
 ## High priority
 
-- [x] RSS feed + iCal calendar subscription
 - [ ] Update .env on server with latest email variables (follow .env.example)
-- [ ] Shop
-    - Checkout Saferpay or similar (Raisenow also possible? I already have an account there)
-    - T-Shirt uomo e donna assieme con più immagini e selezione sesso
-    - Uguale per Giacca Fleece
 - [ ] Update RaiseNow Hub Shop Twint link: success and failure URLs to cvlt.ch/...
 
 ## Medium priority
@@ -89,3 +84,9 @@
 - [x] Replace unicode dashes with HTML entities
 - [x] localStorage caching + hash anchor scrolling for vento page
 - [x] Hide reset TOTP checkbox on user creation screen
+- [x] RSS feed + iCal calendar subscription
+- [x] Shop (product images, order API, redirect checkout, email notifications)
+- [x] Contact form (page, API, email notifications)
+- [x] Mobile-friendly shop cart (full-screen overlay, card layout)
+- [x] Mobile-friendly H&F calendar (card layout) + colored Open/Fun badges
+- [x] Consistent max-w-5xl layout across all pages
