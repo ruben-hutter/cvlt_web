@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { ShopContent } from './ShopContent'
 
 export const metadata = {
@@ -6,5 +7,9 @@ export const metadata = {
 }
 
 export default function ShopPage() {
-  return <ShopContent />
+  return (
+    <Suspense>
+      <ShopContent />
+    </Suspense>
+  )
 }
