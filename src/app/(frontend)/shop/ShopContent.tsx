@@ -159,15 +159,14 @@ export function ShopContent() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1)
 
-  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
   const [isPreparingCheckout, setIsPreparingCheckout] = useState(false)
   const [isConfirmingOrder, setIsConfirmingOrder] = useState(false)
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
   const [feedbackError, setFeedbackError] = useState<string | null>(null)
   const [confirmedOrderRef, setConfirmedOrderRef] = useState<string | null>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toastFading, setToastFading] = useState(false)
 
-  const embedRef = useRef<HTMLDivElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const hasAttemptedAutoConfirmRef = useRef(false)
@@ -222,41 +221,15 @@ export function ShopContent() {
   }, [])
 
   useEffect(() => {
-    if (!checkoutUrl || !embedRef.current) return
-
-    const container = embedRef.current
-    container.id = 'rnw-solution-embed-stpxb'
-
-    while (container.firstChild) {
-      container.firstChild.remove()
-    }
-
-    const script = document.createElement('script')
-    script.type = 'module'
-    script.textContent = `
-      import {SolutionEmbed} from 'https://cdn.jsdelivr.net/npm/@raisenow/solution-embed@1/dist/index.js'
-      SolutionEmbed.render('#rnw-solution-embed-stpxb', {
-        url: ${JSON.stringify(checkoutUrl)},
-        info: false,
-      })
-    `
-
-    container.appendChild(script)
+    if (!toastMessage) return
+    setToastFading(false)
+    const fadeTimer = globalThis.setTimeout(() => setToastFading(true), 2000)
+    const removeTimer = globalThis.setTimeout(() => setToastMessage(null), 2500)
 
     return () => {
-      while (container.firstChild) {
-        container.firstChild.remove()
-      }
+      globalThis.clearTimeout(fadeTimer)
+      globalThis.clearTimeout(removeTimer)
     }
-  }, [checkoutUrl])
-
-  useEffect(() => {
-    if (!toastMessage) return
-    const timer = globalThis.setTimeout(() => {
-      setToastMessage(null)
-    }, 2500)
-
-    return () => globalThis.clearTimeout(timer)
   }, [toastMessage])
 
   useEffect(() => {
@@ -309,7 +282,6 @@ export function ShopContent() {
             'Ordine registrato e notificato a Barbara. Pagamento da verificare manualmente in RaiseNow Hub prima della spedizione.',
           )
         }
-        setCheckoutUrl(null)
         setCartItems([])
         setFirstName('')
         setLastName('')
@@ -470,10 +442,7 @@ export function ShopContent() {
       if (!res.ok) throw new Error(data?.error || 'Impossibile avviare il pagamento')
 
       localStorage.setItem(pendingOrderTokenStorageKey, data.orderToken)
-      setCheckoutUrl(data.checkoutUrl)
-      setFeedbackMessage(
-        'Checkout pronto. Completa il pagamento TWINT nel modulo qui sotto; dopo il ritorno su questa pagina l\'ordine verrà confermato automaticamente.',
-      )
+      window.location.href = data.checkoutUrl
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Impossibile avviare il pagamento'
       setFeedbackError(message)
@@ -759,7 +728,7 @@ export function ShopContent() {
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="shop-lastName" className="mb-1 block text-sm font-medium">Cognome</label>
+              <label htmlFor="shop-lastName" className="mb-1 block text-sm font-medium">Cognome <span className="text-red-500">*</span></label>
               <input
                 id="shop-lastName"
                 type="text"
@@ -769,7 +738,7 @@ export function ShopContent() {
               />
             </div>
             <div>
-              <label htmlFor="shop-firstName" className="mb-1 block text-sm font-medium">Nome</label>
+              <label htmlFor="shop-firstName" className="mb-1 block text-sm font-medium">Nome <span className="text-red-500">*</span></label>
               <input
                 id="shop-firstName"
                 type="text"
@@ -781,7 +750,7 @@ export function ShopContent() {
           </div>
 
           <div className="relative" ref={suggestionsRef}>
-            <label htmlFor="shop-address" className="mb-1 block text-sm font-medium">Via e Nr.</label>
+            <label htmlFor="shop-address" className="mb-1 block text-sm font-medium">Via e Nr. <span className="text-red-500">*</span></label>
             <input
               id="shop-address"
               type="text"
@@ -820,7 +789,7 @@ export function ShopContent() {
 
           <div className="grid gap-6 sm:grid-cols-[8rem_1fr]">
             <div>
-              <label htmlFor="shop-postalCode" className="mb-1 block text-sm font-medium">NPA</label>
+              <label htmlFor="shop-postalCode" className="mb-1 block text-sm font-medium">NPA <span className="text-red-500">*</span></label>
               <input
                 id="shop-postalCode"
                 type="text"
@@ -831,7 +800,7 @@ export function ShopContent() {
               />
             </div>
             <div>
-              <label htmlFor="shop-city" className="mb-1 block text-sm font-medium">Domicilio</label>
+              <label htmlFor="shop-city" className="mb-1 block text-sm font-medium">Domicilio <span className="text-red-500">*</span></label>
               <input
                 id="shop-city"
                 type="text"
@@ -845,7 +814,7 @@ export function ShopContent() {
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="shop-email" className="mb-1 block text-sm font-medium">Email</label>
+              <label htmlFor="shop-email" className="mb-1 block text-sm font-medium">Email <span className="text-red-500">*</span></label>
               <input
                 ref={emailRef}
                 id="shop-email"
@@ -856,7 +825,7 @@ export function ShopContent() {
               />
             </div>
             <div>
-              <label htmlFor="shop-phone" className="mb-1 block text-sm font-medium">Telefono</label>
+              <label htmlFor="shop-phone" className="mb-1 block text-sm font-medium">Telefono <span className="text-red-500">*</span></label>
               <input
                 id="shop-phone"
                 type="tel"
@@ -893,15 +862,6 @@ export function ShopContent() {
             {isConfirmingOrder && <span className="text-sm text-cvlt-gray-600">Conferma ordine in corso...</span>}
           </div>
 
-          {checkoutUrl && (
-            <div>
-              <h3 className="text-base font-semibold text-cvlt-gray-900">Pagamento TWINT</h3>
-              <p className="mt-1 text-sm text-cvlt-gray-600">
-                Completa qui il pagamento. Al termine RaiseNow ti riporterà su questa pagina per la conferma ordine.
-              </p>
-              <div ref={embedRef} className="mt-4 w-full" />
-            </div>
-          )}
         </div>
       </aside>
 
@@ -914,7 +874,7 @@ export function ShopContent() {
       />
 
       {toastMessage && (
-        <div className="pointer-events-none fixed bottom-4 right-4 z-[60] w-[min(92vw,420px)] rounded-lg border border-cvlt-blue/20 bg-white px-4 py-3 text-sm text-cvlt-gray-900 shadow-xl">
+        <div className={`pointer-events-none fixed top-20 right-4 z-[60] w-[min(92vw,420px)] rounded-lg border border-cvlt-blue/20 bg-white px-4 py-3 text-sm text-cvlt-gray-900 shadow-xl transition-all duration-500 ${toastFading ? 'translate-x-[calc(100%+1rem)] opacity-0' : 'translate-x-0 opacity-100'}`}>
           {toastMessage}
         </div>
       )}
