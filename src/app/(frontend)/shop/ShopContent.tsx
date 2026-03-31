@@ -642,7 +642,7 @@ export function ShopContent() {
 
       <aside
         id="shop-cart"
-        className={`fixed right-0 top-0 z-50 h-full w-[min(96vw,780px)] overflow-y-auto border-l border-cvlt-gray-200 bg-white shadow-2xl transition duration-300 ${
+        className={`fixed inset-0 z-50 overflow-y-auto bg-white shadow-2xl transition duration-300 sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[min(96vw,780px)] sm:border-l sm:border-cvlt-gray-200 ${
           isCartOpen ? 'translate-x-0' : 'pointer-events-none translate-x-full'
         }`}
       >
@@ -661,60 +661,50 @@ export function ShopContent() {
           {cartItems.length === 0 ? (
             <p className="text-sm text-cvlt-gray-600">Nessun articolo nel carrello.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-cvlt-gray-200 text-left text-cvlt-gray-600">
-                    <th className="py-2 pr-2">Prodotto</th>
-                    <th className="py-2 pr-2">Variante</th>
-                    <th className="py-2 pr-2">Taglia</th>
-                    <th className="py-2 pr-2 text-right">Qta</th>
-                    <th className="py-2 pr-2 text-right">Subtotale</th>
-                    <th className="py-2">&nbsp;</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cartItems.map((item) => (
-                    <tr key={itemKey(item)} className="border-b border-cvlt-gray-100 align-top">
-                      <td className="py-2 pr-2">
-                        <div className="font-medium text-cvlt-gray-900">{item.productName}</div>
-                        <div className="text-xs text-cvlt-gray-500">{item.edition}</div>
-                      </td>
-                      <td className="py-2 pr-2">{item.variant}</td>
-                      <td className="py-2 pr-2">{item.size}</td>
-                      <td className="py-2 pr-2 text-right">
-                        <div className="inline-flex items-center gap-2">
-                          <button
-                            type="button"
-                            className="rounded border border-cvlt-gray-300 px-2 py-0.5 text-xs"
-                            onClick={() => decreaseCartQuantity(item)}
-                          >
-                            -
-                          </button>
-                          <span className="min-w-6 text-center">{item.quantity}</span>
-                          <button
-                            type="button"
-                            className="rounded border border-cvlt-gray-300 px-2 py-0.5 text-xs"
-                            onClick={() => increaseCartQuantity(item)}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </td>
-                      <td className="py-2 pr-2 text-right">{formatCurrency(item.quantity * item.unitPrice)}</td>
-                      <td className="py-2 text-right">
-                        <button
-                          type="button"
-                          className="rounded border border-cvlt-gray-300 px-2 py-1 text-xs text-cvlt-gray-700"
-                          onClick={() => removeFromCart(item)}
-                        >
-                          Rimuovi
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-3">
+              {cartItems.map((item) => (
+                <div key={itemKey(item)} className="rounded-lg border border-cvlt-gray-200 p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="font-medium text-cvlt-gray-900">{item.productName}</div>
+                      <div className="text-xs text-cvlt-gray-500">{item.edition}</div>
+                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-sm text-cvlt-gray-600">
+                        <span>{item.variant}</span>
+                        <span>Taglia {item.size}</span>
+                      </div>
+                    </div>
+                    <div className="text-right text-sm font-semibold text-cvlt-gray-900 whitespace-nowrap">
+                      {formatCurrency(item.quantity * item.unitPrice)}
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <div className="inline-flex items-center gap-2">
+                      <button
+                        type="button"
+                        className="rounded border border-cvlt-gray-300 px-2 py-0.5 text-xs"
+                        onClick={() => decreaseCartQuantity(item)}
+                      >
+                        -
+                      </button>
+                      <span className="min-w-6 text-center text-sm">{item.quantity}</span>
+                      <button
+                        type="button"
+                        className="rounded border border-cvlt-gray-300 px-2 py-0.5 text-xs"
+                        onClick={() => increaseCartQuantity(item)}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="text-xs text-cvlt-gray-500 underline"
+                      onClick={() => removeFromCart(item)}
+                    >
+                      Rimuovi
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
