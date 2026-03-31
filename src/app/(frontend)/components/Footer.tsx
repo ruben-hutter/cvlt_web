@@ -61,6 +61,11 @@ export function Footer() {
             </h4>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
+                <Link href="/contatto" className="transition-colors hover:text-white">
+                  Modulo di contatto
+                </Link>
+              </li>
+              <li>
                 <a href="mailto:info@cvlt.ch" className="transition-colors hover:text-white">
                   info@cvlt.ch
                 </a>

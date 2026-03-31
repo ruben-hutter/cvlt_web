@@ -13,6 +13,8 @@ const navLinks: NavLink[] = [
     { href: '/statuto', label: 'Statuto' },
     { href: '/adesione', label: 'Adesione' },
     { href: '/biposto', label: 'Voli in Biposto' },
+    { href: '/shop', label: 'Shop' },
+    { href: '/contatto', label: 'Contatto' },
   ]},
   { href: '/notizie', label: 'Notizie' },
   { href: '/calendario', label: 'Calendario' },
