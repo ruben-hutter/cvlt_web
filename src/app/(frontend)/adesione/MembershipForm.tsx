@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useAddressSearch, formatPhone, isValidEmail, isValidPhone } from '@/lib/forms'
+import type { AddressSuggestion } from '@/lib/forms'
 
 type FormData = {
   firstName: string
@@ -26,85 +28,6 @@ const initialData: FormData = {
   notes: '',
 }
 
-function formatPhone(value: string): string {
-  const hasPlus = value.startsWith('+')
-  const digits = value.replace(/\D/g, '')
-
-  if (digits.length === 0) return hasPlus ? '+' : ''
-
-  // Swiss international: +41 79 123 45 67
-  if (digits.startsWith('41') && digits.length <= 11) {
-    const parts = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 7), digits.slice(7, 9), digits.slice(9, 11)]
-    return '+' + parts.filter(Boolean).join(' ')
-  }
-
-  // Swiss local: 079 123 45 67
-  if (digits.startsWith('0') && digits.length <= 10) {
-    const parts = [digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 8), digits.slice(8, 10)]
-    return parts.filter(Boolean).join(' ')
-  }
-
-  // International: +XX followed by digits
-  if (hasPlus) return '+' + digits
-  return digits
-}
-
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-}
-
-function isValidPhone(phone: string): boolean {
-  const digits = phone.replace(/\D/g, '')
-  return digits.length >= 10 && digits.length <= 15
-}
-
-type AddressSuggestion = {
-  label: string
-  street: string
-  zip: string
-  city: string
-}
-
-function useAddressSearch(query: string) {
-  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
-
-  useEffect(() => {
-    if (query.length < 3) {
-      setSuggestions([])
-      return
-    }
-
-    clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(
-          `https://api3.geo.admin.ch/rest/services/api/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&origins=address&limit=5`
-        )
-        const data = await res.json()
-        const results = (data.results || []).map((r: any) => {
-          const label = (r.attrs?.label || '') as string
-          // label format: "Street Nr <b>ZIP City</b>"
-          const match = label.match(/^(.+?)\s*<b>(\d+)\s+(.+?)<\/b>/)
-          if (!match) return null
-          return {
-            label: label.replace(/<[^>]*>/g, ''),
-            street: match[1].trim(),
-            zip: match[2],
-            city: match[3].trim(),
-          }
-        }).filter(Boolean) as AddressSuggestion[]
-        setSuggestions(results)
-      } catch {
-        setSuggestions([])
-      }
-    }, 300)
-
-    return () => clearTimeout(timeoutRef.current)
-  }, [query])
-
-  return suggestions
-}
 
 export function MembershipForm() {
   const [data, setData] = useState<FormData>(initialData)
