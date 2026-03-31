@@ -4,11 +4,11 @@ export const metadata = {
 
 export default function StatutoPage() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12">
+    <main className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="text-3xl font-bold">Statuto del Club Volo Libero Ticino</h1>
       <p className="mt-2 text-sm text-gray-500">Approvato in assemblea &mdash; Febbraio 2016</p>
 
-      <div className="prose prose-gray mt-8 max-w-none">
+      <div className="prose prose-gray mt-8 max-w-3xl">
         <h2>Art. 1 &mdash; Denominazione e sede</h2>
         <p>
           Con la denominazione «Club Volo Libero Ticino (CVLT)» è costituita, ai sensi

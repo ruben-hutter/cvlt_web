@@ -94,7 +94,7 @@ export function BipostoContent() {
   )
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12">
+    <main className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="text-3xl font-bold text-cvlt-gray-900">Voli in Biposto</h1>
       <p className="mt-4 text-cvlt-gray-700">
         I piloti tandem del CVLT offrono voli biposto in parapendio nel Ticino e Moesano.
@@ -115,6 +115,7 @@ export function BipostoContent() {
         </p>
       </div>
 
+      <div className="mx-auto max-w-3xl">
       {/* Search */}
       <div className="relative mt-6">
         <svg
@@ -206,6 +207,7 @@ export function BipostoContent() {
             )}
           </tbody>
         </table>
+      </div>
       </div>
     </main>
   )

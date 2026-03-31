@@ -105,7 +105,7 @@ export function InfoVoloContent() {
   const [ztIndex, setZtIndex] = useState(-1)
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12">
+    <main className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="text-3xl font-bold text-cvlt-gray-900">Informazioni di volo</h1>
       <p className="mt-4 text-cvlt-gray-700">
         Una panoramica sullo spazio aereo ticinese, le fonti meteo e i link utili per volare in sicurezza.
@@ -380,16 +380,6 @@ export function InfoVoloContent() {
             title="Skybriefing"
             description="NOTAM, DABS e carte aeronautiche"
             href="https://www.skybriefing.com"
-          />
-          <LinkCard
-            title="XContest"
-            description="Classifica voli e tracce GPS"
-            href="https://www.xcontest.org"
-          />
-          <LinkCard
-            title="burnair"
-            description="Informazioni siti di volo Svizzera"
-            href="https://www.burnair.ch"
           />
         </div>
       </div>

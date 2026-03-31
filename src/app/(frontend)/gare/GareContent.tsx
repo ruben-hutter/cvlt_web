@@ -309,7 +309,7 @@ function HallOfFame() {
 
 export function GareContent() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12">
+    <main className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="text-3xl font-bold text-cvlt-gray-900">Gare</h1>
       <p className="mt-4 text-cvlt-gray-700">
         Le competizioni organizzate e supportate dal CVLT: il campionato Cross Country Cup (CCC)

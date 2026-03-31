@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function MembershipPage() {
   return (
-    <main className="mx-auto max-w-2xl px-4 py-12">
+    <main className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="text-3xl font-bold text-cvlt-gray-900">Aderire al club</h1>
 
       <div className="mt-6 space-y-4 text-cvlt-gray-700">
@@ -23,7 +23,7 @@ export default function MembershipPage() {
         </p>
       </div>
 
-      <div className="mt-6 rounded-lg border border-cvlt-blue/20 bg-cvlt-blue-light p-4 text-sm text-cvlt-gray-700">
+      <div className="mx-auto mt-6 max-w-2xl rounded-lg border border-cvlt-blue/20 bg-cvlt-blue-light p-4 text-sm text-cvlt-gray-700">
         <p className="font-semibold text-cvlt-gray-900">Quote annuali:</p>
         <ul className="mt-2 space-y-1">
           <li className="flex justify-between sm:justify-start sm:gap-6">
@@ -41,7 +41,7 @@ export default function MembershipPage() {
         </ul>
       </div>
 
-      <div className="mt-8">
+      <div className="mx-auto mt-8 max-w-2xl">
         <MembershipForm />
       </div>
     </main>

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function QuotaSocialePage() {
   return (
-    <main className="mx-auto max-w-2xl px-4 py-12">
+    <main className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="text-3xl font-bold text-cvlt-gray-900">Pagamento quota sociale</h1>
       <p className="mt-4 text-cvlt-gray-700">
         I soci possono versare comodamente la quota sociale tramite bonifico bancario

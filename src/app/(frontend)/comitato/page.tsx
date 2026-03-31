@@ -51,7 +51,7 @@ const members = [
 
 export default function ComitatoPage() {
   return (
-    <main className="mx-auto max-w-4xl px-4 py-12">
+    <main className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="text-3xl font-bold text-cvlt-gray-900">Comitato</h1>
       <p className="mt-2 text-cvlt-gray-600">
         Il comitato direttivo del Club Volo Libero Ticino.
