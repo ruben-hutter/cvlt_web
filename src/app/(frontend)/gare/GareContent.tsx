@@ -275,7 +275,7 @@ function HallOfFame() {
         >
           {cccHallOfFame.map((e) => (
             <option key={e.year} value={e.year}>
-              CCC {e.year}
+              {e.year}
             </option>
           ))}
         </select>
@@ -397,7 +397,36 @@ export function GareContent() {
 
         <div className="mt-6 rounded-lg border border-cvlt-gray-200">
           <Section title="Calendario 2026" defaultOpen>
-            <div className="overflow-x-auto">
+            {/* Mobile: cards */}
+            <div className="space-y-3 sm:hidden">
+              {hikeAndFlyRaces.map((race) => (
+                <div key={race.name} className="rounded-lg border border-cvlt-gray-200 p-3 text-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="font-medium">
+                      {race.href ? (
+                        <Link href={race.href} className="text-cvlt-blue transition-colors hover:text-cvlt-blue-dark hover:underline">
+                          {race.name}
+                        </Link>
+                      ) : (
+                        <span className="text-cvlt-blue">{race.name}</span>
+                      )}
+                    </div>
+                    <div className="flex gap-1.5 whitespace-nowrap">
+                      {race.catOpen && <span className="rounded bg-cvlt-blue/10 px-1.5 py-0.5 text-xs font-medium text-cvlt-blue">Open</span>}
+                      {race.catFun && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">Fun</span>}
+                    </div>
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 text-cvlt-gray-600">
+                    <span>{race.date}{race.backup ? ` (${race.backup})` : ''}</span>
+                    <span>&middot;</span>
+                    <span>{race.location}</span>
+                  </div>
+                  <div className="mt-0.5 text-xs text-cvlt-gray-500">{race.organizer}</div>
+                </div>
+              ))}
+            </div>
+            {/* Desktop: table */}
+            <div className="hidden sm:block">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-cvlt-gray-200 text-xs font-semibold uppercase tracking-wide text-cvlt-gray-500">
@@ -426,8 +455,8 @@ export function GareContent() {
                       </td>
                       <td className="py-2 pr-3 text-cvlt-gray-700">{race.organizer}</td>
                       <td className="py-2 pr-3 text-cvlt-gray-700">{race.location}</td>
-                      <td className="py-2 pr-1 text-center">{race.catOpen ? 'sì' : '—'}</td>
-                      <td className="py-2 text-center">{race.catFun ? 'sì' : '—'}</td>
+                      <td className="py-2 pr-1 text-center">{race.catOpen ? <span className="rounded bg-cvlt-blue/10 px-1.5 py-0.5 text-xs font-medium text-cvlt-blue">sì</span> : '—'}</td>
+                      <td className="py-2 text-center">{race.catFun ? <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">sì</span> : '—'}</td>
                     </tr>
                   ))}
                 </tbody>
