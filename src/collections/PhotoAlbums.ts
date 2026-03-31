@@ -14,6 +14,41 @@ export const PhotoAlbums: CollectionConfig = {
   custom: {
     totp: { disableAccessWrapper: { read: true } },
   },
+  hooks: {
+    afterDelete: [
+      async ({ doc, req }) => {
+        const photos = Array.isArray(doc?.photos) ? doc.photos : []
+        const mediaIds = photos
+          .map((photo) => (typeof photo === 'object' && photo?.id ? photo.id : photo))
+          .filter((id): id is number | string => typeof id === 'number' || typeof id === 'string')
+
+        for (const mediaID of mediaIds) {
+          // Delete linked media only if no other album still references it.
+          const stillReferenced = await req.payload.find({
+            collection: 'photo-albums',
+            where: { photos: { contains: mediaID } },
+            limit: 1,
+            depth: 0,
+          })
+
+          if (stillReferenced.totalDocs > 0) continue
+
+          try {
+            await req.payload.delete({
+              collection: 'media',
+              id: mediaID,
+            })
+          } catch (error) {
+            req.payload.logger.warn(
+              `[photo-albums] could not cascade-delete media ${String(mediaID)}: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            )
+          }
+        }
+      },
+    ],
+  },
   fields: [
     {
       name: 'title',
