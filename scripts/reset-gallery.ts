@@ -9,7 +9,7 @@ function parseArgs(argv: string[]): CliOptions {
 }
 
 async function listAllIDs(payload: Awaited<ReturnType<typeof getPayload>>, collection: 'photo-albums' | 'media') {
-  const ids: Array<number | string> = []
+  const ids: number[] = []
   let page = 1
 
   while (true) {
@@ -23,7 +23,7 @@ async function listAllIDs(payload: Awaited<ReturnType<typeof getPayload>>, colle
     ids.push(
       ...result.docs
         .map((doc) => doc.id)
-        .filter((id): id is number | string => typeof id === 'number' || typeof id === 'string'),
+        .filter((id): id is number => typeof id === 'number'),
     )
 
     if (!result.hasNextPage) break

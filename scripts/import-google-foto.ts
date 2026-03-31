@@ -130,6 +130,15 @@ function parseDateFromFilename(filename: string): Date | null {
   return null
 }
 
+function toMediaNumericID(id: unknown): number {
+  if (typeof id === 'number' && Number.isFinite(id)) return id
+  if (typeof id === 'string') {
+    const parsed = Number(id)
+    if (Number.isFinite(parsed)) return parsed
+  }
+  throw new Error(`Unsupported media id type: ${String(id)}`)
+}
+
 async function earliestDateFromFolder(folderPath: string): Promise<Date | null> {
   const entries = await fs.readdir(folderPath, { withFileTypes: true })
   const dates: Date[] = []
@@ -282,7 +291,7 @@ async function main() {
       continue
     }
 
-    const mediaIds: Array<number | string> = []
+    const mediaIds: number[] = []
     for (const mediaName of mediaFileNames) {
       const mediaPath = path.join(folderPath, mediaName)
       const created = await payload.create({
@@ -290,7 +299,7 @@ async function main() {
         data: { alt: path.parse(mediaName).name.replace(/[-_]/g, ' ') },
         filePath: mediaPath,
       })
-      mediaIds.push(created.id)
+      mediaIds.push(toMediaNumericID(created.id))
       uploadedMedia += 1
       if (options.verbose) console.log(`  [FILE] ${mediaName} -> media#${created.id}`)
     }

@@ -19,8 +19,13 @@ export const PhotoAlbums: CollectionConfig = {
       async ({ doc, req }) => {
         const photos = Array.isArray(doc?.photos) ? doc.photos : []
         const mediaIds = photos
-          .map((photo) => (typeof photo === 'object' && photo?.id ? photo.id : photo))
-          .filter((id): id is number | string => typeof id === 'number' || typeof id === 'string')
+          .map((photo: unknown) => {
+            if (typeof photo === 'object' && photo !== null && 'id' in photo) {
+              return (photo as { id?: unknown }).id
+            }
+            return photo
+          })
+          .filter((id: unknown): id is number | string => typeof id === 'number' || typeof id === 'string')
 
         for (const mediaID of mediaIds) {
           // Delete linked media only if no other album still references it.
