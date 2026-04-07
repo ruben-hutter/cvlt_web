@@ -7,9 +7,8 @@
 - [ ] gare page on mobile: entries cliccable (not just the title)
 - [x] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
     - If possible already put them in the right albums
-- [ ] Successful payment in shop is good, but then it would be nice to get back from the raisenow page to the cvlt page (for now dev.cvlt page)
-- [ ] Payment confirmation mail after shop purchase (with order details) to customer and mail with order details to shop.cvlt.ch email
-    - Remove mock payment and env variable before committing
+- [x] Successful payment in shop is good, but then it would be nice to get back from the raisenow page to the cvlt page (configured in RaiseNow Hub)
+- [x] Payment confirmation mail after shop purchase (with order details) to customer and mail with order details to shop.cvlt.ch email
 - [ ] Small counter in image viewer showing current image number and total (e.g. "3/15")
 - [ ] Webcams
 

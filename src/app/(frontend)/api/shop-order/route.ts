@@ -146,11 +146,6 @@ function calculateTshirt2023Discount(items: CartItem[]) {
   return pairCount * 5
 }
 
-function getShopReturnUrl(outcome: 'paid' | 'failed') {
-  const base = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
-  return `${base}/shop?shop_${outcome}=1`
-}
-
 function buildCheckoutUrl(payload: OrderPayload) {
   const baseUrl = process.env.SHOP_PAYLINK_URL || 'https://pay.raisenow.io/stpxb'
   const url = new URL(baseUrl)
@@ -215,11 +210,7 @@ async function handlePrepare(body: PrepareRequest) {
   }
 
   const orderToken = signOrderPayload(payload)
-  const mockCheckout = process.env.SHOP_MOCK_CHECKOUT === 'true'
-
-  const checkoutUrl = mockCheckout
-    ? getShopReturnUrl('paid')
-    : buildCheckoutUrl(payload)
+  const checkoutUrl = buildCheckoutUrl(payload)
 
   return NextResponse.json({ success: true, checkoutUrl, orderToken, orderRef: payload.orderRef })
 }
