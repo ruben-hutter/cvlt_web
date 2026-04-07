@@ -2,8 +2,10 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Lightbox from 'yet-another-react-lightbox'
+import Counter from 'yet-another-react-lightbox/plugins/counter'
 import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import Video from 'yet-another-react-lightbox/plugins/video'
+import 'yet-another-react-lightbox/plugins/counter.css'
 import 'yet-another-react-lightbox/styles.css'
 
 type MediaItem = {
@@ -100,7 +102,7 @@ export function PhotoGrid({ photos }: { photos: MediaItem[] }) {
         close={() => setIndex(-1)}
         index={index}
         slides={slides}
-        plugins={[Video, Fullscreen]}
+        plugins={[Counter, Video, Fullscreen]}
         fullscreen={{ ref: fullscreenRef }}
         video={{ autoPlay: true, controls: true }}
       />

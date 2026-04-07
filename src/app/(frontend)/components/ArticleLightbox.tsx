@@ -2,7 +2,9 @@
 
 import { useState, useCallback } from 'react'
 import Lightbox from 'yet-another-react-lightbox'
+import Counter from 'yet-another-react-lightbox/plugins/counter'
 import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
+import 'yet-another-react-lightbox/plugins/counter.css'
 import 'yet-another-react-lightbox/styles.css'
 
 export function ArticleLightbox({
@@ -41,7 +43,7 @@ export function ArticleLightbox({
         close={() => setIndex(-1)}
         index={index}
         slides={images.map((src) => ({ src }))}
-        plugins={[Fullscreen]}
+        plugins={[Counter, Fullscreen]}
       />
     </>
   )
