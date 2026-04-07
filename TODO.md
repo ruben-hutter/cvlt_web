@@ -3,13 +3,8 @@
 ## High priority
 
 - [ ] Update RaiseNow Hub Shop Twint link: success and failure URLs to cvlt.ch/...
-- [x] Update .env on server with latest email variables (follow .env.example)
-- [ ] gare page on mobile: entries cliccable (not just the title)
-- [x] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
-    - If possible already put them in the right albums
-- [x] Successful payment in shop is good, but then it would be nice to get back from the raisenow page to the cvlt page (configured in RaiseNow Hub)
-- [x] Payment confirmation mail after shop purchase (with order details) to customer and mail with order details to shop.cvlt.ch email
-- [ ] Small counter in image viewer showing current image number and total (e.g. "3/15")
+- [x] gare page on mobile: entries cliccable (not just the title)
+- [x] Small counter in image viewer showing current image number and total (e.g. "3/15")
 - [ ] Webcams
 
 ## Medium priority
@@ -39,6 +34,11 @@
 
 ## Done
 
+- [x] Payment confirmation mail after shop purchase (with order details) to customer and shop manager
+- [x] Shop return URL after RaiseNow payment (configured in RaiseNow Hub)
+- [x] Update .env on server with latest email variables (follow .env.example)
+- [x] Import all photos from old website into gallery with correct albums
+- [x] Global cursor:pointer for buttons, calendar backup date clicking, shop checkout UX
 - [x] Check password reset
 - [x] Dropdown / submenu per sezioni Vento, Gare, Info volo con anchor links
 - [x] Live pressure chart (MAG-KLO) + föhn forecast (DWD MOSMIX Lugano-Zürich)
