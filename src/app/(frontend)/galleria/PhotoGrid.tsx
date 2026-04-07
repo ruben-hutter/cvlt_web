@@ -71,7 +71,7 @@ export function PhotoGrid({ photos }: { photos: MediaItem[] }) {
           <button
             key={i}
             onClick={() => setIndex(i)}
-            className="group relative aspect-square cursor-pointer overflow-hidden rounded-md bg-cvlt-gray-100"
+            className="group relative aspect-square overflow-hidden rounded-md bg-cvlt-gray-100"
           >
             {isVideo(item.mimeType) ? (
               <>

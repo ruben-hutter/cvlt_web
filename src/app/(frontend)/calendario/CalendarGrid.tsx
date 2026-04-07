@@ -324,6 +324,7 @@ export function CalendarGrid({ events }: { events: Event[] }) {
   function getEventsForCell(cell: Cell): Event[] {
     const date = cellDate(cell)
     return events.filter((e) => {
+      // Check main date range (or backup if useBackupDate)
       const startStr = e.useBackupDate && e.backupStartDate ? e.backupStartDate : e.startDate
       const endStr = e.useBackupDate && e.backupStartDate
         ? (e.backupEndDate || e.backupStartDate)
@@ -332,7 +333,18 @@ export function CalendarGrid({ events }: { events: Event[] }) {
       start.setHours(0, 0, 0, 0)
       const end = new Date(endStr)
       end.setHours(23, 59, 59, 999)
-      return date >= start && date <= end
+      if (date >= start && date <= end) return true
+
+      // Also check backup date range (shown as dashed bar when useBackupDate is false)
+      if (!e.useBackupDate && e.backupStartDate) {
+        const bStart = new Date(e.backupStartDate)
+        bStart.setHours(0, 0, 0, 0)
+        const bEnd = new Date(e.backupEndDate || e.backupStartDate)
+        bEnd.setHours(23, 59, 59, 999)
+        if (date >= bStart && date <= bEnd) return true
+      }
+
+      return false
     })
   }
 
@@ -410,6 +422,7 @@ export function CalendarGrid({ events }: { events: Event[] }) {
                       key={colIdx}
                       onClick={() => handleDayClick(cell)}
                       className={`border-r border-gray-100 px-1.5 pt-1 last:border-r-0 ${!cell.currentMonth ? 'bg-gray-50/50' : ''} ${isToday ? 'bg-blue-50/50' : ''} ${hasEvents ? 'cursor-pointer' : ''}`}
+                      role={hasEvents ? 'button' : undefined}
                     >
                       <span className={`inline-flex h-6 w-6 items-center justify-center text-xs ${isToday ? 'rounded-full bg-cvlt-blue font-bold text-white' : cell.currentMonth ? 'text-gray-700' : 'text-gray-300'}`}>
                         {cell.day}

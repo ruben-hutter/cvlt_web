@@ -2,28 +2,22 @@
 
 ## High priority
 
-- [ ] Update .env on server with latest email variables (follow .env.example)
 - [ ] Update RaiseNow Hub Shop Twint link: success and failure URLs to cvlt.ch/...
+- [x] Update .env on server with latest email variables (follow .env.example)
+- [ ] gare page on mobile: entries cliccable (not just the title)
+- [x] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
+    - If possible already put them in the right albums
+- [ ] Successful payment in shop is good, but then it would be nice to get back from the raisenow page to the cvlt page (for now dev.cvlt page)
+- [ ] Payment confirmation mail after shop purchase (with order details) to customer and mail with order details to shop.cvlt.ch email
+    - Remove mock payment and env variable before committing
+- [ ] Small counter in image viewer showing current image number and total (e.g. "3/15")
+- [ ] Webcams
 
 ## Medium priority
 
-- [~] Import (if possible in an automated way) all the photos from the old website (gallery only, not all pictures)
-    - If possible already put them in the right albums
 - [~] Sezione info volo + TMA/CTR/AWY (pagina creata, da controllare contenuti)
     - [~] Controllare contenuti CTR, TMA, AWY, Zone di tranquillità
-- [ ] Webcams
-
-## Low priority
-
-- [ ] Enforce 2FA for payload login
 - [ ] In "comitato" page make persons containers "flip" on click and behing them show more info (maybe motivation or contact info)
-- [ ] Nuovo logo
-    - Concorso per membri
-    - Aspettare 40esimo anniversario per lanciarlo
-- [ ] Aggiungere sezione "sponsor" con i loghi degli sponsor
-- [ ] Add possibility for users to add pictures to the gallery (with admin approval)
-    - Limit uploaded images
-    - DDOS protection
 - [ ] Multiple languages (german, french, english)
     - Maybe start with just the homepage and the news section
     - Use i18n in Next.js
@@ -33,6 +27,16 @@
 - [ ] Auto-post news to Instagram/Facebook
     - Instagram API requires paid tools (Zapier/Make.com); IFTTT free covers Facebook only
     - Revisit when better free options exist
+
+## Low priority
+
+- [ ] Enforce 2FA for payload login
+- [ ] Nuovo logo
+    - Concorso per membri
+    - Aspettare 40esimo anniversario per lanciarlo
+- [ ] Add possibility for users to add pictures to the gallery (with admin approval)
+    - Limit uploaded images
+    - DDOS protection
 
 ## Done
 

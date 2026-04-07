@@ -47,10 +47,6 @@ type OrderPayload = {
 }
 
 const confirmedOrdersFile = path.join(process.cwd(), 'cache', 'shop-orders-confirmed.json')
-const paidOrdersFile = path.join(process.cwd(), 'cache', 'shop-orders-paid.json')
-const preparedOrdersFile = path.join(process.cwd(), 'cache', 'shop-orders-prepared.json')
-
-type PreparedOrderIndex = Record<string, { total: number; email: string; createdAt: string }>
 
 function base64UrlEncode(input: string) {
   return Buffer.from(input, 'utf8').toString('base64url')
@@ -108,119 +104,6 @@ async function writeConfirmedRefs(refs: Set<string>) {
   await fs.writeFile(confirmedOrdersFile, JSON.stringify([...refs], null, 2), 'utf8')
 }
 
-async function readPaidRefs() {
-  try {
-    const content = await fs.readFile(paidOrdersFile, 'utf8')
-    const parsed = JSON.parse(content) as string[]
-    return new Set(parsed)
-  } catch {
-    return new Set<string>()
-  }
-}
-
-async function writePaidRefs(refs: Set<string>) {
-  await fs.mkdir(path.dirname(paidOrdersFile), { recursive: true })
-  await fs.writeFile(paidOrdersFile, JSON.stringify([...refs], null, 2), 'utf8')
-}
-
-async function readPreparedOrders() {
-  try {
-    const content = await fs.readFile(preparedOrdersFile, 'utf8')
-    return JSON.parse(content) as PreparedOrderIndex
-  } catch {
-    return {}
-  }
-}
-
-async function writePreparedOrders(index: PreparedOrderIndex) {
-  await fs.mkdir(path.dirname(preparedOrdersFile), { recursive: true })
-  await fs.writeFile(preparedOrdersFile, JSON.stringify(index, null, 2), 'utf8')
-}
-
-function isProviderConfirmationRequired() {
-  return process.env.SHOP_REQUIRE_PROVIDER_CONFIRMATION === 'true'
-}
-
-function getWebhookSecret() {
-  return process.env.SHOP_RAISENOW_WEBHOOK_SECRET || ''
-}
-
-function safeCompare(secretA: string, secretB: string) {
-  const a = Buffer.from(secretA)
-  const b = Buffer.from(secretB)
-  if (a.length !== b.length) return false
-  return crypto.timingSafeEqual(a, b)
-}
-
-function getWebhookProvidedSecret(request: Request) {
-  const directHeader = request.headers.get('x-shop-webhook-secret')
-  if (directHeader) return directHeader.trim()
-
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader) return ''
-
-  const match = /^bearer\s+(.+)$/i.exec(authHeader)
-  return match ? match[1].trim() : ''
-}
-
-function extractOrderRefFromWebhook(body: unknown) {
-  const payload = body as Record<string, unknown>
-  const reference = payload.reference as Record<string, unknown> | undefined
-  const payment = payload.payment as Record<string, unknown> | undefined
-  const paymentReference = payment?.reference as Record<string, unknown> | undefined
-  const metadata = payload.metadata as Record<string, unknown> | undefined
-
-  const candidates = [
-    payload.orderRef,
-    payload.order_ref,
-    payload.reference_campaign_subid,
-    payload.campaign_subid,
-    reference?.campaign_subid,
-    paymentReference?.campaign_subid,
-    metadata?.orderRef,
-    metadata?.order_ref,
-  ]
-
-  for (const candidate of candidates) {
-    if (typeof candidate === 'string' && candidate.trim()) {
-      return candidate.trim()
-    }
-  }
-
-  return ''
-}
-
-function extractStatusFromWebhook(body: unknown) {
-  const payload = body as Record<string, unknown>
-  const payment = payload.payment as Record<string, unknown> | undefined
-
-  const statusCandidates = [
-    payload.status,
-    payload.state,
-    payload.event,
-    payload.type,
-    payload.payment_status,
-    payment?.status,
-  ]
-
-  for (const status of statusCandidates) {
-    if (typeof status === 'string' && status.trim()) {
-      return status.toLowerCase()
-    }
-  }
-
-  return ''
-}
-
-function isSuccessStatus(status: string) {
-  const successTokens = ['paid', 'succeeded', 'successful', 'success', 'completed', 'captured']
-  const failedTokens = ['failed', 'error', 'cancel', 'decline', 'refunded', 'chargeback']
-
-  if (!status) return false
-  if (failedTokens.some((token) => status.includes(token))) return false
-  return successTokens.some((token) => status.includes(token))
-}
-
 function isValidCartItem(item: CartItem) {
   return (
     typeof item.productName === 'string' &&
@@ -263,6 +146,11 @@ function calculateTshirt2023Discount(items: CartItem[]) {
   return pairCount * 5
 }
 
+function getShopReturnUrl(outcome: 'paid' | 'failed') {
+  const base = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+  return `${base}/shop?shop_${outcome}=1`
+}
+
 function buildCheckoutUrl(payload: OrderPayload) {
   const baseUrl = process.env.SHOP_PAYLINK_URL || 'https://pay.raisenow.io/stpxb'
   const url = new URL(baseUrl)
@@ -277,11 +165,9 @@ function buildCheckoutUrl(payload: OrderPayload) {
   url.searchParams.set('supporter.zip_code.value', payload.postalCode)
   url.searchParams.set('supporter.city.value', payload.city)
 
-  // Try to open directly on TWINT where supported by provider config.
   url.searchParams.set('payment_method.values', 'twint')
   url.searchParams.set('payment_method.custom', 'false')
 
-  // This helps reconcile incoming payments in RaiseNow Hub.
   url.searchParams.set('reference.campaign_subid', payload.orderRef)
 
   return url.toString()
@@ -329,15 +215,11 @@ async function handlePrepare(body: PrepareRequest) {
   }
 
   const orderToken = signOrderPayload(payload)
-  const checkoutUrl = buildCheckoutUrl(payload)
+  const mockCheckout = process.env.SHOP_MOCK_CHECKOUT === 'true'
 
-  const preparedIndex = await readPreparedOrders()
-  preparedIndex[payload.orderRef] = {
-    total: payload.total,
-    email: payload.email,
-    createdAt: payload.createdAt,
-  }
-  await writePreparedOrders(preparedIndex)
+  const checkoutUrl = mockCheckout
+    ? getShopReturnUrl('paid')
+    : buildCheckoutUrl(payload)
 
   return NextResponse.json({ success: true, checkoutUrl, orderToken, orderRef: payload.orderRef })
 }
@@ -358,86 +240,24 @@ async function handleConfirm(body: ConfirmRequest) {
 
   const confirmedRefs = await readConfirmedRefs()
   if (confirmedRefs.has(payload.orderRef)) {
-    const paidRefs = await readPaidRefs()
-    return NextResponse.json({
-      success: true,
-      alreadyConfirmed: true,
-      orderRef: payload.orderRef,
-      providerVerified: paidRefs.has(payload.orderRef),
-    })
+    return NextResponse.json({ success: true, alreadyConfirmed: true, orderRef: payload.orderRef })
   }
 
-  const paidRefs = await readPaidRefs()
-  const providerVerified = paidRefs.has(payload.orderRef)
-
-  if (isProviderConfirmationRequired()) {
-    if (!providerVerified) {
-      return NextResponse.json(
-        {
-          error:
-            'Pagamento non ancora confermato lato provider. Riprova tra pochi secondi oppure contatta il comitato shop.',
-        },
-        { status: 409 },
-      )
-    }
+  try {
+    await sendShopOrderNotification(payload)
+  } catch (emailError) {
+    console.error('Failed to send shop order email:', emailError)
   }
 
-  await sendShopOrderNotification({ ...payload, providerVerified })
   confirmedRefs.add(payload.orderRef)
   await writeConfirmedRefs(confirmedRefs)
 
-  const preparedIndex = await readPreparedOrders()
-  if (preparedIndex[payload.orderRef]) {
-    delete preparedIndex[payload.orderRef]
-    await writePreparedOrders(preparedIndex)
-  }
-
-  return NextResponse.json({ success: true, orderRef: payload.orderRef, providerVerified })
-}
-
-async function handleWebhook(request: Request, body: unknown) {
-  const configuredSecret = getWebhookSecret()
-  if (!configuredSecret) {
-    return NextResponse.json({ error: 'Webhook secret non configurato.' }, { status: 503 })
-  }
-
-  const providedSecret = getWebhookProvidedSecret(request)
-  if (!providedSecret || !safeCompare(providedSecret, configuredSecret)) {
-    return NextResponse.json({ error: 'Non autorizzato.' }, { status: 401 })
-  }
-
-  const orderRef = extractOrderRefFromWebhook(body)
-  const status = extractStatusFromWebhook(body)
-
-  if (!orderRef) {
-    return NextResponse.json({ error: 'orderRef non trovato nel payload webhook.' }, { status: 400 })
-  }
-
-  if (!isSuccessStatus(status)) {
-    return NextResponse.json({ success: true, ignored: true })
-  }
-
-  const preparedIndex = await readPreparedOrders()
-  if (!preparedIndex[orderRef]) {
-    return NextResponse.json({ success: true, ignored: true, reason: 'ordine non in attesa' })
-  }
-
-  const paidRefs = await readPaidRefs()
-  paidRefs.add(orderRef)
-  await writePaidRefs(paidRefs)
-
-  return NextResponse.json({ success: true, orderRef })
+  return NextResponse.json({ success: true, orderRef: payload.orderRef })
 }
 
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>
-
-    // If the request is not using the action protocol but provides webhook auth,
-    // treat it as provider callback payload.
-    if (typeof body.action !== 'string' && getWebhookProvidedSecret(request)) {
-      return handleWebhook(request, body)
-    }
 
     if (body.action === 'prepare') {
       return handlePrepare(body as PrepareRequest)
@@ -451,15 +271,5 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Shop order error:', error)
     return NextResponse.json({ error: 'Si è verificato un errore. Riprova più tardi.' }, { status: 500 })
-  }
-}
-
-export async function PUT(request: Request) {
-  try {
-    const body = (await request.json()) as unknown
-    return handleWebhook(request, body)
-  } catch (error) {
-    console.error('Shop webhook error:', error)
-    return NextResponse.json({ error: 'Errore webhook.' }, { status: 500 })
   }
 }

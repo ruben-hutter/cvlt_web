@@ -248,6 +248,7 @@ export function ShopContent() {
 
     if (failed) {
       setFeedbackError('Pagamento non completato. Puoi riprovare qui sotto.')
+      window.history.replaceState({}, '', window.location.pathname)
     }
 
     if (!paid || hasAttemptedAutoConfirmRef.current) return
@@ -257,6 +258,7 @@ export function ShopContent() {
     const token = localStorage.getItem(pendingOrderTokenStorageKey)
     if (!token) {
       setFeedbackError('Ordine non trovato localmente. Se hai pagato, contatta il comitato shop.')
+      window.history.replaceState({}, '', window.location.pathname)
       return
     }
 
@@ -273,15 +275,9 @@ export function ShopContent() {
         if (!res.ok) throw new Error(data?.error || 'Conferma ordine fallita')
 
         setConfirmedOrderRef(data.orderRef)
-        if (data.providerVerified) {
-          setFeedbackMessage(
-            'Pagamento confermato lato RaiseNow. Ordine confermato e notificato a Barbara per spedizione.',
-          )
-        } else {
-          setFeedbackMessage(
-            'Ordine registrato e notificato a Barbara. Pagamento da verificare manualmente in RaiseNow Hub prima della spedizione.',
-          )
-        }
+        setFeedbackMessage(
+          'Ordine confermato! Riceverai una mail di conferma con il riepilogo. Grazie per il tuo acquisto!',
+        )
         setCartItems([])
         setFirstName('')
         setLastName('')
@@ -293,6 +289,7 @@ export function ShopContent() {
         setNotes('')
         setIsCartOpen(false)
         localStorage.removeItem(pendingOrderTokenStorageKey)
+        window.history.replaceState({}, '', window.location.pathname)
       })
       .catch((error: unknown) => {
         const message = error instanceof Error ? error.message : 'Conferma ordine fallita'
@@ -493,7 +490,7 @@ export function ShopContent() {
 
             return (
               <div key={`${product.name}-${product.edition}`} className="overflow-hidden rounded-lg border border-cvlt-gray-200">
-                <button onClick={() => setLightboxIndex(i)} className="w-full cursor-pointer">
+                <button onClick={() => setLightboxIndex(i)} className="w-full">
                   <div className="aspect-square overflow-hidden bg-cvlt-gray-100">
                     <img
                       src={product.image}

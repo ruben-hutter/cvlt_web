@@ -42,7 +42,7 @@ const pilots: Pilot[] = [
   { name: 'Vosti Claudio', phone: '+41796217731', email: 'vosti.c@bluewin.ch' },
   { name: 'Vosti Mattia', phone: '+41798705666', email: 'mattia.vosti@gmail.com', website: 'mattiavosti.ch' },
   { name: 'Voumard Andrea', phone: '+41795810347', email: 'hendriu@ticino.com' },
-  { name: 'Wuest Renato', phone: '+41794441455', email: 'paramania@ticino.com', website: 'paramania.ch' },
+  { name: 'W\u00fcest Renato', phone: '+41794441455', email: 'paramania@ticino.com', website: 'paramania.ch' },
   { name: 'Wulz Gaby', phone: '+41792539953', email: 'gabywulz@gmail.com', website: 'eagletandemfly.com' },
   { name: 'Zoppi Marco', phone: '+41793372959', email: 'amilabylilo@bluewin.ch' },
 ]

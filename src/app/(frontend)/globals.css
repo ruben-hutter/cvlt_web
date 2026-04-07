@@ -5,6 +5,11 @@ html {
   scroll-padding-top: 5rem;
 }
 
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
 @theme {
   --color-cvlt-blue: #1e73be;
   --color-cvlt-blue-dark: #155a96;

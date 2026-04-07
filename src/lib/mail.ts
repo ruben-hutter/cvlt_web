@@ -198,7 +198,6 @@ type ShopOrderData = {
   total: number
   createdAt: string
   items: ShopOrderItem[]
-  providerVerified?: boolean
 }
 
 function formatCurrency(value: number) {
@@ -206,11 +205,6 @@ function formatCurrency(value: number) {
 }
 
 export async function sendShopOrderNotification(data: ShopOrderData) {
-  const providerVerified = Boolean(data.providerVerified)
-  const verificationLabel = providerVerified
-    ? 'Confermato lato provider (webhook RaiseNow).'
-    : 'NON verificato lato provider. Verificare manualmente in RaiseNow Hub prima della spedizione.'
-
   const itemsText = data.items
     .map(
       (item) =>
@@ -233,17 +227,15 @@ export async function sendShopOrderNotification(data: ShopOrderData) {
     )
     .join('')
 
+  // Email to the shop manager
   await transporter.sendMail({
     from,
     to: shopRecipient,
-    subject: providerVerified
-      ? `Nuovo ordine shop pagato (${data.orderRef})`
-      : `Nuovo ordine shop da verificare (${data.orderRef})`,
-    text: `Nuovo ordine shop pagato
+    subject: `Nuovo ordine shop (${data.orderRef})`,
+    text: `Nuovo ordine shop
 
 Riferimento ordine: ${data.orderRef}
 Data: ${data.createdAt}
-Stato verifica pagamento: ${verificationLabel}
 
 Cliente:
 Nome: ${data.firstName} ${data.lastName}
@@ -260,10 +252,9 @@ ${itemsText}
 Totale: ${formatCurrency(data.total)}
 `,
     html: `
-<h2>Nuovo ordine shop pagato</h2>
+<h2>Nuovo ordine shop</h2>
 <p><strong>Riferimento ordine:</strong> ${data.orderRef}<br>
-<strong>Data:</strong> ${data.createdAt}<br>
-<strong>Stato verifica pagamento:</strong> ${verificationLabel}</p>
+<strong>Data:</strong> ${data.createdAt}</p>
 
 <h3>Cliente</h3>
 <p><strong>Nome:</strong> ${data.firstName} ${data.lastName}<br>
@@ -293,6 +284,66 @@ ${data.notes ? `<br><strong>Note:</strong> ${data.notes}` : ''}</p>
 </table>
 
 <p style="margin-top:16px;"><strong>Totale:</strong> ${formatCurrency(data.total)}</p>
+`,
+  })
+
+  // Confirmation email to the customer
+  await transporter.sendMail({
+    from,
+    to: data.email,
+    subject: `Conferma ordine CVLT Shop (${data.orderRef})`,
+    text: `Gentile ${data.firstName} ${data.lastName},
+
+Il tuo ordine è stato registrato con successo.
+
+Riferimento ordine: ${data.orderRef}
+
+Articoli ordinati:
+${itemsText}
+
+Totale: ${formatCurrency(data.total)}
+
+Indirizzo di spedizione:
+${data.firstName} ${data.lastName}
+${data.address}
+${data.postalCode} ${data.city}
+
+Ti contatteremo per la spedizione.
+
+Cordiali saluti,
+Club Volo Libero Ticino
+https://cvlt.ch
+`,
+    html: `
+<p>Gentile ${data.firstName} ${data.lastName},</p>
+<p>Il tuo ordine è stato registrato con successo.</p>
+<p><strong>Riferimento ordine:</strong> ${data.orderRef}</p>
+
+<h3>Articoli ordinati</h3>
+<table style="border-collapse:collapse;width:100%;font-size:14px;">
+  <thead>
+    <tr>
+      <th style="padding:6px 8px;border:1px solid #ddd;text-align:left;">Prodotto</th>
+      <th style="padding:6px 8px;border:1px solid #ddd;text-align:left;">Edizione</th>
+      <th style="padding:6px 8px;border:1px solid #ddd;text-align:left;">Variante</th>
+      <th style="padding:6px 8px;border:1px solid #ddd;text-align:left;">Taglia</th>
+      <th style="padding:6px 8px;border:1px solid #ddd;text-align:right;">Qta</th>
+      <th style="padding:6px 8px;border:1px solid #ddd;text-align:right;">Prezzo</th>
+      <th style="padding:6px 8px;border:1px solid #ddd;text-align:right;">Subtotale</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${itemsHtml}
+  </tbody>
+</table>
+
+<p style="margin-top:16px;"><strong>Totale:</strong> ${formatCurrency(data.total)}</p>
+
+<h3>Indirizzo di spedizione</h3>
+<p>${data.firstName} ${data.lastName}<br>${data.address}<br>${data.postalCode} ${data.city}</p>
+
+<p>Ti contatteremo per la spedizione.</p>
+<p style="margin-top:20px;">Cordiali saluti,<br>Club Volo Libero Ticino<br><a href="https://cvlt.ch">cvlt.ch</a></p>
 `,
   })
 }
