@@ -399,31 +399,35 @@ export function GareContent() {
           <Section title="Calendario 2026" defaultOpen>
             {/* Mobile: cards */}
             <div className="space-y-3 sm:hidden">
-              {hikeAndFlyRaces.map((race) => (
-                <div key={race.name} className="rounded-lg border border-cvlt-gray-200 p-3 text-sm">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="font-medium">
-                      {race.href ? (
-                        <Link href={race.href} className="text-cvlt-blue transition-colors hover:text-cvlt-blue-dark hover:underline">
-                          {race.name}
-                        </Link>
-                      ) : (
-                        <span className="text-cvlt-blue">{race.name}</span>
-                      )}
+              {hikeAndFlyRaces.map((race) => {
+                const cardContent = (
+                  <>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="font-medium text-cvlt-blue">{race.name}</div>
+                      <div className="flex gap-1.5 whitespace-nowrap">
+                        {race.catOpen && <span className="rounded bg-cvlt-blue/10 px-1.5 py-0.5 text-xs font-medium text-cvlt-blue">Open</span>}
+                        {race.catFun && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">Fun</span>}
+                      </div>
                     </div>
-                    <div className="flex gap-1.5 whitespace-nowrap">
-                      {race.catOpen && <span className="rounded bg-cvlt-blue/10 px-1.5 py-0.5 text-xs font-medium text-cvlt-blue">Open</span>}
-                      {race.catFun && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">Fun</span>}
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 text-cvlt-gray-600">
+                      <span>{race.date}{race.backup ? ` (${race.backup})` : ''}</span>
+                      <span>&middot;</span>
+                      <span>{race.location}</span>
                     </div>
+                    <div className="mt-0.5 text-xs text-cvlt-gray-500">{race.organizer}</div>
+                  </>
+                )
+
+                return race.href ? (
+                  <Link key={race.name} href={race.href} className="block rounded-lg border border-cvlt-gray-200 p-3 text-sm transition-colors hover:border-cvlt-blue/30 hover:bg-cvlt-blue/5">
+                    {cardContent}
+                  </Link>
+                ) : (
+                  <div key={race.name} className="rounded-lg border border-cvlt-gray-200 p-3 text-sm">
+                    {cardContent}
                   </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 text-cvlt-gray-600">
-                    <span>{race.date}{race.backup ? ` (${race.backup})` : ''}</span>
-                    <span>&middot;</span>
-                    <span>{race.location}</span>
-                  </div>
-                  <div className="mt-0.5 text-xs text-cvlt-gray-500">{race.organizer}</div>
-                </div>
-              ))}
+                )
+              })}
             </div>
             {/* Desktop: table */}
             <div className="hidden sm:block">
