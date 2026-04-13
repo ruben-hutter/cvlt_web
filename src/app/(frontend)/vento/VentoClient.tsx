@@ -240,39 +240,40 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
     const tempMin = Math.min(...temps, 0)
     const tempMax = Math.max(...temps, 0)
     const wMax = winds.length > 0 ? Math.max(...winds, 10) : 10
+    const tRange = Math.max(Math.abs(tempMin), Math.abs(tempMax), 2)
+    const tStep = tRange > 8 ? 2 : 1
 
     const xScale = (t: number) => pad.left + ((t - tMin) / (tMax - tMin)) * cW
     const yP = (v: number) => pad.top + cH / 2 - (v / pRange) * (cH / 2)
-    const yT = (v: number) => {
-      const tRange = Math.max(Math.abs(tempMin), Math.abs(tempMax), 2)
-      return pad.top + cH / 2 - (v / tRange) * (cH / 2)
-    }
+    const yT = (v: number) => pad.top + cH / 2 - (v / tRange) * (cH / 2)
     const yW = (v: number) => pad.top + cH - (v / wMax) * cH
 
     // Background
     ctx.fillStyle = '#fff'
     ctx.fillRect(0, 0, W, H)
 
-    // Grid lines
+    // Horizontal guides: single neutral system aligned to Δ pressione (left axis).
+    // Solid y=0 slightly stronger than dashed tick guides.
     const pStep = pRange > 8 ? 2 : 1
-    ctx.strokeStyle = '#e5e7eb'
-    ctx.lineWidth = 0.5
-    // Zero line
+    ctx.lineWidth = 1
+    ctx.strokeStyle = '#94a3b8'
+    ctx.setLineDash([])
     ctx.beginPath()
     ctx.moveTo(pad.left, yP(0))
     ctx.lineTo(W - pad.right, yP(0))
     ctx.stroke()
-    // Horizontal grid - matches y-axis tick marks
+    ctx.strokeStyle = '#d1d5db'
+    ctx.lineWidth = 0.75
+    ctx.setLineDash([3, 3])
     for (let v = -Math.ceil(pRange); v <= Math.ceil(pRange); v += pStep) {
       if (v !== 0 && Math.abs(v) <= pRange) {
         ctx.beginPath()
-        ctx.setLineDash([3, 3])
         ctx.moveTo(pad.left, yP(v))
         ctx.lineTo(W - pad.right, yP(v))
         ctx.stroke()
-        ctx.setLineDash([])
       }
     }
+    ctx.setLineDash([])
 
     // Time labels on x-axis
     ctx.fillStyle = '#6b7280'
@@ -372,8 +373,6 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
     ctx.textAlign = 'left'
     ctx.fillStyle = '#1e293b'
     ctx.font = '10px system-ui, sans-serif'
-    const tRange = Math.max(Math.abs(tempMin), Math.abs(tempMax), 2)
-    const tStep = tRange > 8 ? 2 : 1
     for (let v = -Math.ceil(tRange); v <= Math.ceil(tRange); v += tStep) {
       if (Math.abs(v) <= tRange) {
         ctx.fillText(`${v}`, W - pad.right + 5, yT(v) + 3)
@@ -449,32 +448,33 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
     ctx.fillRect(pad.left, yP(pRange), cW, yP(4) - yP(pRange))
     ctx.fillRect(pad.left, yP(-4), cW, yP(-pRange) - yP(-4))
 
-    // Grid + labels
+    // Grid + labels (same horizontal guide style as measured pressure chart)
     ctx.font = '10px system-ui, sans-serif'
     const pStep = pRange > 10 ? 2 : 1
-    // Zero line
-    ctx.strokeStyle = '#9ca3af'
     ctx.lineWidth = 1
+    ctx.strokeStyle = '#94a3b8'
+    ctx.setLineDash([])
     ctx.beginPath()
     ctx.moveTo(pad.left, yP(0))
     ctx.lineTo(W - pad.right, yP(0))
     ctx.stroke()
-    // Other grid lines
-    ctx.strokeStyle = '#e5e7eb'
-    ctx.lineWidth = 0.5
+    ctx.strokeStyle = '#d1d5db'
+    ctx.lineWidth = 0.75
+    ctx.setLineDash([3, 3])
+    for (let v = -Math.ceil(pRange); v <= Math.ceil(pRange); v += pStep) {
+      if (v !== 0 && Math.abs(v) <= pRange) {
+        ctx.beginPath()
+        ctx.moveTo(pad.left, yP(v))
+        ctx.lineTo(W - pad.right, yP(v))
+        ctx.stroke()
+      }
+    }
+    ctx.setLineDash([])
     ctx.textAlign = 'right'
     ctx.fillStyle = '#6b7280'
     for (let v = -Math.ceil(pRange); v <= Math.ceil(pRange); v += pStep) {
       if (Math.abs(v) <= pRange) {
         ctx.fillText(`${v}`, pad.left - 5, yP(v) + 3)
-        if (v !== 0) {
-          ctx.beginPath()
-          ctx.setLineDash([3, 3])
-          ctx.moveTo(pad.left, yP(v))
-          ctx.lineTo(W - pad.right, yP(v))
-          ctx.stroke()
-          ctx.setLineDash([])
-        }
       }
     }
 
