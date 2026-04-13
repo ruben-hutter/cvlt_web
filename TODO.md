@@ -13,9 +13,7 @@
 - [x] Pin important news (e.g. about temporary airspace restrictions) to the top of the news listing (in primo piano on homepage). Add a "In primo piano" tag for these news.
     - [x] Add a Payload selector field for pinned news (in the edit view)
     - [x] Implement logic to show pinned news at the top of the listing
-- [ ] Checkout vento page. Previsione föhn: Lugano–Zürich
-    - Not receiving data from DWD MOSMIX API? this is so i think since now it looks good again
-    - Add dashed lines for each day, so that it's easier to see the day changes
+- [x] Pagina vento — pressione (MAG–KLO) e previsione föhn Lugano–Zürich: dati MOSMIX; finestra previsione 7 giorni (allineata agli ultimi 7 giorni misurati); linee verticali tratteggiate per cambio giorno su entrambi i grafici; griglia orizzontale neutra di riferimento (stesso stile); rimossa linea «ora» sul grafico föhn (l’asse sinistro coincide già con il presente)
 - [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
     - Magari per il momento aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo
 - [ ] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
