@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import Lightbox from 'yet-another-react-lightbox'
 import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import 'yet-another-react-lightbox/styles.css'
@@ -100,6 +100,196 @@ const ztSlides = [
   { src: '/zt_20.jpg', alt: "Scheda ZT.20 Pizzo d'Orgnana" },
   { src: '/zt_27.jpg', alt: 'Scheda ZT.27 Brogoldone' },
 ]
+
+/** Direct image URL + official page (same pattern as cvlt.ch/webcams). */
+type WebcamFeed = {
+  title: string
+  href: string
+  imageSrc?: string
+  iframeSrc?: string
+}
+
+const WEBCAMS_IN_MONTAGNA: WebcamFeed[] = [
+  {
+    title: 'Airolo - Sasso della Boggia',
+    imageSrc: 'https://www.airolo.ch/air_webcam/valbianca5/current.jpg',
+    href: 'https://www.airolo.ch/webcam-airolo.php',
+  },
+  {
+    title: 'Airolo - Pesciüm',
+    imageSrc: 'https://www.airolo.ch/air_webcam/valbianca2/current.jpg',
+    href: 'https://www.airolo.ch/webcam-airolo.php',
+  },
+  {
+    title: 'Bosco Gurin - Sonnenberg (2500m)',
+    imageSrc: 'https://tuks.ch/webcam/bosco7000M.jpg',
+    href: 'https://www.bosco-gurin.ch/',
+  },
+  {
+    title: 'Cardada',
+    imageSrc: 'https://www.cardada.ch/webcam/cardada.jpg',
+    href: 'https://www.cardada.ch/it/webcam',
+  },
+  {
+    title: 'Colmanicchio',
+    imageSrc: 'https://www.colmanicchio.ch/webcam/colmanicchio/current.jpg',
+    href: 'https://www.colmanicchio.ch/',
+  },
+  {
+    title: 'Carì 2000 - Laghetto 2280m',
+    imageSrc: 'https://cari.swiss/webcam/vetta.jpg',
+    href: 'https://cari.swiss/cam/',
+  },
+  {
+    title: 'Cimetta',
+    imageSrc: 'https://webticino.ch/cardada/webcam/cimetta.jpg',
+    href: 'https://www.cardada.ch/it/webcam',
+  },
+  {
+    title: 'Monte Dagro (Malvaglia)',
+    imageSrc: 'https://images-webcams.windy.com/43/1462813443/current/full/1462813443.jpg',
+    href: 'https://www.windy.com/-Webcams-Malvaglia-Malvaglia:-Dagro/webcams/1462813443?46.424,8.997,16',
+  },
+  {
+    title: 'Monte Generoso',
+    iframeSrc:
+      'https://webtv.feratel.com/webtv/?&pg=5EB12424-7C2D-428A-BEFF-0C9140CD772F&design=v3&cam=4228&c1=0',
+    href: 'https://www.montegeneroso.ch/it/webcam',
+  },
+  {
+    title: 'Monte Tamaro',
+    iframeSrc: 'https://monte-tamaro.roundshot.com/#/',
+    href: 'https://www.montetamaro.ch/it/webcam/',
+  },
+  {
+    title: 'Nara',
+    imageSrc: 'https://www.nara.ch/webcam/web/current.jpg',
+    href: 'https://www.nara.ch/',
+  },
+  {
+    title: 'Robiei',
+    imageSrc: 'https://www.robiei.ch/webcam/webcamro.jpg',
+    href: 'https://www.robiei.ch/',
+  },
+  {
+    title: 'Tarnolgio',
+    imageSrc: 'https://www.tarnolgio.ch/webcam00.jpg',
+    href: 'https://www.tarnolgio.ch/',
+  },
+  {
+    title: 'Vallemaggia - da Gordevio',
+    imageSrc: 'https://www.makeitbetter.ch/webcam/webcam.jpg',
+    href: 'https://www.makeitbetter.ch/',
+  },
+]
+
+const WEBCAMS_SECONDARIE: WebcamFeed[] = [
+  {
+    title: 'Chironico',
+    imageSrc: 'https://www.leventina.ch/webcam/video.jpg',
+    href: 'https://www.leventina.ch/',
+  },
+  {
+    title: 'Locarno verso nord (Cimetta, Cardada, Salmone)',
+    imageSrc: 'https://makeitbetter.ch/webcam/LocarnoNord.jpg',
+    href: 'https://www.makeitbetter.ch/',
+  },
+  {
+    title: 'Locarno verso sud (Tamaro, Gambarogno, Lema)',
+    imageSrc: 'https://makeitbetter.ch/webcam/LocarnoSud.jpg',
+    href: 'https://www.makeitbetter.ch/',
+  },
+  {
+    title: 'Magadino (aeroporto Locarno)',
+    imageSrc: 'https://swisshelicopter.ch/webcam/gordola/gordola.jpg',
+    href: 'https://swisshelicopter.ch/',
+  },
+]
+
+function WebcamFigure({ title, imageSrc, href }: WebcamFeed) {
+  const [imageFailed, setImageFailed] = useState(false)
+  if (!imageSrc) return null
+
+  if (imageFailed) {
+    return <WebcamPageOnlyTile title={title} href={href} />
+  }
+
+  return (
+    <figure className="overflow-hidden rounded-lg border border-cvlt-gray-200 bg-white shadow-sm">
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-cvlt-blue focus-visible:ring-offset-2"
+        aria-label={`Apri la pagina della webcam: ${title}`}
+      >
+        <img
+          src={imageSrc}
+          alt=""
+          className="aspect-[16/10] w-full bg-cvlt-gray-100 object-cover"
+          loading="lazy"
+          decoding="async"
+          onError={() => setImageFailed(true)}
+        />
+      </a>
+      <figcaption className="border-t border-cvlt-gray-100 px-3 py-2 text-sm font-medium text-cvlt-gray-900">
+        {title}
+      </figcaption>
+    </figure>
+  )
+}
+
+function WebcamIframeFigure({ title, iframeSrc, href }: WebcamFeed) {
+  const [iframeFailed, setIframeFailed] = useState(false)
+  if (!iframeSrc) return null
+  if (iframeFailed) {
+    return <WebcamPageOnlyTile title={title} href={href} />
+  }
+
+  return (
+    <figure className="overflow-hidden rounded-lg border border-cvlt-gray-200 bg-white shadow-sm">
+      <div className="aspect-[16/10] w-full bg-cvlt-gray-100">
+        <iframe
+          src={iframeSrc}
+          title={title}
+          loading="lazy"
+          className="h-full w-full border-0"
+          referrerPolicy="strict-origin-when-cross-origin"
+          onError={() => setIframeFailed(true)}
+        />
+      </div>
+      <figcaption className="border-t border-cvlt-gray-100 px-3 py-2 text-sm font-medium text-cvlt-gray-900">
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-cvlt-gray-900 transition-colors hover:text-cvlt-blue"
+        >
+          {title}
+        </a>
+      </figcaption>
+    </figure>
+  )
+}
+
+function WebcamPageOnlyTile({ title, href }: { title: string; href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex flex-col overflow-hidden rounded-lg border border-dashed border-cvlt-gray-300 bg-cvlt-gray-50/80 transition-colors hover:border-cvlt-blue/40 hover:bg-cvlt-blue-light/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cvlt-blue"
+      aria-label={`Apri la pagina della webcam: ${title}`}
+    >
+      <div className="flex aspect-[16/10] items-center justify-center px-4 text-center text-sm leading-snug text-cvlt-gray-600">
+        Anteprima non disponibile &ndash; clicca per aprire il sito ufficiale
+      </div>
+      <div className="border-t border-cvlt-gray-200 bg-white px-3 py-2 text-sm font-medium text-cvlt-gray-900">
+        {title}
+      </div>
+    </a>
+  )
+}
 
 export function InfoVoloContent() {
   const [ztIndex, setZtIndex] = useState(-1)
@@ -327,33 +517,29 @@ export function InfoVoloContent() {
         </div>
       </div>
 
-      {/* Webcams */}
       <div id="webcam" className="mt-10">
-        <h2 className="text-xl font-bold text-cvlt-gray-900">Webcam</h2>
-        <p className="mt-2 text-sm text-cvlt-gray-700">
-          Webcam utili per valutare le condizioni di volo in Ticino.
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <LinkCard
-            title="Cimetta (Cardada)"
-            description="Vista sul Lago Maggiore"
-            href="https://www.cardada.ch/it/webcam"
-          />
-          <LinkCard
-            title="Monte Tamaro"
-            description="Vista verso sud"
-            href="https://www.montetamaro.ch/it/webcam/"
-          />
-          <LinkCard
-            title="Monte Lema"
-            description="Panoramica Malcantone"
-            href="https://www.montelema.ch/en/webcam/"
-          />
-          <LinkCard
-            title="Monte Generoso"
-            description="Vista sul Mendrisiotto"
-            href="https://www.montegeneroso.ch/it/webcam"
-          />
+        <h2 className="text-xl font-bold text-cvlt-gray-900">Webcams</h2>
+
+        <h3 className="mt-8 text-lg font-semibold text-cvlt-gray-900">In montagna</h3>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          {WEBCAMS_IN_MONTAGNA.map((w) =>
+            w.iframeSrc ? (
+              <WebcamIframeFigure key={`${w.title}-iframe`} {...w} />
+            ) : (
+              <WebcamFigure key={`${w.title}-${w.imageSrc}`} {...w} />
+            ),
+          )}
+        </div>
+
+        <h3 className="mt-10 text-lg font-semibold text-cvlt-gray-900">Altre inquadrature</h3>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          {WEBCAMS_SECONDARIE.map((w) =>
+            w.iframeSrc ? (
+              <WebcamIframeFigure key={`${w.title}-iframe`} {...w} />
+            ) : (
+              <WebcamFigure key={`${w.title}-${w.imageSrc}`} {...w} />
+            ),
+          )}
         </div>
       </div>
 
