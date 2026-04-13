@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { getPublishedNewsWithFeaturedFirst } from '../lib/news'
 
 export const metadata = {
   title: 'Notizie - CVLT',
@@ -25,20 +26,7 @@ export default async function NewsPage() {
 
   try {
     const payload = await getPayload({ config })
-
-    const endOfToday = new Date()
-    endOfToday.setHours(23, 59, 59, 999)
-
-    news = await payload.find({
-      collection: 'news',
-      where: {
-        status: { equals: 'published' },
-        publishDate: { less_than_equal: endOfToday.toISOString() },
-      },
-      sort: '-publishDate',
-      limit: 50,
-      depth: 1,
-    })
+    news.docs = await getPublishedNewsWithFeaturedFirst({ payload, limit: 50, depth: 1 })
   } catch (e) {
     console.error('[NOTIZIE] DB query failed:', e)
   }
@@ -97,6 +85,11 @@ export default async function NewsPage() {
                   <h2 className="mt-1 text-base font-semibold text-cvlt-gray-900 group-hover:text-cvlt-blue">
                     {article.title}
                   </h2>
+                  {article.tag === 'featured' && (
+                    <span className="mt-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                      In primo piano
+                    </span>
+                  )}
                   {event && (
                     <span
                       className="mt-2 inline-flex items-center gap-1 rounded-full bg-cvlt-blue-light px-2 py-0.5 text-xs font-medium text-cvlt-blue"

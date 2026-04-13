@@ -1,16 +1,37 @@
 # TODOs
 
-## High priority
+## Migration dev.cvlt.ch -> cvlt.ch
 
 - [ ] Update RaiseNow Hub Shop Twint link: success and failure URLs to cvlt.ch/...
+- [ ] Move cvlt.ch to old.cvlt.ch so that we can still access the old site for reference
+
+## High priority
+
 - [x] gare page on mobile: entries cliccable (not just the title)
 - [x] Small counter in image viewer showing current image number and total (e.g. "3/15")
-- [ ] Webcams
+- [x] Replace the broken link icon for subscribe to calendar with a proper icon
+- [x] Pin important news (e.g. about temporary airspace restrictions) to the top of the news listing (in primo piano on homepage). Add a "In primo piano" tag for these news.
+    - [x] Add a Payload selector field for pinned news (in the edit view)
+    - [x] Implement logic to show pinned news at the top of the listing
+- [ ] Checkout vento page. Previsione föhn: Lugano–Zürich
+    - Not receiving data from DWD MOSMIX API? this is so i think since now it looks good again
+    - Add dashed lines for each day, so that it's easier to see the day changes
+- [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
+    - Magari per il momento aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo
+- [ ] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
+- [x] Webcams
+- [ ] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
+- [ ] Search function (i think similar to the one in Galleria page) also for News.
+- [ ] Test shop working now?
+    - Mail to both and customer and shop manager with order details
+    - Successful payment
+    - Verify that a failed payment does not trigger the success email
 
 ## Medium priority
 
 - [~] Sezione info volo + TMA/CTR/AWY (pagina creata, da controllare contenuti)
     - [~] Controllare contenuti CTR, TMA, AWY, Zone di tranquillità
+- [ ] Gallery page takes a while, maybe we can optimize what's loaded on page call and what can me loaded after (e.g. with lazy loading or pagination)
 - [ ] In "comitato" page make persons containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Multiple languages (german, french, english)
     - Maybe start with just the homepage and the news section
@@ -34,6 +55,8 @@
 
 ## Done
 
+- [x] Replace broken calendario subscribe icon with a proper calendar icon
+- [x] Expand info-volo webcams section with direct mountain feeds and fallbacks
 - [x] Payment confirmation mail after shop purchase (with order details) to customer and shop manager
 - [x] Shop return URL after RaiseNow payment (configured in RaiseNow Hub)
 - [x] Update .env on server with latest email variables (follow .env.example)
@@ -53,8 +76,8 @@
 - [x] Preview bozze (notizie) con live preview panel in Payload admin
 - [x] Cambiare indirizzo mail in `.env` a quello di Roti per production (formulario d'adesione)
 - [x] Rotate keys following guide (`.env` hardened, PAYLOAD_SECRET rotated)
-- [x] Include on the website https://vento.cvlt.ch/ — native /vento page with live data
-- [x] Why is package.json so complicated? — documented build steps
+- [x] Include on the website https://vento.cvlt.ch/ - native /vento page with live data
+- [x] Why is package.json so complicated? - documented build steps
 - [x] Design with three columns: center-align last row (comitato page)
 - [x] Vento & Meteo page: native dashboard with live data from vento.cvlt.ch (wind stations, flight forecast, pressure, lakes)
 - [x] Comitato grid: center-align last row (flexbox)
@@ -76,7 +99,7 @@
 - [x] Check before pull on server, that the last changes (2FA) did not alter the db
 - [x] Update style on mobile for "Vento" page
 - [x] News cards fully clickable/touchable on mobile
-- [x] Checkout errors that Nico told me on Signal (font preload warnings — known Next.js behavior)
+- [x] Checkout errors that Nico told me on Signal (font preload warnings - known Next.js behavior)
 - [x] Zone di tranquillità content from old site
 - [x] Full screen gallery view with F key shortcut
 - [x] Pagina "Voli in Biposto" + riorg. menu principale (Club dropdown)

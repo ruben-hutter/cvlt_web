@@ -251,6 +251,16 @@ export const News: CollectionConfig = {
       },
     },
     {
+      name: 'tag',
+      type: 'select',
+      label: 'Tag',
+      options: [{ label: 'In primo piano', value: 'featured' }],
+      admin: {
+        position: 'sidebar',
+        description: 'Usa "In primo piano" per dare priorita alla notizia nelle liste.',
+      },
+    },
+    {
       name: 'publishDate',
       type: 'date',
       required: true,
