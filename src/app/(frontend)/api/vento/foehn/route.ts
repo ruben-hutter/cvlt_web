@@ -55,7 +55,16 @@ async function fetchFoehnData(): Promise<{ data: FoehnPoint[] }> {
     })
   }
 
-  return { data }
+  // Forward-only window: [now, now+7d]. (Raw MOSMIX also has past steps; keeping those made the x-axis ~10+ calendar days wide.)
+  const now = Date.now()
+  const dayMs = 24 * 60 * 60 * 1000
+  const horizonMs = now + 7 * dayMs
+  const capped = data.filter((p) => {
+    const t = new Date(p.time).getTime()
+    return !Number.isNaN(t) && t >= now && t <= horizonMs
+  })
+
+  return { data: capped }
 }
 
 export async function GET() {

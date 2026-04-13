@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import type { WindStation, LakeLevel, StationsResponse, LakesResponse } from '../api/vento/types'
 
 function WindArrow({ degrees, size = 28 }: { degrees: number; size?: number }) {
@@ -191,6 +191,18 @@ type FoehnPoint = {
   diffP: number
 }
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+
+/** MOSMIX includes past timesteps; keep only ~7d forward from now so the x-axis matches the subtitle. */
+function capFoehnForecastSevenDays(points: FoehnPoint[]): FoehnPoint[] {
+  const now = Date.now()
+  const end = now + 7 * MS_PER_DAY
+  return points.filter((p) => {
+    const t = new Date(p.time).getTime()
+    return !Number.isNaN(t) && t >= now && t <= end
+  })
+}
+
 function PressureChart({ data }: { data: PressurePoint[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -276,13 +288,15 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
     for (let d = startDay.getTime(); d <= tMax; d += dayMs) {
       if (d >= tMin) {
         const x = xScale(d)
-        // Grid line always
-        ctx.strokeStyle = '#f3f4f6'
-        ctx.lineWidth = 0.5
+        // Per-day vertical (neutral dashed; distinct from any accent lines)
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.9)'
+        ctx.lineWidth = 1
+        ctx.setLineDash([4, 4])
         ctx.beginPath()
         ctx.moveTo(x, pad.top)
         ctx.lineTo(x, pad.top + cH)
         ctx.stroke()
+        ctx.setLineDash([])
         // Label only every dayStep
         if (dayIdx % dayStep === 0) {
           ctx.fillStyle = '#6b7280'
@@ -497,15 +511,17 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
     const startDay = new Date(tMin)
     startDay.setHours(0, 0, 0, 0)
     let dayIdx = 0
-    for (let d = startDay.getTime() + dayMs; d <= tMax; d += dayMs) {
+    for (let d = startDay.getTime(); d <= tMax; d += dayMs) {
+      if (d < tMin) continue
       const x = xScale(d)
-      // Grid line always
-      ctx.strokeStyle = '#f3f4f6'
-      ctx.lineWidth = 0.5
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.9)'
+      ctx.lineWidth = 1
+      ctx.setLineDash([4, 4])
       ctx.beginPath()
       ctx.moveTo(x, pad.top)
       ctx.lineTo(x, pad.top + cH)
       ctx.stroke()
+      ctx.setLineDash([])
       // Label only every dayStep
       if (dayIdx % dayStep === 0) {
         ctx.fillStyle = '#6b7280'
@@ -515,24 +531,6 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
         ctx.fillText(label, x, H - pad.bottom + 15)
       }
       dayIdx++
-    }
-
-    // "Now" marker
-    const now = Date.now()
-    if (now >= tMin && now <= tMax) {
-      const xNow = xScale(now)
-      ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)'
-      ctx.lineWidth = 1.5
-      ctx.setLineDash([4, 4])
-      ctx.beginPath()
-      ctx.moveTo(xNow, pad.top)
-      ctx.lineTo(xNow, pad.top + cH)
-      ctx.stroke()
-      ctx.setLineDash([])
-      ctx.fillStyle = 'rgba(239, 68, 68, 0.7)'
-      ctx.font = '9px system-ui, sans-serif'
-      ctx.textAlign = 'center'
-      ctx.fillText('ora', xNow, pad.top - 2)
     }
 
     // Pressure line
@@ -573,6 +571,11 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
   data: PressurePoint[] | null; loading: boolean; error: boolean
   foehnData: FoehnPoint[] | null; foehnLoading: boolean; foehnError: boolean
 }) {
+  const foehnForChart = useMemo(
+    () => (foehnData ? capFoehnForecastSevenDays(foehnData) : []),
+    [foehnData],
+  )
+
   return (
     <section>
       <h2 className="text-lg font-bold text-cvlt-gray-900">Pressione</h2>
@@ -598,7 +601,7 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
           <h3 className="mb-1 text-sm font-medium text-cvlt-gray-600">
             Previsione föhn: Lugano&ndash;Zürich
           </h3>
-          <p className="mb-2 text-xs text-cvlt-gray-400">Prossimi ~10 giorni &mdash; prognosi MOSMIX (DWD)</p>
+          <p className="mb-2 text-xs text-cvlt-gray-400">Prossimi ~7 giorni &mdash; prognosi MOSMIX (DWD)</p>
           {foehnLoading && !foehnData ? (
             <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
               <span className="text-sm text-cvlt-gray-400 animate-pulse">Caricamento previsione föhn...</span>
@@ -607,8 +610,8 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
             <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
               <span className="text-sm text-cvlt-gray-400">Previsione föhn non disponibile.</span>
             </div>
-          ) : foehnData && foehnData.length > 0 ? (
-            <FoehnChart data={foehnData} />
+          ) : foehnForChart.length > 0 ? (
+            <FoehnChart data={foehnForChart} />
           ) : null}
         </div>
       </div>
