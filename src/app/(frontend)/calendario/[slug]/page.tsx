@@ -25,10 +25,10 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   try {
     const event = await findEventBySlug(payload, slug)
-    if (!event) return { title: 'Evento non trovato — CVLT' }
-    return { title: `${event.title} — CVLT` }
+    if (!event) return { title: 'Evento non trovato - CVLT' }
+    return { title: `${event.title} - CVLT` }
   } catch {
-    return { title: 'Evento non trovato — CVLT' }
+    return { title: 'Evento non trovato - CVLT' }
   }
 }
 

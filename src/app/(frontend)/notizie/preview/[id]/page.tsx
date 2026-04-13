@@ -18,9 +18,9 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   try {
     const article = await payload.findByID({ collection: 'news', id, depth: 0 })
-    return { title: `Anteprima: ${article.title} — CVLT` }
+    return { title: `Anteprima: ${article.title} - CVLT` }
   } catch {
-    return { title: 'Anteprima non trovata — CVLT' }
+    return { title: 'Anteprima non trovata - CVLT' }
   }
 }
 
@@ -59,7 +59,7 @@ export default async function PreviewPage({ params, searchParams }: Args) {
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
       <RefreshOnSave />
-      {/* Preview banner — only shown when opened in new tab, not in live preview panel */}
+      {/* Preview banner - only shown when opened in new tab, not in live preview panel */}
       {!isLivePreview && (
         <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
           Anteprima &mdash; questa notizia non è ancora pubblicata.

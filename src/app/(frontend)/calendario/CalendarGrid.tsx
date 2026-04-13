@@ -221,7 +221,7 @@ export function CalendarGrid({ events }: { events: Event[] }) {
     if (cell.currentMonth) return new Date(year, month, cell.day)
     // Leading days: previous month
     // Trailing days: next month
-    // Determine by position — but simpler: use the day number relative to current month
+    // Determine by position - but simpler: use the day number relative to current month
     // Leading: day > 15 means previous month, Trailing: day < 15 means next month
     if (cell.day > 15) {
       // Previous month
@@ -461,7 +461,7 @@ export function CalendarGrid({ events }: { events: Event[] }) {
         </div>
       </div>{/* end calendar column */}
 
-      {/* Legend sidebar — hidden on mobile, shown on desktop */}
+      {/* Legend sidebar - hidden on mobile, shown on desktop */}
       <aside className="hidden flex-shrink-0 lg:block lg:w-40">
         <div className="sticky top-20 space-y-3 rounded-lg border border-gray-200 p-4">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Legenda</h3>

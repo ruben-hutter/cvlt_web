@@ -1,5 +1,5 @@
 {
-  description = "CVLT Web — paragliding club website for Club Volo Libero Ticino";
+  description = "CVLT Web - paragliding club website for Club Volo Libero Ticino";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

@@ -5,7 +5,7 @@ import config from '@payload-config'
 import { GalleryFilter } from './GalleryFilter'
 
 export const metadata = {
-  title: 'Galleria — CVLT',
+  title: 'Galleria - CVLT',
 }
 
 export default async function GalleryPage() {

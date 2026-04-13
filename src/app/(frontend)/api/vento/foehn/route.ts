@@ -16,7 +16,7 @@ async function extractPressure(url: string): Promise<{ times: string[]; pressure
   const res = await fetchWithTimeout(url, 15000)
   const buffer = await res.arrayBuffer()
 
-  // KMZ is a zip file — decompress to get KML
+  // KMZ is a zip file - decompress to get KML
   const kml = await decompress(buffer)
 
   // Extract timestamps

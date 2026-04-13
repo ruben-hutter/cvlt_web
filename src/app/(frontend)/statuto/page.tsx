@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Statuto — CVLT',
+  title: 'Statuto - CVLT',
 }
 
 export default function StatutoPage() {

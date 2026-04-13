@@ -6,7 +6,7 @@ import { CalendarGrid } from './CalendarGrid'
 import { SubscribeButton } from './SubscribeButton'
 
 export const metadata = {
-  title: 'Calendario — CVLT',
+  title: 'Calendario - CVLT',
 }
 
 export default async function CalendarPage() {

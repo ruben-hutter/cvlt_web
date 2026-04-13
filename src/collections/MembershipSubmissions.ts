@@ -80,9 +80,9 @@ export const MembershipSubmissions: CollectionConfig = {
       label: 'Tipo di iscrizione',
       required: true,
       options: [
-        { label: 'Socio attivo — CHF 40.–', value: 'active' },
-        { label: 'Famiglia — CHF 45.–', value: 'family' },
-        { label: 'Sostenitore — contributo libero', value: 'supporter' },
+        { label: 'Socio attivo - CHF 40.–', value: 'active' },
+        { label: 'Famiglia - CHF 45.–', value: 'family' },
+        { label: 'Sostenitore - contributo libero', value: 'supporter' },
       ],
     },
     {

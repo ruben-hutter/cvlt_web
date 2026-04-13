@@ -58,7 +58,7 @@ function StationCard({ station }: { station: WindStation }) {
         <span className={`text-sm font-bold tabular-nums ${windLevelColor(station.windLevel)}`}>
           {station.windAvg !== null ? (
             <>{station.windAvg}<span className="text-[10px] font-normal">-</span>{station.windGust}</>
-          ) : '—'}
+          ) : '-'}
         </span>
         {station.temp && (
           <span className="text-xs text-cvlt-gray-500">{station.temp}</span>
@@ -89,7 +89,7 @@ function StationCard({ station }: { station: WindStation }) {
             <span className={`text-lg font-bold tabular-nums ${windLevelColor(station.windLevel)}`}>
               {station.windAvg !== null ? (
                 <>{station.windAvg}<span className="text-xs font-normal"> - </span>{station.windGust}</>
-              ) : '—'}
+              ) : '-'}
             </span>
             <span className="text-xs text-cvlt-gray-400">km/h</span>
           </div>
@@ -250,7 +250,7 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
     ctx.moveTo(pad.left, yP(0))
     ctx.lineTo(W - pad.right, yP(0))
     ctx.stroke()
-    // Horizontal grid — matches y-axis tick marks
+    // Horizontal grid - matches y-axis tick marks
     for (let v = -Math.ceil(pRange); v <= Math.ceil(pRange); v += pStep) {
       if (v !== 0 && Math.abs(v) <= pRange) {
         ctx.beginPath()
@@ -292,7 +292,7 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
       }
     }
 
-    // Y-axis labels (pressure) — dynamic range with step of 1
+    // Y-axis labels (pressure) - dynamic range with step of 1
     ctx.textAlign = 'right'
     ctx.fillStyle = '#3b82f6'
     for (let v = -Math.ceil(pRange); v <= Math.ceil(pRange); v += pStep) {
@@ -354,7 +354,7 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
       ctx.stroke()
     }
 
-    // Right axis labels (temp) — tick marks with values
+    // Right axis labels (temp) - tick marks with values
     ctx.textAlign = 'left'
     ctx.fillStyle = '#1e293b'
     ctx.font = '10px system-ui, sans-serif'
@@ -365,7 +365,7 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
         ctx.fillText(`${v}`, W - pad.right + 5, yT(v) + 3)
       }
     }
-    // Right axis labels (wind) — tick marks with values
+    // Right axis labels (wind) - tick marks with values
     ctx.textAlign = 'left'
     ctx.fillStyle = 'rgba(34, 197, 94, 0.8)'
     ctx.font = '10px system-ui, sans-serif'
@@ -723,7 +723,7 @@ function Legend() {
   )
 }
 
-// ── Forecast section (commented out — enable when needed) ──────────────────
+// ── Forecast section (commented out - enable when needed) ──────────────────
 //
 // type ForecastSite = {
 //   name: string; top: string; distance: string; flyability: number
@@ -736,7 +736,7 @@ function Legend() {
 //     <section>
 //       <h2 className="text-lg font-bold text-cvlt-gray-900">Previsione di volo</h2>
 //       <p className="mt-1 text-xs text-cvlt-gray-500">
-//         Startleiter di Daniele Nerini —{' '}
+//         Startleiter di Daniele Nerini -{' '}
 //         <a href="https://github.com/dnerini/startleiter" target="_blank" rel="noopener noreferrer"
 //            className="text-cvlt-blue hover:underline">info</a>
 //       </p>
@@ -898,7 +898,7 @@ export function VentoClient() {
               />
             </div>
 
-            {/* Forecast — commented out for now */}
+            {/* Forecast - commented out for now */}
             {/* <ForecastSection forecast={[]} /> */}
 
             {/* Lakes */}

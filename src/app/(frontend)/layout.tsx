@@ -12,7 +12,7 @@ const ubuntu = Ubuntu({
 })
 
 export const metadata: Metadata = {
-  title: 'CVLT — Club Volo Libero Ticino',
+  title: 'CVLT - Club Volo Libero Ticino',
   description: 'Club di parapendio del canton Ticino',
 }
 

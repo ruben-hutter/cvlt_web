@@ -24,9 +24,9 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
 
   const article = result.docs[0]
-  if (!article) return { title: 'Notizia non trovata — CVLT' }
+  if (!article) return { title: 'Notizia non trovata - CVLT' }
 
-  return { title: `${article.title} — CVLT` }
+  return { title: `${article.title} - CVLT` }
 }
 
 export default async function NewsArticlePage({ params }: Args) {

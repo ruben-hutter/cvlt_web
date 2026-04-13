@@ -58,7 +58,7 @@ ${data.message}
   await transporter.sendMail({
     from,
     to: data.email,
-    subject: 'Messaggio ricevuto — CVLT',
+    subject: 'Messaggio ricevuto - CVLT',
     text: `Gentile ${data.firstName} ${data.lastName},
 
 Abbiamo ricevuto il tuo messaggio e ti risponderemo al più presto.
@@ -92,9 +92,9 @@ type MembershipData = {
 }
 
 const typeLabels: Record<string, string> = {
-  active: 'Socio attivo — CHF 40.–',
-  family: 'Famiglia — CHF 45.–',
-  supporter: 'Sostenitore — contributo libero',
+  active: 'Socio attivo - CHF 40.–',
+  family: 'Famiglia - CHF 45.–',
+  supporter: 'Sostenitore - contributo libero',
 }
 
 export async function sendMembershipNotification(data: MembershipData) {

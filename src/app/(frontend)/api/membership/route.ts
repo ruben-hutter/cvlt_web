@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       await sendMembershipNotification({ firstName, lastName, address, city, email, phone, membershipType, notes })
     } catch (emailError) {
       console.error('Failed to send membership email:', emailError)
-      // Don't fail the request — the submission is saved in Payload
+      // Don't fail the request - the submission is saved in Payload
     }
 
     return NextResponse.json({ success: true })

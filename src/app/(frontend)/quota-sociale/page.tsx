@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { TwintButton } from '../components/TwintButton'
 
 export const metadata: Metadata = {
-  title: 'Pagamento quota sociale — CVLT',
+  title: 'Pagamento quota sociale - CVLT',
 }
 
 export default function QuotaSocialePage() {

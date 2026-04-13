@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { ShopContent } from './ShopContent'
 
 export const metadata = {
-  title: 'Shop — CVLT',
+  title: 'Shop - CVLT',
   description: 'Articoli del Club Volo Libero Ticino.',
 }
 

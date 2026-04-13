@@ -43,7 +43,7 @@ type CartItem = {
 const products: Product[] = [
   {
     name: 'Maglietta 100% Cotone Bio',
-    edition: 'ed. 2025 — Unisex',
+    edition: 'ed. 2025 - Unisex',
     price: 25,
     image: '/shop/maglietta-bio-2025.jpg',
     variants: [
@@ -54,7 +54,7 @@ const products: Product[] = [
   },
   {
     name: 'Maglietta Tecnica',
-    edition: 'ed. 2024 — Unisex',
+    edition: 'ed. 2024 - Unisex',
     price: 30,
     image: '/shop/maglietta-tecnica-2024.png',
     variants: [

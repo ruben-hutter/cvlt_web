@@ -202,8 +202,8 @@ const cccHallOfFame: { year: number; link?: string; results: { cat: string; name
       { cat: 'Aquile (EN-C)', name: 'Guido Della Bruna', points: '66' },
       { cat: 'Gipeti (EN-D)', name: 'Matthew Pellegrini', points: '62' },
       { cat: 'Merli', name: 'Andrea Voumard / Luca Coda', points: '20' },
-      { cat: 'Miglior donna', name: 'Tamara Hobi', points: '—' },
-      { cat: 'Volo più originale', name: 'Alessandro Bisi', points: '—' },
+      { cat: 'Miglior donna', name: 'Tamara Hobi', points: '-' },
+      { cat: 'Volo più originale', name: 'Alessandro Bisi', points: '-' },
     ],
   },
   {
@@ -213,8 +213,8 @@ const cccHallOfFame: { year: number; link?: string; results: { cat: string; name
       { cat: 'Nibbi (EN-B)', name: 'Matthew Pellegrini', points: '76' },
       { cat: 'Aquile (EN-C)', name: 'El Thio', points: '64' },
       { cat: 'Gipeti (EN-D)', name: 'Albino Malli', points: '62' },
-      { cat: 'Miglior donna', name: 'Simi Schmid', points: '—' },
-      { cat: 'Volo più originale', name: 'Biagio Lepori', points: '—' },
+      { cat: 'Miglior donna', name: 'Simi Schmid', points: '-' },
+      { cat: 'Volo più originale', name: 'Biagio Lepori', points: '-' },
     ],
   },
   {
@@ -223,8 +223,8 @@ const cccHallOfFame: { year: number; link?: string; results: { cat: string; name
       { cat: 'Nibbi (EN-B)', name: 'Matthew Pellegrini', points: '43' },
       { cat: 'Aquile (EN-C)', name: 'Andrea Voumard', points: '55' },
       { cat: 'Gipeti (EN-D)', name: 'Alex Pugni', points: '53' },
-      { cat: 'Miglior donna', name: 'Tamara Hobi', points: '—' },
-      { cat: 'Volo più originale', name: 'Boris Ozonski', points: '—' },
+      { cat: 'Miglior donna', name: 'Tamara Hobi', points: '-' },
+      { cat: 'Volo più originale', name: 'Boris Ozonski', points: '-' },
     ],
   },
   {
@@ -447,7 +447,7 @@ export function GareContent() {
                   {hikeAndFlyRaces.map((race) => (
                     <tr key={race.name} className="border-b border-cvlt-gray-100 last:border-b-0">
                       <td className="py-2 pr-3 font-medium text-cvlt-gray-900">{race.date}</td>
-                      <td className="py-2 pr-3 text-cvlt-gray-500">{race.backup || '—'}</td>
+                      <td className="py-2 pr-3 text-cvlt-gray-500">{race.backup || '-'}</td>
                       <td className="py-2 pr-3 font-medium">
                         {race.href ? (
                           <Link href={race.href} className="text-cvlt-blue transition-colors hover:text-cvlt-blue-dark hover:underline">
@@ -459,8 +459,8 @@ export function GareContent() {
                       </td>
                       <td className="py-2 pr-3 text-cvlt-gray-700">{race.organizer}</td>
                       <td className="py-2 pr-3 text-cvlt-gray-700">{race.location}</td>
-                      <td className="py-2 pr-1 text-center">{race.catOpen ? <span className="rounded bg-cvlt-blue/10 px-1.5 py-0.5 text-xs font-medium text-cvlt-blue">sì</span> : '—'}</td>
-                      <td className="py-2 text-center">{race.catFun ? <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">sì</span> : '—'}</td>
+                      <td className="py-2 pr-1 text-center">{race.catOpen ? <span className="rounded bg-cvlt-blue/10 px-1.5 py-0.5 text-xs font-medium text-cvlt-blue">sì</span> : '-'}</td>
+                      <td className="py-2 text-center">{race.catFun ? <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">sì</span> : '-'}</td>
                     </tr>
                   ))}
                 </tbody>

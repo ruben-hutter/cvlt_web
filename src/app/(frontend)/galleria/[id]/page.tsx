@@ -15,9 +15,9 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   try {
     const album = await payload.findByID({ collection: 'photo-albums', id, depth: 0 })
-    return { title: `${album.title} — Galleria — CVLT` }
+    return { title: `${album.title} - Galleria - CVLT` }
   } catch {
-    return { title: 'Album non trovato — CVLT' }
+    return { title: 'Album non trovato - CVLT' }
   }
 }
 

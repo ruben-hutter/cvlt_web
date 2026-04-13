@@ -1,7 +1,7 @@
 import { MembershipForm } from './MembershipForm'
 
 export const metadata = {
-  title: 'Aderire al club — CVLT',
+  title: 'Aderire al club - CVLT',
 }
 
 export default function MembershipPage() {

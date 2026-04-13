@@ -5,7 +5,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 
 export const metadata = {
-  title: 'Notizie — CVLT',
+  title: 'Notizie - CVLT',
 }
 
 function getThumbnailUrl(article: any): string | null {

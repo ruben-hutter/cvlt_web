@@ -20,7 +20,7 @@ const payload = await getPayload({ config })
 
 for (const user of users) {
   if (!user.email) {
-    console.log(`Skipping ${user.name} — no email`)
+    console.log(`Skipping ${user.name} - no email`)
     continue
   }
 
@@ -31,7 +31,7 @@ for (const user of users) {
   })
 
   if (existing.docs.length > 0) {
-    console.log(`Skipping ${user.email} — already exists`)
+    console.log(`Skipping ${user.email} - already exists`)
     continue
   }
 

@@ -1,6 +1,6 @@
 # CVLT Web
 
-Website of the **Club Volo Libero Ticino** (cvlt.ch) — paragliding club of Ticino, Switzerland.
+Website of the **Club Volo Libero Ticino** (cvlt.ch) - paragliding club of Ticino, Switzerland.
 
 Built with [Next.js](https://nextjs.org/) and [Payload CMS](https://payloadcms.com/).
 
@@ -64,4 +64,4 @@ Please keep commits focused and write clear commit messages. If you're unsure ab
 
 ## License
 
-[MIT](LICENSE) — Ruben Hutter
+[MIT](LICENSE) - Ruben Hutter

@@ -1,7 +1,7 @@
 import { ContactForm } from './ContactForm'
 
 export const metadata = {
-  title: 'Contatto — CVLT',
+  title: 'Contatto - CVLT',
 }
 
 export default function ContactPage() {

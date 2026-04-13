@@ -21,7 +21,7 @@ export async function cachedFetch<T>(
       return JSON.parse(raw) as T
     }
   } catch {
-    // File missing or unreadable — proceed to fetch
+    // File missing or unreadable - proceed to fetch
   }
 
   // Deduplicate: if another request is already fetching this key, wait for it
