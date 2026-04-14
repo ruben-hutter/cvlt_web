@@ -227,34 +227,6 @@ function buildCheckoutUrl(payload: OrderPayload) {
   return url.toString()
 }
 
-function buildTestCheckoutUrl(amount: number) {
-  const safeAmount = Number.isFinite(amount) ? Math.max(Math.round(amount), 0) : 0
-  const payload: OrderPayload = {
-    orderRef: `TEST-${crypto.randomUUID()}`,
-    firstName: 'Test',
-    lastName: 'Checkout',
-    email: 'test@example.com',
-    phone: '+41000000000',
-    address: 'Via Test 1',
-    postalCode: '6500',
-    city: 'Bellinzona',
-    notes: 'Test checkout URL generation',
-    total: safeAmount,
-    createdAt: new Date().toISOString(),
-    items: [
-      {
-        productName: 'TEST',
-        edition: 'TEST',
-        variant: 'TEST',
-        size: 'TEST',
-        quantity: 1,
-        unitPrice: safeAmount,
-      },
-    ],
-  }
-  return buildCheckoutUrl(payload)
-}
-
 async function handlePrepare(body: PrepareRequest) {
   const { firstName, lastName, email, phone, address, postalCode, city, notes, items } = body
 
@@ -348,32 +320,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Azione non valida.' }, { status: 400 })
   } catch (error) {
     console.error('Shop order error:', error)
-    return NextResponse.json({ error: 'Si è verificato un errore. Riprova più tardi.' }, { status: 500 })
-  }
-}
-
-export async function GET(request: Request) {
-  try {
-    if (process.env.SHOP_ENABLE_TEST_CHECKOUT !== 'true') {
-      return NextResponse.json({ error: 'Test checkout endpoint disabled.' }, { status: 404 })
-    }
-
-    const { searchParams } = new URL(request.url)
-    const amountParam = searchParams.get('amount')
-    const amount = amountParam ? Number(amountParam) : 0
-
-    if (!Number.isFinite(amount) || amount < 0) {
-      return NextResponse.json({ error: 'Invalid amount. Use amount >= 0.' }, { status: 400 })
-    }
-
-    const checkoutUrl = buildTestCheckoutUrl(amount)
-    return NextResponse.json({
-      success: true,
-      checkoutUrl,
-      note: 'Test checkout URL only. No local order confirmation/email is created by this endpoint.',
-    })
-  } catch (error) {
-    console.error('Shop test checkout error:', error)
     return NextResponse.json({ error: 'Si è verificato un errore. Riprova più tardi.' }, { status: 500 })
   }
 }

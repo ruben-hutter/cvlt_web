@@ -48,9 +48,6 @@ For shop checkout on deployed environments:
 - Do not keep `localhost` values on deployed instances.
 - There is no paylink fallback: checkout fails fast if `SHOP_PAYLINK_URL` is missing.
 
-Optional temporary debug flow:
-- Set `SHOP_ENABLE_TEST_CHECKOUT=true` to enable `GET /api/shop-order?amount=0` for generating a test checkout URL without creating a local order/email.
-
 The SQLite database file and uploaded media are stored locally (ignored by git). Make sure to back them up separately.
 
 ## Build & deploy
