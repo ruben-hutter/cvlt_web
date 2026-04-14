@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Timed deploy helper: pulls latest code, then runs timed build.
-# Usage: bash scripts/deploy-timed.sh
+# Timed build helper: measures local install/build durations.
+# Usage: bash scripts/build-timed.sh
 
 mkdir -p logs
 timestamp="$(date +%Y_%m_%d_%H%M%S)"
-log_file="logs/deploy-timing.${timestamp}.log"
+log_file="logs/build-timing.${timestamp}.log"
 
 step_names=()
 step_secs=()
@@ -30,11 +30,11 @@ run_step() {
   echo "--- ${name} finished in ${elapsed}s ---"
 }
 
-echo "=== CVLT timed deploy started at $(date) ===" | tee "${log_file}"
+echo "=== CVLT timed build started at $(date) ===" | tee "${log_file}"
 
 {
-  run_step "git pull" git pull origin main
-  run_step "npm run build:timed" npm run build:timed
+  run_step "npm install" npm install --no-audit --no-fund
+  run_step "npm run build" npm run build
 
   echo ""
   echo "=== Timing summary ==="
