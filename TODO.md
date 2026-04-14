@@ -4,26 +4,21 @@
 
 - [ ] Update RaiseNow Hub Shop Twint link: success and failure URLs to cvlt.ch/...
 - [ ] Move cvlt.ch to old.cvlt.ch so that we can still access the old site for reference
+- [ ] Add password eventually for mail login on cvlt.ch
 
 ## High priority
 
-- [x] gare page on mobile: entries cliccable (not just the title)
-- [x] Small counter in image viewer showing current image number and total (e.g. "3/15")
-- [x] Replace the broken link icon for subscribe to calendar with a proper icon
-- [x] Pin important news (e.g. about temporary airspace restrictions) to the top of the news listing (in primo piano on homepage). Add a "In primo piano" tag for these news.
-    - [x] Add a Payload selector field for pinned news (in the edit view)
-    - [x] Implement logic to show pinned news at the top of the listing
-- [x] Pagina vento — pressione (MAG–KLO) e previsione föhn Lugano–Zürich: dati MOSMIX; finestra previsione 7 giorni (allineata agli ultimi 7 giorni misurati); linee verticali tratteggiate per cambio giorno su entrambi i grafici; griglia orizzontale neutra di riferimento (stesso stile); rimossa linea «ora» sul grafico föhn (l’asse sinistro coincide già con il presente)
-- [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
-    - Magari per il momento aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo
-- [ ] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
-- [x] Webcams
-- [ ] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
-- [ ] Search function (i think similar to the one in Galleria page) also for News.
-- [ ] Test shop working now?
+- [~] Test shop working now?
     - Mail to both and customer and shop manager with order details
     - Successful payment
     - Verify that a failed payment does not trigger the success email
+- [ ] Checkout all the variables that should be set in .env and what the fallback value would be (not a fan of having fallbacks, i would prefer to log an error or something like that and handle it properly)
+- [ ] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo (https://dev.cvlt.ch/notizie/decollo-della-gana)
+- [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
+- [ ] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
+- [ ] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
+- [ ] Search function (i think similar to the one in Galleria page) also for News.
+- [ ] Embed TMA Locarno data similar to https://www.pdcs.ch/aktuell/2026/04/13/luftraum-status-bern/
 
 ## Medium priority
 
@@ -53,6 +48,11 @@
 
 ## Done
 
+- [x] Webcams
+- [x] Pagina vento — pressione (MAG–KLO) e previsione föhn Lugano–Zürich: dati MOSMIX; finestra previsione 7 giorni (allineata agli ultimi 7 giorni misurati); linee verticali tratteggiate per cambio giorno su entrambi i grafici; griglia orizzontale neutra di riferimento (stesso stile); rimossa linea «ora» sul grafico föhn (l’asse sinistro coincide già con il presente)
+- [x] Pin important news (in primo piano): selector in Payload + pinned ordering in listing/home
+- [x] Small counter in image viewer showing current image number and total (e.g. "3/15")
+- [x] Gare page on mobile: entries clickable (not just the title)
 - [x] Replace broken calendario subscribe icon with a proper calendar icon
 - [x] Expand info-volo webcams section with direct mountain feeds and fallbacks
 - [x] Payment confirmation mail after shop purchase (with order details) to customer and shop manager

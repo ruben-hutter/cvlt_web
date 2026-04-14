@@ -38,6 +38,7 @@ tsconfig.tsbuildinfo
 
 # claude code local settings
 .claude/
+.cursor/
 
 # misc
 .DS_Store
