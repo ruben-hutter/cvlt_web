@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { getServerUrl } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,7 +14,7 @@ function escapeXml(s: string): string {
 }
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+  const baseUrl = getServerUrl()
   const payload = await getPayload({ config })
 
   const { docs } = await payload.find({

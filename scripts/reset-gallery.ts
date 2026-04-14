@@ -35,7 +35,10 @@ async function listAllIDs(payload: Awaited<ReturnType<typeof getPayload>>, colle
 
 async function main() {
   const options = parseArgs(process.argv.slice(2))
-  if (!process.env.PAYLOAD_SECRET) process.env.PAYLOAD_SECRET = 'local-import-secret'
+  if (!process.env.PAYLOAD_SECRET?.trim()) {
+    console.error('[RESET] Missing required environment variable: PAYLOAD_SECRET')
+    process.exit(1)
+  }
 
   const configModule = await import('../src/payload.config')
   const payload = await getPayload({ config: configModule.default })

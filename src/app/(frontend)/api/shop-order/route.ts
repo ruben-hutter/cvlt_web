@@ -3,6 +3,7 @@ import crypto from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { sendShopOrderNotification } from '@/lib/mail'
+import { getServerUrl, requireEnv } from '@/lib/env'
 
 type CartItem = {
   productName: string
@@ -58,11 +59,7 @@ function base64UrlDecode(input: string) {
 }
 
 function getOrderTokenSecret() {
-  const secret = process.env.SHOP_ORDER_TOKEN_SECRET
-  if (!secret) {
-    throw new Error('Missing SHOP_ORDER_TOKEN_SECRET')
-  }
-  return secret
+  return requireEnv('SHOP_ORDER_TOKEN_SECRET')
 }
 
 function signOrderPayload(payload: OrderPayload) {
@@ -152,37 +149,17 @@ function isProductionLikeRuntime() {
 }
 
 function getValidatedServerUrl() {
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL?.trim()
-  if (!serverUrl) {
-    if (isProductionLikeRuntime()) {
-      throw new Error('Missing NEXT_PUBLIC_SERVER_URL in production runtime')
-    }
-    return null
-  }
-
-  let parsed: URL
-  try {
-    parsed = new URL(serverUrl)
-  } catch {
-    throw new Error('Invalid NEXT_PUBLIC_SERVER_URL')
-  }
-
+  const parsed = new URL(getServerUrl())
   if (isProductionLikeRuntime() && parsed.hostname === 'localhost') {
     throw new Error('NEXT_PUBLIC_SERVER_URL must not use localhost in production runtime')
   }
-
   return parsed
 }
 
 function getValidatedPaylinkUrl() {
-  const configuredUrl = process.env.SHOP_PAYLINK_URL?.trim()
-  if (!configuredUrl) {
-    throw new Error('Missing SHOP_PAYLINK_URL')
-  }
-
   let parsed: URL
   try {
-    parsed = new URL(configuredUrl)
+    parsed = new URL(requireEnv('SHOP_PAYLINK_URL'))
   } catch {
     throw new Error('Invalid SHOP_PAYLINK_URL')
   }
@@ -195,7 +172,7 @@ function getValidatedPaylinkUrl() {
 }
 
 function buildCheckoutUrl(payload: OrderPayload) {
-  getValidatedServerUrl()
+  const serverUrl = getValidatedServerUrl()
   const url = getValidatedPaylinkUrl()
 
   url.searchParams.set('amount.values', String(payload.total))
@@ -219,9 +196,7 @@ function buildCheckoutUrl(payload: OrderPayload) {
     paylinkHost: url.host,
     paylinkPath: url.pathname,
     nodeEnv: process.env.NODE_ENV ?? 'undefined',
-    serverUrlHost: process.env.NEXT_PUBLIC_SERVER_URL
-      ? new URL(process.env.NEXT_PUBLIC_SERVER_URL).host
-      : null,
+    serverUrlHost: serverUrl.host,
   })
 
   return url.toString()

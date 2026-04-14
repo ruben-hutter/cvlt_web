@@ -25,6 +25,7 @@ import { it } from '@payloadcms/translations/languages/it'
 import { fileURLToPath } from 'url'
 import path from 'path'
 import sharp from 'sharp'
+import { requireEnv, getServerUrl, validateEnvOrThrow } from './lib/env'
 
 sharp.cache(false)
 sharp.concurrency(1)
@@ -37,15 +38,16 @@ import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+validateEnvOrThrow()
 
 export default buildConfig({
-  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
+  serverURL: getServerUrl(),
   graphQL: { disable: true },
   admin: {
     user: Users.slug,
     livePreview: {
       url: ({ data, collectionConfig }) => {
-        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+        const base = getServerUrl()
         if (collectionConfig?.slug === 'news') {
           return `${base}/notizie/preview/${data.id}?live=true`
         }
@@ -62,7 +64,7 @@ export default buildConfig({
   collections: [News, Events, PhotoAlbums, MembershipSubmissions, Media, Users],
   db: sqliteAdapter({
     client: {
-      url: process.env.DATABASE_URI || 'file:./db/payload.db',
+      url: requireEnv('DATABASE_URI'),
     },
   }),
   editor: lexicalEditor({
@@ -94,13 +96,13 @@ export default buildConfig({
       port: 587,
       secure: false,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: requireEnv('SMTP_USER'),
+        pass: requireEnv('SMTP_PASS'),
       },
     })
     return {
       name: 'nodemailer',
-      defaultFromAddress: process.env.SMTP_FROM || 'no-reply@cvlt.ch',
+      defaultFromAddress: requireEnv('SMTP_FROM'),
       defaultFromName: 'CVLT',
       sendEmail: async (message) => {
         await transporter.sendMail(message)
@@ -115,7 +117,7 @@ export default buildConfig({
       },
     }),
   ],
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret: requireEnv('PAYLOAD_SECRET'),
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

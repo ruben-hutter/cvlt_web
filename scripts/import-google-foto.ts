@@ -200,8 +200,9 @@ async function earliestDateFromFolder(folderPath: string): Promise<Date | null> 
 async function main() {
   const options = parseArgs(process.argv.slice(2))
 
-  if (!process.env.PAYLOAD_SECRET) {
-    process.env.PAYLOAD_SECRET = 'local-import-secret'
+  if (!process.env.PAYLOAD_SECRET?.trim()) {
+    console.error('[IMPORT] Missing required environment variable: PAYLOAD_SECRET')
+    process.exit(1)
   }
 
   const sourceExists = await fs
