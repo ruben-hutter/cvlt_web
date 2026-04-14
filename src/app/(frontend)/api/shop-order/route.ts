@@ -47,6 +47,7 @@ type OrderPayload = {
 }
 
 const confirmedOrdersFile = path.join(process.cwd(), 'cache', 'shop-orders-confirmed.json')
+const allowedPaylinkHosts = new Set(['pay.raisenow.io'])
 
 function base64UrlEncode(input: string) {
   return Buffer.from(input, 'utf8').toString('base64url')
@@ -57,9 +58,9 @@ function base64UrlDecode(input: string) {
 }
 
 function getOrderTokenSecret() {
-  const secret = process.env.SHOP_ORDER_TOKEN_SECRET || process.env.PAYLOAD_SECRET
+  const secret = process.env.SHOP_ORDER_TOKEN_SECRET
   if (!secret) {
-    throw new Error('Missing SHOP_ORDER_TOKEN_SECRET or PAYLOAD_SECRET')
+    throw new Error('Missing SHOP_ORDER_TOKEN_SECRET')
   }
   return secret
 }
@@ -146,9 +147,56 @@ function calculateTshirt2023Discount(items: CartItem[]) {
   return pairCount * 5
 }
 
+function isProductionLikeRuntime() {
+  return process.env.NODE_ENV === 'production'
+}
+
+function getValidatedServerUrl() {
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL?.trim()
+  if (!serverUrl) {
+    if (isProductionLikeRuntime()) {
+      throw new Error('Missing NEXT_PUBLIC_SERVER_URL in production runtime')
+    }
+    return null
+  }
+
+  let parsed: URL
+  try {
+    parsed = new URL(serverUrl)
+  } catch {
+    throw new Error('Invalid NEXT_PUBLIC_SERVER_URL')
+  }
+
+  if (isProductionLikeRuntime() && parsed.hostname === 'localhost') {
+    throw new Error('NEXT_PUBLIC_SERVER_URL must not use localhost in production runtime')
+  }
+
+  return parsed
+}
+
+function getValidatedPaylinkUrl() {
+  const configuredUrl = process.env.SHOP_PAYLINK_URL?.trim()
+  if (!configuredUrl) {
+    throw new Error('Missing SHOP_PAYLINK_URL')
+  }
+
+  let parsed: URL
+  try {
+    parsed = new URL(configuredUrl)
+  } catch {
+    throw new Error('Invalid SHOP_PAYLINK_URL')
+  }
+
+  if (!allowedPaylinkHosts.has(parsed.hostname)) {
+    throw new Error(`Invalid SHOP_PAYLINK_URL host: ${parsed.hostname}`)
+  }
+
+  return parsed
+}
+
 function buildCheckoutUrl(payload: OrderPayload) {
-  const baseUrl = process.env.SHOP_PAYLINK_URL || 'https://pay.raisenow.io/stpxb'
-  const url = new URL(baseUrl)
+  getValidatedServerUrl()
+  const url = getValidatedPaylinkUrl()
 
   url.searchParams.set('amount.values', String(payload.total))
   url.searchParams.set('amount.custom', 'false')
@@ -165,7 +213,46 @@ function buildCheckoutUrl(payload: OrderPayload) {
 
   url.searchParams.set('reference.campaign_subid', payload.orderRef)
 
+  console.info('[shop-order] checkout prepared', {
+    orderRef: payload.orderRef,
+    total: payload.total,
+    paylinkHost: url.host,
+    paylinkPath: url.pathname,
+    nodeEnv: process.env.NODE_ENV ?? 'undefined',
+    serverUrlHost: process.env.NEXT_PUBLIC_SERVER_URL
+      ? new URL(process.env.NEXT_PUBLIC_SERVER_URL).host
+      : null,
+  })
+
   return url.toString()
+}
+
+function buildTestCheckoutUrl(amount: number) {
+  const safeAmount = Number.isFinite(amount) ? Math.max(Math.round(amount), 0) : 0
+  const payload: OrderPayload = {
+    orderRef: `TEST-${crypto.randomUUID()}`,
+    firstName: 'Test',
+    lastName: 'Checkout',
+    email: 'test@example.com',
+    phone: '+41000000000',
+    address: 'Via Test 1',
+    postalCode: '6500',
+    city: 'Bellinzona',
+    notes: 'Test checkout URL generation',
+    total: safeAmount,
+    createdAt: new Date().toISOString(),
+    items: [
+      {
+        productName: 'TEST',
+        edition: 'TEST',
+        variant: 'TEST',
+        size: 'TEST',
+        quantity: 1,
+        unitPrice: safeAmount,
+      },
+    ],
+  }
+  return buildCheckoutUrl(payload)
 }
 
 async function handlePrepare(body: PrepareRequest) {
@@ -261,6 +348,32 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Azione non valida.' }, { status: 400 })
   } catch (error) {
     console.error('Shop order error:', error)
+    return NextResponse.json({ error: 'Si è verificato un errore. Riprova più tardi.' }, { status: 500 })
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    if (process.env.SHOP_ENABLE_TEST_CHECKOUT !== 'true') {
+      return NextResponse.json({ error: 'Test checkout endpoint disabled.' }, { status: 404 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const amountParam = searchParams.get('amount')
+    const amount = amountParam ? Number(amountParam) : 0
+
+    if (!Number.isFinite(amount) || amount < 0) {
+      return NextResponse.json({ error: 'Invalid amount. Use amount >= 0.' }, { status: 400 })
+    }
+
+    const checkoutUrl = buildTestCheckoutUrl(amount)
+    return NextResponse.json({
+      success: true,
+      checkoutUrl,
+      note: 'Test checkout URL only. No local order confirmation/email is created by this endpoint.',
+    })
+  } catch (error) {
+    console.error('Shop test checkout error:', error)
     return NextResponse.json({ error: 'Si è verificato un errore. Riprova più tardi.' }, { status: 500 })
   }
 }

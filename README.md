@@ -41,6 +41,16 @@ The Payload admin panel is at `http://localhost:3000/admin`.
 
 See [`.env.example`](.env.example) for all required variables.
 
+For shop checkout on deployed environments:
+- `SHOP_PAYLINK_URL` must be set to the live RaiseNow paylink (`https://pay.raisenow.io/...`).
+- `SHOP_ORDER_TOKEN_SECRET` must be set (separate from `PAYLOAD_SECRET`).
+- `NEXT_PUBLIC_SERVER_URL` must match the active domain (`https://dev.cvlt.ch` during development deployment, `https://cvlt.ch` at go-live).
+- Do not keep `localhost` values on deployed instances.
+- There is no paylink fallback: checkout fails fast if `SHOP_PAYLINK_URL` is missing.
+
+Optional temporary debug flow:
+- Set `SHOP_ENABLE_TEST_CHECKOUT=true` to enable `GET /api/shop-order?amount=0` for generating a test checkout URL without creating a local order/email.
+
 The SQLite database file and uploaded media are stored locally (ignored by git). Make sure to back them up separately.
 
 ## Build & deploy
