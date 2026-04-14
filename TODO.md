@@ -12,13 +12,14 @@
     - Mail to both and customer and shop manager with order details
     - Successful payment
     - Verify that a failed payment does not trigger the success email
-- [ ] Checkout all the variables that should be set in .env and what the fallback value would be (not a fan of having fallbacks, i would prefer to log an error or something like that and handle it properly)
+- [x] Checkout all the variables that should be set in .env and what the fallback value would be (not a fan of having fallbacks, i would prefer to log an error or something like that and handle it properly)
 - [ ] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo (https://dev.cvlt.ch/notizie/decollo-della-gana)
 - [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
 - [ ] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
 - [ ] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
 - [ ] Search function (i think similar to the one in Galleria page) also for News.
 - [ ] Embed TMA Locarno data similar to https://www.pdcs.ch/aktuell/2026/04/13/luftraum-status-bern/
+- [ ] Checkout README.md file
 
 ## Medium priority
 
