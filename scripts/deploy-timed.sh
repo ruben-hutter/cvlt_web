@@ -34,7 +34,7 @@ echo "=== CVLT timed deploy started at $(date) ===" | tee "${log_file}"
 
 {
   run_step "git pull" git pull origin main
-  run_step "npm ci" npm ci --no-audit --no-fund
+  run_step "npm install" npm install --no-audit --no-fund
   run_step "npm run build" npm run build
 
   echo ""
