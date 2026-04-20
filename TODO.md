@@ -13,9 +13,9 @@
     - Successful payment
     - Verify that a failed payment does not trigger the success email
 - [x] Checkout all the variables that should be set in .env and what the fallback value would be (not a fan of having fallbacks, i would prefer to log an error or something like that and handle it properly)
-- [ ] Move shop as an own menu entry after "Info volo"
+- [x] Move shop as an own menu entry after "Info volo"
 - [x] Aggiungere opzione pagamento con fattura nello shop (invece che un solo tasto paga con twint, una selezione multipla con "Twint" e "Fattura" e un tasto checkout. la selezione multipla me la immagino simile a quella per il formulario d'adesione)
-- [ ] Add a shared constants file and check also for duplicated code in the codebase. Refactor to use the shared constants and remove duplicates (evtl. also add shared utility functions if needed)
+- [x] Add a shared constants file and check also for duplicated code in the codebase. Refactor to use the shared constants and remove duplicates (evtl. also add shared utility functions if needed)
 - [ ] Add a "pin" icon to "In primo piano" news
 - [ ] Add on homepage "Ultime notizie" up to end of TMA Locarno side bar hight and do not limit to 5 news or whatever it is set to now.
 - [ ] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo (https://dev.cvlt.ch/notizie/decollo-della-gana)

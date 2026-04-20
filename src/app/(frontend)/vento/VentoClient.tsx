@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import type { WindStation, LakeLevel, StationsResponse, LakesResponse } from '../api/vento/types'
+import { VENTO_PRESSURE_SECTION_IDS, VENTO_SECTION_IDS } from '@/lib/constants'
 
 function WindArrow({ degrees, size = 28 }: { degrees: number; size?: number }) {
   return (
@@ -689,17 +690,14 @@ function PressureLegend() {
   )
 }
 
-const PRESSURE_SECTIONS = ['pressione']
-
 function Legend() {
   const [activeSection, setActiveSection] = useState('')
 
   useEffect(() => {
-    const sectionIds = ['stazioni-meteoswiss', 'altre-stazioni', 'pressione', 'laghi', 'radiosondaggi']
     const handleScroll = () => {
       const navHeight = 80
       let current = ''
-      for (const id of sectionIds) {
+      for (const id of VENTO_SECTION_IDS) {
         const el = document.getElementById(id)
         if (el && el.getBoundingClientRect().top <= navHeight + 10) {
           current = id
@@ -712,7 +710,7 @@ function Legend() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const showPressure = PRESSURE_SECTIONS.includes(activeSection)
+  const showPressure = VENTO_PRESSURE_SECTION_IDS.some((id) => id === activeSection)
 
   return (
     <aside className="hidden flex-shrink-0 lg:block lg:w-44">

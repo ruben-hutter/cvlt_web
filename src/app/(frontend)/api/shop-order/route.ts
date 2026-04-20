@@ -4,18 +4,12 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { sendShopOrderNotification } from '@/lib/mail'
 import { getServerUrl, requireEnv } from '@/lib/env'
-
-type CartItem = {
-  productName: string
-  edition: string
-  variant: string
-  size: string
-  quantity: number
-  unitPrice: number
-}
-
-type PaymentMethod = 'twint' | 'invoice'
-type PaymentStatus = 'paid' | 'pending_invoice'
+import {
+  normalizeCartTotal,
+  type CartItem,
+  type PaymentMethod,
+  type PaymentStatus,
+} from '@/lib/shop'
 
 type PrepareRequest = {
   action: 'prepare'
@@ -130,32 +124,8 @@ function isValidCartItem(item: CartItem) {
   )
 }
 
-function normalizeTotal(items: CartItem[]) {
-  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
-  const discount = calculateTshirt2023Discount(items)
-  return Math.round(Math.max(subtotal - discount, 0) * 100) / 100
-}
-
 function hasMaxTwoDecimals(value: number) {
   return Math.abs(value * 100 - Math.round(value * 100)) < 1e-8
-}
-
-function calculateTshirt2023Discount(items: CartItem[]) {
-  const promoProducts = new Set(['T-Shirt Uomo', 'T-Shirt Donna'])
-  let pairCount = 0
-
-  for (const productName of promoProducts) {
-    let grayQty = 0
-    let yellowQty = 0
-    for (const item of items) {
-      if (item.productName !== productName) continue
-      if (item.variant.startsWith('Grigia')) grayQty += item.quantity
-      if (item.variant.startsWith('Gialla')) yellowQty += item.quantity
-    }
-    pairCount += Math.min(grayQty, yellowQty)
-  }
-
-  return pairCount * 5
 }
 
 function isProductionLikeRuntime() {
@@ -241,7 +211,7 @@ async function handlePrepare(body: PrepareRequest) {
     return NextResponse.json({ error: 'Metodo di pagamento non valido.' }, { status: 400 })
   }
 
-  const total = normalizeTotal(items)
+  const total = normalizeCartTotal(items)
   if (!Number.isFinite(total) || total <= 0 || !hasMaxTwoDecimals(total)) {
     return NextResponse.json({ error: 'Totale ordine non valido.' }, { status: 400 })
   }

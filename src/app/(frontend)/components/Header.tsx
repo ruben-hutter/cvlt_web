@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { GARE_SUB_LINKS, INFO_VOLO_SUB_LINKS, VENTO_SUB_LINKS } from '@/lib/constants'
 
 type SubLink = { href: string; label: string }
 type NavLink = { href: string; label: string; subLinks?: SubLink[] }
@@ -14,31 +15,15 @@ const navLinks: NavLink[] = [
     { href: '/adesione', label: 'Adesione' },
     { href: '/quota-sociale', label: 'Quota sociale' },
     { href: '/biposto', label: 'Voli in Biposto' },
-    { href: '/shop', label: 'Shop' },
     { href: '/contatto', label: 'Contatto' },
   ]},
   { href: '/notizie', label: 'Notizie' },
   { href: '/calendario', label: 'Calendario' },
   { href: '/galleria', label: 'Galleria' },
-  { href: '/vento', label: 'Vento', subLinks: [
-    { href: '/vento#stazioni-meteoswiss', label: 'Stazioni MeteoSwiss' },
-    { href: '/vento#altre-stazioni', label: 'Altre stazioni' },
-    { href: '/vento#pressione', label: 'Pressione' },
-    { href: '/vento#laghi', label: 'Laghi' },
-    { href: '/vento#radiosondaggi', label: 'Radiosondaggi' },
-  ]},
-  { href: '/gare', label: 'Gare', subLinks: [
-    { href: '/gare#ccc', label: 'CCC' },
-    { href: '/gare#hike-and-fly', label: 'Hike & Fly' },
-    { href: '/gare#regio-sud', label: 'Regio Sud' },
-  ]},
-  { href: '/info-volo', label: 'Info volo', subLinks: [
-    { href: '/info-volo#spazio-aereo', label: 'Spazio aereo' },
-    { href: '/info-volo#meteo-vento', label: 'Meteo & Vento' },
-    { href: '/info-volo#link-meteo', label: 'Link meteo' },
-    { href: '/info-volo#webcam', label: 'Webcam' },
-    { href: '/info-volo#link-utili', label: 'Link utili' },
-  ]},
+  { href: '/vento', label: 'Vento', subLinks: [...VENTO_SUB_LINKS] },
+  { href: '/gare', label: 'Gare', subLinks: [...GARE_SUB_LINKS] },
+  { href: '/info-volo', label: 'Info volo', subLinks: [...INFO_VOLO_SUB_LINKS] },
+  { href: '/shop', label: 'Shop' },
 ]
 
 export function Header() {

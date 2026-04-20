@@ -7,6 +7,14 @@ import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import 'yet-another-react-lightbox/styles.css'
 import { useAddressSearch, formatPhone, isValidEmail, isValidPhone } from '@/lib/forms'
 import type { AddressSuggestion } from '@/lib/forms'
+import {
+  calculateTshirt2023Discount,
+  formatCurrency,
+  SHOP_PENDING_ORDER_TOKEN_STORAGE_KEY,
+  type CartItem,
+  type PaymentMethod,
+  type PaymentStatus,
+} from '@/lib/shop'
 
 type Variant = {
   label: string
@@ -30,18 +38,6 @@ type ProductSelection = {
   size: string
   quantity: number
 }
-
-type CartItem = {
-  productName: string
-  edition: string
-  variant: string
-  size: string
-  quantity: number
-  unitPrice: number
-}
-
-type PaymentMethod = 'twint' | 'invoice'
-type PaymentStatus = 'paid' | 'pending_invoice'
 
 const products: Product[] = [
   {
@@ -119,31 +115,6 @@ const products: Product[] = [
 function itemKey(item: CartItem) {
   return `${item.productName}__${item.variant}__${item.size}`
 }
-
-function formatCurrency(value: number) {
-  return `CHF ${value.toFixed(2)}`
-}
-
-function calculateTshirt2023Discount(items: CartItem[]) {
-  const promoProducts = new Set(['T-Shirt Uomo', 'T-Shirt Donna'])
-  let pairCount = 0
-
-  for (const productName of promoProducts) {
-    let grayQty = 0
-    let yellowQty = 0
-    for (const item of items) {
-      if (item.productName !== productName) continue
-      if (item.variant.startsWith('Grigia')) grayQty += item.quantity
-      if (item.variant.startsWith('Gialla')) yellowQty += item.quantity
-    }
-    pairCount += Math.min(grayQty, yellowQty)
-  }
-
-  return pairCount * 5
-}
-
-
-const pendingOrderTokenStorageKey = 'cvlt-shop-pending-order-token'
 
 function paymentMethodLabel(value: PaymentMethod) {
   return value === 'invoice' ? 'Fattura / bonifico' : 'TWINT'
@@ -268,7 +239,7 @@ export function ShopContent() {
 
     hasAttemptedAutoConfirmRef.current = true
 
-    const token = localStorage.getItem(pendingOrderTokenStorageKey)
+    const token = localStorage.getItem(SHOP_PENDING_ORDER_TOKEN_STORAGE_KEY)
     if (!token) {
       setFeedbackError('Ordine non trovato localmente. Se hai pagato, contatta il comitato shop.')
       window.history.replaceState({}, '', window.location.pathname)
@@ -303,7 +274,7 @@ export function ShopContent() {
         setNotes('')
         setPaymentMethod('twint')
         setIsCartOpen(false)
-        localStorage.removeItem(pendingOrderTokenStorageKey)
+        localStorage.removeItem(SHOP_PENDING_ORDER_TOKEN_STORAGE_KEY)
         window.history.replaceState({}, '', window.location.pathname)
       })
       .catch((error: unknown) => {
@@ -469,11 +440,11 @@ export function ShopContent() {
         setNotes('')
         setPaymentMethod('twint')
         setIsCartOpen(false)
-        localStorage.removeItem(pendingOrderTokenStorageKey)
+        localStorage.removeItem(SHOP_PENDING_ORDER_TOKEN_STORAGE_KEY)
         return
       }
 
-      localStorage.setItem(pendingOrderTokenStorageKey, data.orderToken)
+      localStorage.setItem(SHOP_PENDING_ORDER_TOKEN_STORAGE_KEY, data.orderToken)
       window.location.href = data.checkoutUrl
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Impossibile avviare il pagamento'
