@@ -8,13 +8,14 @@
 
 ## High priority
 
+- [x] Fix not loaded homepage background image and cvlt logo... maybe also others? Already rebuilt and reloaded but still not showing
 - [ ] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
-- [ ] Search function (i think similar to the one in Galleria page) also for News.
 - [ ] Embed TMA Locarno data similar to https://www.pdcs.ch/aktuell/2026/04/13/luftraum-status-bern/
 - [ ] Checkout README.md file
 
 ## Medium priority
 
+- [ ] Add a fzf-like search over the complete website. Eventually change the normal search bars to fzf-like search as well (e.g. gallery, news)
 - [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
 - [~] Sezione info volo + TMA/CTR/AWY (pagina creata, da controllare contenuti)
     - [~] Controllare contenuti CTR, TMA, AWY, Zone di tranquillità
@@ -43,6 +44,9 @@
 
 ## Done
 
+- [x] Search function (similar to Gallery page) also for News
+- [x] Gallery: search bar should be big and year selector much smaller!
+- [x] Fix not loaded homepage background image and cvlt logo (standalone output missing public/ copy)
 - [x] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo
 - [x] Add on homepage "Ultime notizie" up to end of TMA Locarno side bar hight and do not limit to 5 news or whatever it is set to now.
 - [x] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
