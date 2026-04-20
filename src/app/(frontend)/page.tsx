@@ -26,7 +26,7 @@ export default async function HomePage() {
 
   try {
     const payload = await getPayload({ config })
-    news.docs = await getPublishedNewsWithFeaturedFirst({ payload, limit: 5, depth: 1 })
+    news.docs = await getPublishedNewsWithFeaturedFirst({ payload, limit: 9, depth: 1 })
 
     events = await payload.find({
       collection: 'events',
@@ -92,7 +92,7 @@ export default async function HomePage() {
           {/* News section */}
           <section>
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-cvlt-gray-900">Ultime notizie</h2>
+              <h2 className="text-xl font-bold text-cvlt-gray-900">Ultime notizie</h2>
               <Link
                 href="/notizie"
                 className="text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"
@@ -157,14 +157,14 @@ export default async function HomePage() {
           </section>
 
           {/* Sidebar */}
-          <aside className="space-y-8">
+          <aside className="flex flex-col gap-8">
             {/* Upcoming events */}
             <div>
-              <h2 className="text-lg font-bold text-cvlt-gray-900">Prossimi eventi</h2>
+              <h2 className="text-xl font-bold text-cvlt-gray-900">Prossimi eventi</h2>
               {events.docs.length === 0 ? (
-                <p className="mt-4 text-sm text-cvlt-gray-500">Nessun evento in programma.</p>
+                <p className="mt-6 text-sm text-cvlt-gray-500">Nessun evento in programma.</p>
               ) : (
-                <ul className="mt-4 space-y-3">
+                <ul className="mt-6 space-y-3">
                   {events.docs.map((event) => (
                     <li key={event.id}>
                       <Link
@@ -209,7 +209,7 @@ export default async function HomePage() {
 
             {/* Twint donations */}
             <div className="rounded-lg border border-cvlt-gray-200 p-4">
-              <h2 className="text-lg font-bold text-cvlt-gray-900">Sostienici</h2>
+              <h2 className="text-xl font-bold text-cvlt-gray-900">Sostienici</h2>
               <div className="mt-4">
                 <p className="text-sm text-cvlt-gray-700">
                   Voli nella Svizzera italiana ma non sei socio?
@@ -228,8 +228,8 @@ export default async function HomePage() {
             </div>
 
             {/* TMA Locarno */}
-            <div className="rounded-lg border border-cvlt-gray-200 p-4">
-              <h2 className="text-lg font-bold text-cvlt-gray-900">TMA Locarno</h2>
+            <div className="mt-auto rounded-lg border border-cvlt-gray-200 p-4">
+              <h2 className="text-xl font-bold text-cvlt-gray-900">TMA Locarno</h2>
               <a
                 href="https://www.facebook.com/TMA-Locarno-1037676889614177/"
                 target="_blank"
