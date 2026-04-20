@@ -42,6 +42,14 @@ type CartItem = {
 
 const products: Product[] = [
   {
+    name: 'Prodotto test checkout',
+    edition: 'TEST - rimuovere dopo verifica',
+    price: 0.1,
+    image: '/shop/maglietta-bio-2025.jpg',
+    description: 'Prodotto temporaneo per testare il redirect e le notifiche email.',
+    variants: [{ label: 'Standard', sizes: ['Unica'] }],
+  },
+  {
     name: 'Maglietta 100% Cotone Bio',
     edition: 'ed. 2025 - Unisex',
     price: 25,
@@ -118,7 +126,7 @@ function itemKey(item: CartItem) {
 }
 
 function formatCurrency(value: number) {
-  return `CHF ${value}.-`
+  return `CHF ${value.toFixed(2)}`
 }
 
 function calculateTshirt2023Discount(items: CartItem[]) {

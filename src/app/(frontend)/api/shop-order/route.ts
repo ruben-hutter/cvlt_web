@@ -123,7 +123,11 @@ function isValidCartItem(item: CartItem) {
 function normalizeTotal(items: CartItem[]) {
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
   const discount = calculateTshirt2023Discount(items)
-  return Math.max(subtotal - discount, 0)
+  return Math.round(Math.max(subtotal - discount, 0) * 100) / 100
+}
+
+function hasMaxTwoDecimals(value: number) {
+  return Math.abs(value * 100 - Math.round(value * 100)) < 1e-8
 }
 
 function calculateTshirt2023Discount(items: CartItem[]) {
@@ -175,7 +179,7 @@ function buildCheckoutUrl(payload: OrderPayload) {
   const serverUrl = getValidatedServerUrl()
   const url = getValidatedPaylinkUrl()
 
-  url.searchParams.set('amount.values', String(payload.total))
+  url.searchParams.set('amount.values', payload.total.toFixed(2))
   url.searchParams.set('amount.custom', 'false')
   url.searchParams.set('supporter.first_name.value', payload.firstName)
   url.searchParams.set('supporter.last_name.value', payload.lastName)
@@ -224,7 +228,7 @@ async function handlePrepare(body: PrepareRequest) {
   }
 
   const total = normalizeTotal(items)
-  if (!Number.isInteger(total) || total <= 0) {
+  if (!Number.isFinite(total) || total <= 0 || !hasMaxTwoDecimals(total)) {
     return NextResponse.json({ error: 'Totale ordine non valido.' }, { status: 400 })
   }
 
