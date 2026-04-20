@@ -15,6 +15,7 @@ import {
   type PaymentMethod,
   type PaymentStatus,
 } from '@/lib/shop'
+import { uiFieldClass, uiPrimaryButtonClass, uiSecondaryButtonClass, uiSelectClass } from '@/lib/ui'
 
 type Variant = {
   label: string
@@ -114,6 +115,16 @@ const products: Product[] = [
 
 function itemKey(item: CartItem) {
   return `${item.productName}__${item.variant}__${item.size}`
+}
+
+function BasketIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 10h16l-1.2 8.5a2 2 0 0 1-2 1.5H7.2a2 2 0 0 1-2-1.5L4 10Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 10V8a3 3 0 1 1 6 0v2" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.5 13.5h.01M14.5 13.5h.01" />
+    </svg>
+  )
 }
 
 function paymentMethodLabel(value: PaymentMethod) {
@@ -460,10 +471,12 @@ export function ShopContent() {
         <h1 className="text-3xl font-bold text-cvlt-gray-900">Shop</h1>
         <button
           type="button"
-          className="inline-flex items-center gap-2 rounded-full border border-cvlt-gray-300 bg-white px-4 py-2 text-sm font-semibold text-cvlt-gray-900 shadow-sm transition hover:border-cvlt-blue hover:text-cvlt-blue lg:hidden"
+          className={`${uiSecondaryButtonClass} gap-2 px-4 py-2 font-semibold shadow-sm lg:hidden`}
           onClick={() => setIsCartOpen(true)}
+          aria-label={`Apri carrello (${cartCount})`}
         >
-          Carrello ({cartCount})
+          <BasketIcon />
+          <span className="text-xs">({cartCount})</span>
           <span className="rounded-full bg-cvlt-blue/10 px-2 py-0.5 text-xs text-cvlt-blue">{formatCurrency(finalTotal)}</span>
         </button>
       </div>
@@ -524,10 +537,10 @@ export function ShopContent() {
                       >
                         Variante
                       </label>
-                      <select
-                        id={`variant-${i}`}
-                        className="w-full rounded border border-cvlt-gray-300 px-2 py-1.5 text-sm"
-                        value={selection?.variantIndex ?? 0}
+                        <select
+                          id={`variant-${i}`}
+                          className={uiSelectClass}
+                          value={selection?.variantIndex ?? 0}
                         onChange={(event) => {
                           const variantIndex = Number(event.target.value)
                           const nextVariant = product.variants[variantIndex]
@@ -558,10 +571,10 @@ export function ShopContent() {
                       >
                         Taglia
                       </label>
-                      <select
-                        id={`size-${i}`}
-                        className="w-full rounded border border-cvlt-gray-300 px-2 py-1.5 text-sm"
-                        value={selection?.size || ''}
+                        <select
+                          id={`size-${i}`}
+                          className={uiSelectClass}
+                          value={selection?.size || ''}
                         onChange={(event) => updateSelection(i, { size: event.target.value })}
                       >
                         {selectedVariant?.sizes.map((size) => (
@@ -582,7 +595,7 @@ export function ShopContent() {
                       <div id={`quantity-${i}`} className="flex items-center gap-2">
                         <button
                           type="button"
-                          className="rounded border border-cvlt-gray-300 px-2 py-1 text-sm"
+                          className={uiSecondaryButtonClass}
                           onClick={() =>
                             updateSelection(i, {
                               quantity: Math.max((selection?.quantity ?? 1) - 1, 1),
@@ -594,7 +607,7 @@ export function ShopContent() {
                         <span className="min-w-8 text-center text-sm font-semibold">{selection?.quantity ?? 1}</span>
                         <button
                           type="button"
-                          className="rounded border border-cvlt-gray-300 px-2 py-1 text-sm"
+                          className={uiSecondaryButtonClass}
                           onClick={() =>
                             updateSelection(i, {
                               quantity: Math.min((selection?.quantity ?? 1) + 1, 20),
@@ -609,7 +622,7 @@ export function ShopContent() {
 
                   <button
                     type="button"
-                    className="mt-4 w-full rounded bg-cvlt-blue px-3 py-2 text-sm font-semibold text-white transition hover:bg-cvlt-blue/90"
+                    className={`${uiPrimaryButtonClass} mt-4 w-full`}
                     onClick={() => addToCart(i)}
                   >
                     Aggiungi al carrello
@@ -629,10 +642,12 @@ export function ShopContent() {
           <div className="sticky top-20">
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-full border border-cvlt-gray-300 bg-white px-4 py-2 text-sm font-semibold text-cvlt-gray-900 shadow-sm transition hover:border-cvlt-blue hover:text-cvlt-blue"
+              className={`${uiSecondaryButtonClass} gap-2 px-4 py-2 font-semibold shadow-sm`}
               onClick={() => setIsCartOpen(true)}
+              aria-label={`Apri carrello (${cartCount})`}
             >
-              Carrello ({cartCount})
+              <BasketIcon />
+              <span className="text-xs">({cartCount})</span>
               <span className="rounded-full bg-cvlt-blue/10 px-2 py-0.5 text-xs text-cvlt-blue">{formatCurrency(finalTotal)}</span>
             </button>
           </div>
@@ -658,7 +673,7 @@ export function ShopContent() {
             <h2 className="text-xl font-semibold text-cvlt-gray-900">Carrello</h2>
             <button
               type="button"
-              className="rounded border border-cvlt-gray-300 px-3 py-1 text-sm text-cvlt-gray-700"
+              className={uiSecondaryButtonClass}
               onClick={() => setIsCartOpen(false)}
             >
               Chiudi
@@ -689,7 +704,7 @@ export function ShopContent() {
                     <div className="inline-flex items-center gap-2">
                       <button
                         type="button"
-                        className="rounded border border-cvlt-gray-300 px-2 py-0.5 text-xs"
+                        className={`${uiSecondaryButtonClass} px-2 py-0.5 text-xs`}
                         onClick={() => decreaseCartQuantity(item)}
                       >
                         -
@@ -697,7 +712,7 @@ export function ShopContent() {
                       <span className="min-w-6 text-center text-sm">{item.quantity}</span>
                       <button
                         type="button"
-                        className="rounded border border-cvlt-gray-300 px-2 py-0.5 text-xs"
+                        className={`${uiSecondaryButtonClass} px-2 py-0.5 text-xs`}
                         onClick={() => increaseCartQuantity(item)}
                       >
                         +
@@ -732,7 +747,7 @@ export function ShopContent() {
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+                className={uiFieldClass}
               />
             </div>
             <div>
@@ -742,7 +757,7 @@ export function ShopContent() {
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+                className={uiFieldClass}
               />
             </div>
           </div>
@@ -761,7 +776,7 @@ export function ShopContent() {
               }}
               onFocus={() => setShowSuggestions(true)}
               onKeyDown={handleAddressKeyDown}
-              className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+              className={uiFieldClass}
             />
             {showSuggestions && suggestions.length > 0 && (
               <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded border border-gray-200 bg-white shadow-lg">
@@ -794,7 +809,7 @@ export function ShopContent() {
                 value={postalCode}
                 onChange={(e) => setPostalCode(e.target.value)}
                 placeholder="6500"
-                className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+                className={uiFieldClass}
               />
             </div>
             <div>
@@ -805,7 +820,7 @@ export function ShopContent() {
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="Bellinzona"
-                className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+                className={uiFieldClass}
               />
             </div>
           </div>
@@ -819,7 +834,7 @@ export function ShopContent() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+                className={uiFieldClass}
               />
             </div>
             <div>
@@ -830,7 +845,7 @@ export function ShopContent() {
                 value={phone}
                 onChange={(e) => setPhone(formatPhone(e.target.value))}
                 placeholder="+41 79 123 45 67"
-                className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+                className={uiFieldClass}
               />
             </div>
           </div>
@@ -842,7 +857,7 @@ export function ShopContent() {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
-              className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+              className={uiFieldClass}
               placeholder="Richieste particolari, consegna, ecc."
             />
           </div>
@@ -882,7 +897,7 @@ export function ShopContent() {
               type="button"
               onClick={startCheckout}
               disabled={!canStartCheckout || isPreparingCheckout || isConfirmingOrder}
-              className="rounded bg-cvlt-blue px-4 py-2 text-sm font-semibold text-white transition hover:bg-cvlt-blue/90 disabled:cursor-not-allowed disabled:opacity-60"
+              className={uiPrimaryButtonClass}
             >
               {isPreparingCheckout
                 ? paymentMethod === 'invoice'

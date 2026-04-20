@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { uiFieldClass, uiSelectClass } from '@/lib/ui'
 
 type Album = {
   id: string | number
@@ -55,13 +56,13 @@ export function GalleryFilter({ albums }: { albums: Album[] }) {
             placeholder="Cerca album..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-md border border-cvlt-gray-200 py-2 pl-10 pr-3 text-sm focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+            className={`${uiFieldClass} border-cvlt-gray-200 py-2 pl-10 pr-3`}
           />
         </div>
         <select
           value={selectedYear ?? ''}
           onChange={(e) => setSelectedYear(e.target.value ? Number(e.target.value) : null)}
-          className="rounded-md border border-cvlt-gray-200 px-3 py-2 text-sm text-cvlt-gray-700 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+          className={`${uiSelectClass} w-auto border-cvlt-gray-200 text-cvlt-gray-700`}
         >
           <option value="">Tutti gli anni</option>
           {years.map((year) => (

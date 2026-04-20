@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getPublishedNewsWithFeaturedFirst } from '../lib/news'
+import { FeaturedNewsBadge } from '../components/FeaturedNewsBadge'
 
 export const metadata = {
   title: 'Notizie - CVLT',
@@ -85,11 +86,7 @@ export default async function NewsPage() {
                   <h2 className="mt-1 text-base font-semibold text-cvlt-gray-900 group-hover:text-cvlt-blue">
                     {article.title}
                   </h2>
-                  {article.tag === 'featured' && (
-                    <span className="mt-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
-                      In primo piano
-                    </span>
-                  )}
+                  {article.tag === 'featured' && <FeaturedNewsBadge />}
                   {event && (
                     <span
                       className="mt-2 inline-flex items-center gap-1 rounded-full bg-cvlt-blue-light px-2 py-0.5 text-xs font-medium text-cvlt-blue"

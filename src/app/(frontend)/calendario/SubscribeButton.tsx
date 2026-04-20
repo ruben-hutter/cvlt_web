@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { uiSecondaryButtonClass } from '@/lib/ui'
 
 export function SubscribeButton() {
   const [copied, setCopied] = useState(false)
@@ -17,7 +18,7 @@ export function SubscribeButton() {
       <button
         onClick={handleCopy}
         title="Copia URL per iscriverti al calendario"
-        className="flex items-center gap-1.5 rounded-md border border-cvlt-gray-200 px-3 py-1.5 text-xs font-medium text-cvlt-gray-500 transition-colors hover:border-cvlt-blue/30 hover:text-cvlt-blue"
+        className={`${uiSecondaryButtonClass} gap-1.5 border-cvlt-gray-200 px-3 py-1.5 text-xs text-cvlt-gray-500 hover:border-cvlt-blue/30`}
       >
         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path

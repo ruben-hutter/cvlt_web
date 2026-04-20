@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { isValidEmail } from '@/lib/forms'
+import { uiFieldClass, uiPrimaryButtonClass } from '@/lib/ui'
 
 export function ContactForm() {
   const [firstName, setFirstName] = useState('')
@@ -82,7 +83,7 @@ export function ContactForm() {
             required
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+            className={uiFieldClass}
           />
         </div>
         <div>
@@ -95,7 +96,7 @@ export function ContactForm() {
             required
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+            className={uiFieldClass}
           />
         </div>
       </div>
@@ -110,7 +111,7 @@ export function ContactForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+          className={uiFieldClass}
         />
       </div>
 
@@ -124,14 +125,14 @@ export function ContactForm() {
           rows={5}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+          className={uiFieldClass}
         />
       </div>
 
       <button
         type="submit"
         disabled={status === 'submitting'}
-        className="w-full rounded-md bg-cvlt-blue px-6 py-3 font-semibold text-white transition-colors hover:bg-cvlt-blue-dark disabled:opacity-60 sm:w-auto"
+        className={`${uiPrimaryButtonClass} w-full px-6 py-3 sm:w-auto`}
       >
         {status === 'submitting' ? 'Invio in corso...' : 'Invia messaggio'}
       </button>

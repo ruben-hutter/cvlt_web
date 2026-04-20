@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { uiSelectClass } from '@/lib/ui'
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -271,7 +272,7 @@ function HallOfFame() {
         <select
           value={selectedYear}
           onChange={(e) => setSelectedYear(Number(e.target.value))}
-          className="rounded-lg border border-cvlt-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-cvlt-gray-900 shadow-sm focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+          className={`${uiSelectClass} w-auto border-cvlt-gray-200 py-1.5 font-medium shadow-sm`}
         >
           {cccHallOfFame.map((e) => (
             <option key={e.year} value={e.year}>

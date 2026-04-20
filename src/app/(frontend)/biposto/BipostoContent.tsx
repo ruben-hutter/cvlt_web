@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { uiFieldClass } from '@/lib/ui'
 
 type Pilot = {
   name: string
@@ -132,7 +133,7 @@ export function BipostoContent() {
           placeholder="Cerca pilota..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-cvlt-gray-200 bg-white py-2 pl-10 pr-4 text-sm text-cvlt-gray-900 placeholder:text-cvlt-gray-400 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+          className={`${uiFieldClass} border-cvlt-gray-200 bg-white py-2 pl-10 pr-4 placeholder:text-cvlt-gray-400`}
         />
       </div>
 

@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { TwintButton } from './components/TwintButton'
 import { getPublishedNewsWithFeaturedFirst } from './lib/news'
+import { FeaturedNewsBadge } from './components/FeaturedNewsBadge'
 
 function getThumbnailUrl(article: any): string | null {
   if (article.thumbnail && typeof article.thumbnail === 'object') {
@@ -135,11 +136,7 @@ export default async function HomePage() {
                         <h3 className="mt-1 text-base font-semibold text-cvlt-gray-900 group-hover:text-cvlt-blue">
                           {article.title}
                         </h3>
-                        {article.tag === 'featured' && (
-                          <span className="mt-1.5 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
-                            In primo piano
-                          </span>
-                        )}
+                        {article.tag === 'featured' && <FeaturedNewsBadge />}
                         {event && (
                           <span
                             className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-cvlt-blue-light px-2 py-0.5 text-xs font-medium text-cvlt-blue"

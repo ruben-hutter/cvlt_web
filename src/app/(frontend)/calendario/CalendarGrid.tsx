@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { uiSecondaryButtonClass } from '@/lib/ui'
 
 type RelatedNews = { title: string; slug: string }
 
@@ -379,16 +380,16 @@ export function CalendarGrid({ events }: { events: Event[] }) {
             </h2>
             <button
               onClick={goToday}
-              className="rounded border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+              className={`${uiSecondaryButtonClass} border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50`}
             >
               Oggi
             </button>
           </div>
           <div className="flex gap-2">
-            <button onClick={prevMonth} className="rounded border border-gray-300 px-3 py-1 hover:bg-gray-50">
+            <button onClick={prevMonth} className={`${uiSecondaryButtonClass} border-gray-300 px-3 py-1 hover:bg-gray-50`}>
               ←
             </button>
-            <button onClick={nextMonth} className="rounded border border-gray-300 px-3 py-1 hover:bg-gray-50">
+            <button onClick={nextMonth} className={`${uiSecondaryButtonClass} border-gray-300 px-3 py-1 hover:bg-gray-50`}>
               →
             </button>
           </div>

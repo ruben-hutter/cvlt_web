@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAddressSearch, formatPhone, isValidEmail, isValidPhone } from '@/lib/forms'
 import type { AddressSuggestion } from '@/lib/forms'
+import { uiFieldClass, uiPrimaryButtonClass } from '@/lib/ui'
 
 type FormData = {
   firstName: string
@@ -168,7 +169,7 @@ export function MembershipForm() {
             required
             value={data.lastName}
             onChange={(e) => update('lastName', e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+            className={uiFieldClass}
           />
         </div>
         <div>
@@ -181,7 +182,7 @@ export function MembershipForm() {
             required
             value={data.firstName}
             onChange={(e) => update('firstName', e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+            className={uiFieldClass}
           />
         </div>
       </div>
@@ -203,7 +204,7 @@ export function MembershipForm() {
           }}
           onFocus={() => setShowSuggestions(true)}
           onKeyDown={handleAddressKeyDown}
-          className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+          className={uiFieldClass}
         />
         {showSuggestions && suggestions.length > 0 && (
           <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded border border-gray-200 bg-white shadow-lg">
@@ -237,7 +238,7 @@ export function MembershipForm() {
             placeholder="6900"
             value={data.zip}
             onChange={(e) => update('zip', e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+            className={uiFieldClass}
           />
         </div>
         <div>
@@ -251,7 +252,7 @@ export function MembershipForm() {
             placeholder="Lugano"
             value={data.city}
             onChange={(e) => update('city', e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+            className={uiFieldClass}
           />
         </div>
       </div>
@@ -268,7 +269,7 @@ export function MembershipForm() {
             required
             value={data.email}
             onChange={(e) => update('email', e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+            className={uiFieldClass}
           />
         </div>
         <div>
@@ -282,7 +283,7 @@ export function MembershipForm() {
             placeholder="+41 79 123 45 67"
             value={data.phone}
             onChange={(e) => update('phone', formatPhone(e.target.value))}
-            className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+            className={uiFieldClass}
           />
         </div>
       </div>
@@ -330,14 +331,14 @@ export function MembershipForm() {
           rows={3}
           value={data.notes}
           onChange={(e) => update('notes', e.target.value)}
-          className="w-full rounded border border-gray-300 px-3 py-2 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+          className={uiFieldClass}
         />
       </div>
 
       <button
         type="submit"
         disabled={status === 'submitting'}
-        className="w-full rounded-md bg-cvlt-blue px-6 py-3 font-semibold text-white transition-colors hover:bg-cvlt-blue-dark disabled:opacity-60 sm:w-auto"
+        className={`${uiPrimaryButtonClass} w-full px-6 py-3 sm:w-auto`}
       >
         {status === 'submitting' ? 'Invio in corso...' : 'Invia richiesta'}
       </button>
