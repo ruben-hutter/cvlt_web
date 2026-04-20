@@ -8,18 +8,6 @@
 
 ## High priority
 
-- [x] Test shop working now?
-    - Mail to both and customer and shop manager with order details
-    - Successful payment
-    - Verify that a failed payment does not trigger the success email
-- [x] Checkout all the variables that should be set in .env and what the fallback value would be (not a fan of having fallbacks, i would prefer to log an error or something like that and handle it properly)
-- [x] Move shop as an own menu entry after "Info volo"
-- [x] Aggiungere opzione pagamento con fattura nello shop (invece che un solo tasto paga con twint, una selezione multipla con "Twint" e "Fattura" e un tasto checkout. la selezione multipla me la immagino simile a quella per il formulario d'adesione)
-- [x] Add a shared constants file and check also for duplicated code in the codebase. Refactor to use the shared constants and remove duplicates (evtl. also add shared utility functions if needed)
-- [x] Add a "pin" icon to "In primo piano" news
-- [x] Add on homepage "Ultime notizie" up to end of TMA Locarno side bar hight and do not limit to 5 news or whatever it is set to now.
-- [x] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo (https://dev.cvlt.ch/notizie/decollo-della-gana)
-- [x] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
 - [ ] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
 - [ ] Search function (i think similar to the one in Galleria page) also for News.
 - [ ] Embed TMA Locarno data similar to https://www.pdcs.ch/aktuell/2026/04/13/luftraum-status-bern/
@@ -55,6 +43,15 @@
 
 ## Done
 
+- [x] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo
+- [x] Add on homepage "Ultime notizie" up to end of TMA Locarno side bar hight and do not limit to 5 news or whatever it is set to now.
+- [x] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
+- [x] Add a "pin" icon to "In primo piano" news
+- [x] Add a shared constants file and check also for duplicated code in the codebase. Refactor to use the shared constants and remove duplicates
+- [x] Aggiungere opzione pagamento con fattura nello shop
+- [x] Move shop as an own menu entry after "Info volo"
+- [x] Checkout all the variables that should be set in .env and what the fallback value would be
+- [x] Test shop working now? (mail, payment, failed payment no success email)
 - [x] Webcams
 - [x] Pagina vento — pressione (MAG–KLO) e previsione föhn Lugano–Zürich: dati MOSMIX; finestra previsione 7 giorni (allineata agli ultimi 7 giorni misurati); linee verticali tratteggiate per cambio giorno su entrambi i grafici; griglia orizzontale neutra di riferimento (stesso stile); rimossa linea «ora» sul grafico föhn (l’asse sinistro coincide già con il presente)
 - [x] Pin important news (in primo piano): selector in Payload + pinned ordering in listing/home
