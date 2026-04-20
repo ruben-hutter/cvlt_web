@@ -18,7 +18,7 @@
 - [x] Add a shared constants file and check also for duplicated code in the codebase. Refactor to use the shared constants and remove duplicates (evtl. also add shared utility functions if needed)
 - [x] Add a "pin" icon to "In primo piano" news
 - [x] Add on homepage "Ultime notizie" up to end of TMA Locarno side bar hight and do not limit to 5 news or whatever it is set to now.
-- [ ] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo (https://dev.cvlt.ch/notizie/decollo-della-gana)
+- [x] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo (https://dev.cvlt.ch/notizie/decollo-della-gana)
 - [x] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
 - [ ] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
 - [ ] Search function (i think similar to the one in Galleria page) also for News.
