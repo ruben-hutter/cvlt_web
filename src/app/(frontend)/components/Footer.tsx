@@ -51,6 +51,11 @@ export function Footer() {
                   Adesione
                 </Link>
               </li>
+              <li>
+                <Link href="/quota-sociale" className="transition-colors hover:text-white">
+                  Quota sociale
+                </Link>
+              </li>
             </ul>
           </div>
 

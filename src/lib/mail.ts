@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import path from 'node:path'
 import { requireEnv } from '@/lib/env'
 
 const transporter = nodemailer.createTransport({
@@ -190,16 +191,68 @@ type ShopOrderData = {
   postalCode: string
   city: string
   notes?: string
+  paymentMethod: 'twint' | 'invoice'
+  paymentStatus: 'paid' | 'pending_invoice'
   total: number
   createdAt: string
   items: ShopOrderItem[]
 }
 
 function formatCurrency(value: number) {
-  return `CHF ${value}.-`
+  return `CHF ${value.toFixed(2)}`
+}
+
+const shopInvoiceIban = 'CH82 0900 0000 6900 0419 3'
+const shopInvoiceBeneficiary = 'Club Volo Libero Ticino, 6500 Bellinzona'
+const shopQrBillImagePath = path.join(process.cwd(), 'public', 'qr-bill.png')
+
+function paymentMethodLabel(paymentMethod: ShopOrderData['paymentMethod']) {
+  return paymentMethod === 'invoice' ? 'Fattura / bonifico' : 'TWINT'
+}
+
+function paymentStatusLabel(paymentStatus: ShopOrderData['paymentStatus']) {
+  return paymentStatus === 'pending_invoice' ? 'DA PAGARE (FATTURA)' : 'PAGATO (TWINT)'
 }
 
 export async function sendShopOrderNotification(data: ShopOrderData) {
+  const invoiceAttachments = data.paymentMethod === 'invoice'
+    ? [{ filename: 'qr-bill-cvlt.png', path: shopQrBillImagePath, cid: 'shop-qr-bill' }]
+    : []
+
+  const methodLabel = paymentMethodLabel(data.paymentMethod)
+  const statusLabel = paymentStatusLabel(data.paymentStatus)
+  const paymentInstructionsHtml = data.paymentMethod === 'invoice'
+    ? `
+<h3>Dati per il pagamento con fattura</h3>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:560px;border:1px solid #d9d9d9;border-radius:8px;background:#fafafa;">
+  <tr>
+    <td style="padding:14px;">
+      <div style="font-size:12px;color:#555;margin-bottom:8px;">Dettagli per il bonifico</div>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin-top:10px;font-size:14px;line-height:1.45;color:#111;">
+        <tr>
+          <td style="padding:2px 0;vertical-align:top;width:95px;"><strong>IBAN:</strong></td>
+          <td style="padding:2px 0;vertical-align:top;">${shopInvoiceIban}</td>
+        </tr>
+        <tr>
+          <td style="padding:2px 0;vertical-align:top;width:95px;"><strong>Beneficiario:</strong></td>
+          <td style="padding:2px 0;vertical-align:top;">${shopInvoiceBeneficiary}</td>
+        </tr>
+        <tr>
+          <td style="padding:2px 0;vertical-align:top;width:95px;"><strong>Causale:</strong></td>
+          <td style="padding:2px 0;vertical-align:top;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;word-break:break-all;">Ordine shop ${data.orderRef}</td>
+        </tr>
+      </table>
+
+      <div style="margin-top:10px;font-size:12px;color:#555;">Inquadra il QR con l'app della tua banca.</div>
+      <div style="margin-top:8px;">
+        <img src="cid:shop-qr-bill" alt="QR code pagamento" style="width:148px;height:148px;border:1px solid #e5e5e5;border-radius:6px;display:block;background:#fff;">
+      </div>
+    </td>
+  </tr>
+</table>
+`
+    : ''
+
   const itemsText = data.items
     .map(
       (item) =>
@@ -226,11 +279,13 @@ export async function sendShopOrderNotification(data: ShopOrderData) {
   await transporter.sendMail({
     from,
     to: shopRecipient,
-    subject: `Nuovo ordine shop (${data.orderRef})`,
+    subject: `[${statusLabel}] Nuovo ordine shop (${data.orderRef})`,
     text: `Nuovo ordine shop
 
 Riferimento ordine: ${data.orderRef}
 Data: ${data.createdAt}
+Metodo di pagamento: ${methodLabel}
+STATO PAGAMENTO: ${statusLabel}
 
 Cliente:
 Nome: ${data.firstName} ${data.lastName}
@@ -249,7 +304,9 @@ Totale: ${formatCurrency(data.total)}
     html: `
 <h2>Nuovo ordine shop</h2>
 <p><strong>Riferimento ordine:</strong> ${data.orderRef}<br>
-<strong>Data:</strong> ${data.createdAt}</p>
+<strong>Data:</strong> ${data.createdAt}<br>
+<strong>Metodo di pagamento:</strong> ${methodLabel}<br>
+<strong>Stato pagamento:</strong> <span style="font-weight:700;">${statusLabel}</span></p>
 
 <h3>Cliente</h3>
 <p><strong>Nome:</strong> ${data.firstName} ${data.lastName}<br>
@@ -292,6 +349,8 @@ ${data.notes ? `<br><strong>Note:</strong> ${data.notes}` : ''}</p>
 Il tuo ordine è stato registrato con successo.
 
 Riferimento ordine: ${data.orderRef}
+Metodo di pagamento: ${methodLabel}
+Stato pagamento: ${statusLabel}
 
 Articoli ordinati:
 ${itemsText}
@@ -303,6 +362,12 @@ ${data.firstName} ${data.lastName}
 ${data.address}
 ${data.postalCode} ${data.city}
 
+${data.paymentMethod === 'invoice' ? `Pagamento con fattura:
+IBAN: ${shopInvoiceIban}
+Beneficiario: ${shopInvoiceBeneficiary}
+Causale: Ordine shop ${data.orderRef}
+` : ''}
+
 Ti contatteremo per la spedizione.
 
 Cordiali saluti,
@@ -312,7 +377,9 @@ https://cvlt.ch
     html: `
 <p>Gentile ${data.firstName} ${data.lastName},</p>
 <p>Il tuo ordine è stato registrato con successo.</p>
-<p><strong>Riferimento ordine:</strong> ${data.orderRef}</p>
+<p><strong>Riferimento ordine:</strong> ${data.orderRef}<br>
+<strong>Metodo di pagamento:</strong> ${methodLabel}<br>
+<strong>Stato pagamento:</strong> <span style="font-weight:700;">${statusLabel}</span></p>
 
 <h3>Articoli ordinati</h3>
 <table style="border-collapse:collapse;width:100%;font-size:14px;">
@@ -337,8 +404,11 @@ https://cvlt.ch
 <h3>Indirizzo di spedizione</h3>
 <p>${data.firstName} ${data.lastName}<br>${data.address}<br>${data.postalCode} ${data.city}</p>
 
+${paymentInstructionsHtml}
+
 <p>Ti contatteremo per la spedizione.</p>
 <p style="margin-top:20px;">Cordiali saluti,<br>Club Volo Libero Ticino<br><a href="https://cvlt.ch">cvlt.ch</a></p>
 `,
+    attachments: invoiceAttachments,
   })
 }

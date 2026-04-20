@@ -40,6 +40,9 @@ type CartItem = {
   unitPrice: number
 }
 
+type PaymentMethod = 'twint' | 'invoice'
+type PaymentStatus = 'paid' | 'pending_invoice'
+
 const products: Product[] = [
   {
     name: 'Maglietta 100% Cotone Bio',
@@ -142,6 +145,14 @@ function calculateTshirt2023Discount(items: CartItem[]) {
 
 const pendingOrderTokenStorageKey = 'cvlt-shop-pending-order-token'
 
+function paymentMethodLabel(value: PaymentMethod) {
+  return value === 'invoice' ? 'Fattura / bonifico' : 'TWINT'
+}
+
+function paymentStatusLabel(value: PaymentStatus) {
+  return value === 'pending_invoice' ? 'Da pagare (fattura)' : 'Pagato (TWINT)'
+}
+
 export function ShopContent() {
   const searchParams = useSearchParams()
   const [lightboxIndex, setLightboxIndex] = useState(-1)
@@ -161,9 +172,11 @@ export function ShopContent() {
 
   const [isPreparingCheckout, setIsPreparingCheckout] = useState(false)
   const [isConfirmingOrder, setIsConfirmingOrder] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('twint')
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
   const [feedbackError, setFeedbackError] = useState<string | null>(null)
   const [confirmedOrderRef, setConfirmedOrderRef] = useState<string | null>(null)
+  const [confirmedPaymentStatus, setConfirmedPaymentStatus] = useState<PaymentStatus | null>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [toastFading, setToastFading] = useState(false)
 
@@ -275,6 +288,7 @@ export function ShopContent() {
         if (!res.ok) throw new Error(data?.error || 'Conferma ordine fallita')
 
         setConfirmedOrderRef(data.orderRef)
+        setConfirmedPaymentStatus((data.paymentStatus === 'pending_invoice' ? 'pending_invoice' : 'paid') as PaymentStatus)
         setFeedbackMessage(
           'Ordine confermato! Riceverai una mail di conferma con il riepilogo. Grazie per il tuo acquisto!',
         )
@@ -287,6 +301,7 @@ export function ShopContent() {
         setPostalCode('')
         setCity('')
         setNotes('')
+        setPaymentMethod('twint')
         setIsCartOpen(false)
         localStorage.removeItem(pendingOrderTokenStorageKey)
         window.history.replaceState({}, '', window.location.pathname)
@@ -431,12 +446,32 @@ export function ShopContent() {
           postalCode,
           city,
           notes,
+          paymentMethod,
           items: cartItems,
         }),
       })
 
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'Impossibile avviare il pagamento')
+
+      if (paymentMethod === 'invoice') {
+        setConfirmedOrderRef(data.orderRef)
+        setConfirmedPaymentStatus((data.paymentStatus === 'pending_invoice' ? 'pending_invoice' : 'paid') as PaymentStatus)
+        setFeedbackMessage('Ordine ricevuto! Ti abbiamo inviato una mail con i dati per il pagamento tramite fattura.')
+        setCartItems([])
+        setFirstName('')
+        setLastName('')
+        setEmail('')
+        setPhone('')
+        setAddress('')
+        setPostalCode('')
+        setCity('')
+        setNotes('')
+        setPaymentMethod('twint')
+        setIsCartOpen(false)
+        localStorage.removeItem(pendingOrderTokenStorageKey)
+        return
+      }
 
       localStorage.setItem(pendingOrderTokenStorageKey, data.orderToken)
       window.location.href = data.checkoutUrl
@@ -471,6 +506,11 @@ export function ShopContent() {
         <div className="mt-5 rounded-md border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           {feedbackMessage}
           {confirmedOrderRef && <div className="mt-1 font-medium">Riferimento ordine: {confirmedOrderRef}</div>}
+          {confirmedPaymentStatus && (
+            <div className="mt-2 inline-flex rounded-full border border-emerald-300 bg-white px-3 py-1 text-xs font-semibold text-emerald-800">
+              Stato pagamento: {paymentStatusLabel(confirmedPaymentStatus)}
+            </div>
+          )}
         </div>
       )}
 
@@ -836,6 +876,36 @@ export function ShopContent() {
             />
           </div>
 
+          <div>
+            <label className="mb-2 block text-sm font-medium">Metodo di pagamento <span className="text-red-500">*</span></label>
+            <div className="space-y-2">
+              {([
+                { value: 'twint', label: 'TWINT', price: 'pagamento immediato online' },
+                { value: 'invoice', label: 'Fattura', price: 'pagamento tramite bonifico' },
+              ] as const).map((option) => (
+                <label
+                  key={option.value}
+                  className={`flex cursor-pointer items-center gap-3 rounded border px-4 py-3 transition-colors ${
+                    paymentMethod === option.value
+                      ? 'border-cvlt-blue bg-cvlt-blue-light'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="shop-payment-method"
+                    value={option.value}
+                    checked={paymentMethod === option.value}
+                    onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+                    className="accent-cvlt-blue"
+                  />
+                  <span className="font-medium">{option.label}</span>
+                  <span className="text-sm text-gray-500">&mdash; {option.price}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
@@ -843,8 +913,16 @@ export function ShopContent() {
               disabled={!canStartCheckout || isPreparingCheckout || isConfirmingOrder}
               className="rounded bg-cvlt-blue px-4 py-2 text-sm font-semibold text-white transition hover:bg-cvlt-blue/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isPreparingCheckout ? 'Preparazione checkout...' : 'Procedi con TWINT'}
+              {isPreparingCheckout
+                ? paymentMethod === 'invoice'
+                  ? 'Invio ordine...'
+                  : 'Preparazione checkout...'
+                : paymentMethod === 'invoice'
+                  ? 'Invia ordine con fattura'
+                  : 'Checkout'}
             </button>
+
+            <span className="text-sm text-cvlt-gray-600">Selezionato: {paymentMethodLabel(paymentMethod)}</span>
 
             {isConfirmingOrder && <span className="text-sm text-cvlt-gray-600">Conferma ordine in corso...</span>}
           </div>

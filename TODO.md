@@ -8,14 +8,18 @@
 
 ## High priority
 
-- [~] Test shop working now?
+- [x] Test shop working now?
     - Mail to both and customer and shop manager with order details
     - Successful payment
     - Verify that a failed payment does not trigger the success email
 - [x] Checkout all the variables that should be set in .env and what the fallback value would be (not a fan of having fallbacks, i would prefer to log an error or something like that and handle it properly)
+- [ ] Move shop as an own menu entry after "Info volo"
+- [x] Aggiungere opzione pagamento con fattura nello shop (invece che un solo tasto paga con twint, una selezione multipla con "Twint" e "Fattura" e un tasto checkout. la selezione multipla me la immagino simile a quella per il formulario d'adesione)
+- [ ] Add a shared constants file and check also for duplicated code in the codebase. Refactor to use the shared constants and remove duplicates (evtl. also add shared utility functions if needed)
+- [ ] Add a "pin" icon to "In primo piano" news
+- [ ] Add on homepage "Ultime notizie" up to end of TMA Locarno side bar hight and do not limit to 5 news or whatever it is set to now.
 - [ ] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo (https://dev.cvlt.ch/notizie/decollo-della-gana)
-- [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
-- [ ] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
+- [x] Shop: fare procedi anche senza twint -> fattura per mail sul conto corrente
 - [ ] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
 - [ ] Search function (i think similar to the one in Galleria page) also for News.
 - [ ] Embed TMA Locarno data similar to https://www.pdcs.ch/aktuell/2026/04/13/luftraum-status-bern/
@@ -23,8 +27,10 @@
 
 ## Medium priority
 
+- [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
 - [~] Sezione info volo + TMA/CTR/AWY (pagina creata, da controllare contenuti)
     - [~] Controllare contenuti CTR, TMA, AWY, Zone di tranquillità
+- [ ] Add albums for activities in 2026
 - [ ] Gallery page takes a while, maybe we can optimize what's loaded on page call and what can me loaded after (e.g. with lazy loading or pagination)
 - [ ] In "comitato" page make persons containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Multiple languages (german, french, english)

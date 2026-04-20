@@ -14,6 +14,9 @@ type CartItem = {
   unitPrice: number
 }
 
+type PaymentMethod = 'twint' | 'invoice'
+type PaymentStatus = 'paid' | 'pending_invoice'
+
 type PrepareRequest = {
   action: 'prepare'
   firstName: string
@@ -24,6 +27,7 @@ type PrepareRequest = {
   postalCode: string
   city: string
   notes?: string
+  paymentMethod: PaymentMethod
   items: CartItem[]
 }
 
@@ -42,6 +46,8 @@ type OrderPayload = {
   postalCode: string
   city: string
   notes?: string
+  paymentMethod: PaymentMethod
+  paymentStatus: PaymentStatus
   total: number
   createdAt: string
   items: CartItem[]
@@ -79,12 +85,16 @@ function verifyOrderToken(token: string) {
   const valid = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
   if (!valid) throw new Error('Token signature invalid')
 
-  const payload = JSON.parse(base64UrlDecode(encoded)) as OrderPayload
+  const payload = JSON.parse(base64UrlDecode(encoded)) as Partial<OrderPayload>
   if (!payload.orderRef || !Array.isArray(payload.items) || payload.items.length === 0) {
     throw new Error('Token payload invalid')
   }
 
-  return payload
+  return {
+    ...payload,
+    paymentMethod: payload.paymentMethod === 'invoice' ? 'invoice' : 'twint',
+    paymentStatus: payload.paymentStatus === 'pending_invoice' ? 'pending_invoice' : 'paid',
+  } as OrderPayload
 }
 
 async function readConfirmedRefs() {
@@ -207,7 +217,7 @@ function buildCheckoutUrl(payload: OrderPayload) {
 }
 
 async function handlePrepare(body: PrepareRequest) {
-  const { firstName, lastName, email, phone, address, postalCode, city, notes, items } = body
+  const { firstName, lastName, email, phone, address, postalCode, city, notes, paymentMethod, items } = body
 
   if (
     !firstName ||
@@ -227,6 +237,10 @@ async function handlePrepare(body: PrepareRequest) {
     return NextResponse.json({ error: 'Carrello non valido.' }, { status: 400 })
   }
 
+  if (paymentMethod !== 'twint' && paymentMethod !== 'invoice') {
+    return NextResponse.json({ error: 'Metodo di pagamento non valido.' }, { status: 400 })
+  }
+
   const total = normalizeTotal(items)
   if (!Number.isFinite(total) || total <= 0 || !hasMaxTwoDecimals(total)) {
     return NextResponse.json({ error: 'Totale ordine non valido.' }, { status: 400 })
@@ -242,9 +256,40 @@ async function handlePrepare(body: PrepareRequest) {
     postalCode: postalCode.trim(),
     city: city.trim(),
     notes: notes?.trim() || '',
+    paymentMethod,
+    paymentStatus: paymentMethod === 'twint' ? 'paid' : 'pending_invoice',
     total,
     createdAt: new Date().toISOString(),
     items,
+  }
+
+  if (paymentMethod === 'invoice') {
+    const confirmedRefs = await readConfirmedRefs()
+    if (confirmedRefs.has(payload.orderRef)) {
+      return NextResponse.json({
+        success: true,
+        alreadyConfirmed: true,
+        orderRef: payload.orderRef,
+        paymentMethod: payload.paymentMethod,
+        paymentStatus: payload.paymentStatus,
+      })
+    }
+
+    try {
+      await sendShopOrderNotification(payload)
+    } catch (emailError) {
+      console.error('Failed to send shop order email:', emailError)
+    }
+
+    confirmedRefs.add(payload.orderRef)
+    await writeConfirmedRefs(confirmedRefs)
+
+    return NextResponse.json({
+      success: true,
+      orderRef: payload.orderRef,
+      paymentMethod: payload.paymentMethod,
+      paymentStatus: payload.paymentStatus,
+    })
   }
 
   const orderToken = signOrderPayload(payload)
@@ -269,7 +314,13 @@ async function handleConfirm(body: ConfirmRequest) {
 
   const confirmedRefs = await readConfirmedRefs()
   if (confirmedRefs.has(payload.orderRef)) {
-    return NextResponse.json({ success: true, alreadyConfirmed: true, orderRef: payload.orderRef })
+    return NextResponse.json({
+      success: true,
+      alreadyConfirmed: true,
+      orderRef: payload.orderRef,
+      paymentMethod: payload.paymentMethod,
+      paymentStatus: payload.paymentStatus,
+    })
   }
 
   try {
@@ -281,7 +332,12 @@ async function handleConfirm(body: ConfirmRequest) {
   confirmedRefs.add(payload.orderRef)
   await writeConfirmedRefs(confirmedRefs)
 
-  return NextResponse.json({ success: true, orderRef: payload.orderRef })
+  return NextResponse.json({
+    success: true,
+    orderRef: payload.orderRef,
+    paymentMethod: payload.paymentMethod,
+    paymentStatus: payload.paymentStatus,
+  })
 }
 
 export async function POST(request: Request) {
