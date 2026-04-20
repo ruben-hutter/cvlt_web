@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { uiFieldClass, uiSelectClass } from '@/lib/ui'
 
 type Album = {
   id: string | number
@@ -40,10 +39,10 @@ export function GalleryFilter({ albums }: { albums: Album[] }) {
   return (
     <div>
       {/* Search + year filter */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
         <div className="relative flex-1">
           <svg
-            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cvlt-gray-500"
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cvlt-gray-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -56,13 +55,13 @@ export function GalleryFilter({ albums }: { albums: Album[] }) {
             placeholder="Cerca album..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={`${uiFieldClass} border-cvlt-gray-200 py-2 pl-10 pr-3`}
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 pl-10 text-sm text-cvlt-gray-900 placeholder:text-cvlt-gray-400 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
           />
         </div>
         <select
           value={selectedYear ?? ''}
           onChange={(e) => setSelectedYear(e.target.value ? Number(e.target.value) : null)}
-          className={`${uiSelectClass} w-auto border-cvlt-gray-200 text-cvlt-gray-700`}
+          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-cvlt-gray-900 focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue sm:w-32"
         >
           <option value="">Tutti gli anni</option>
           {years.map((year) => (
