@@ -4,6 +4,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { sendShopOrderNotification } from '@/lib/mail'
 import { getServerUrl, requireEnv } from '@/lib/env'
+import { rateLimit } from '@/lib/rate-limit'
 import {
   normalizeCartTotal,
   type CartItem,
@@ -104,6 +105,18 @@ async function readConfirmedRefs() {
 async function writeConfirmedRefs(refs: Set<string>) {
   await fs.mkdir(path.dirname(confirmedOrdersFile), { recursive: true })
   await fs.writeFile(confirmedOrdersFile, JSON.stringify([...refs], null, 2), 'utf8')
+}
+
+async function pruneOldConfirmedRefs() {
+  try {
+    const content = await fs.readFile(confirmedOrdersFile, 'utf8')
+    const parsed = JSON.parse(content) as string[]
+    if (parsed.length <= 100) return
+    const pruned = parsed.slice(-100)
+    await fs.writeFile(confirmedOrdersFile, JSON.stringify(pruned, null, 2), 'utf8')
+  } catch {
+    // file doesn't exist yet, nothing to prune
+  }
 }
 
 function isValidCartItem(item: CartItem) {
@@ -253,6 +266,7 @@ async function handlePrepare(body: PrepareRequest) {
 
     confirmedRefs.add(payload.orderRef)
     await writeConfirmedRefs(confirmedRefs)
+    await pruneOldConfirmedRefs()
 
     return NextResponse.json({
       success: true,
@@ -301,6 +315,7 @@ async function handleConfirm(body: ConfirmRequest) {
 
   confirmedRefs.add(payload.orderRef)
   await writeConfirmedRefs(confirmedRefs)
+  await pruneOldConfirmedRefs()
 
   return NextResponse.json({
     success: true,
@@ -311,6 +326,12 @@ async function handleConfirm(body: ConfirmRequest) {
 }
 
 export async function POST(request: Request) {
+  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+  const { allowed } = rateLimit({ key: `shop-order:${ip}`, limit: 10, windowMs: 60_000 })
+  if (!allowed) {
+    return NextResponse.json({ error: 'Troppe richieste. Riprova più tardi.' }, { status: 429 })
+  }
+
   try {
     const body = (await request.json()) as Record<string, unknown>
 

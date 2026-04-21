@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAdmin } from './Users'
+import { isAdmin, isLoggedIn } from './Users'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -9,10 +9,12 @@ export const Media: CollectionConfig = {
     useAsTitle: 'alt',
   },
   upload: {
-    mimeTypes: ['image/*', 'video/mp4', 'video/webm', 'video/quicktime'],
+    mimeTypes: ['image/*', 'video/mp4', 'video/x-m4v', 'video/webm', 'video/quicktime'],
   },
   access: {
     read: () => true,
+    create: isLoggedIn,
+    update: isAdmin,
     delete: isAdmin,
   },
   custom: {

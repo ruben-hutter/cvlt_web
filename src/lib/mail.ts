@@ -2,6 +2,17 @@ import nodemailer from 'nodemailer'
 import path from 'node:path'
 import { requireEnv } from '@/lib/env'
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+const e = escapeHtml
+
 const transporter = nodemailer.createTransport({
   host: 'mail.infomaniak.com',
   port: 587,
@@ -42,12 +53,12 @@ ${data.message}
     html: `
 <h2>Nuovo messaggio dal modulo di contatto</h2>
 <table style="border-collapse:collapse;">
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Cognome</td><td>${data.lastName}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Nome</td><td>${data.firstName}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Email</td><td><a href="mailto:${data.email}">${data.email}</a></td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Cognome</td><td>${e(data.lastName)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Nome</td><td>${e(data.firstName)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Email</td><td><a href="mailto:${e(data.email)}">${e(data.email)}</a></td></tr>
 </table>
 <h3 style="margin-top:16px;">Messaggio</h3>
-<p style="white-space:pre-wrap;">${data.message}</p>
+<p style="white-space:pre-wrap;">${e(data.message)}</p>
 `,
   })
 
@@ -67,10 +78,10 @@ Club Volo Libero Ticino
 https://cvlt.ch
 `,
     html: `
-<p>Gentile ${data.firstName} ${data.lastName},</p>
+<p>Gentile ${e(data.firstName)} ${e(data.lastName)},</p>
 <p>Abbiamo ricevuto il tuo messaggio e ti risponderemo al più presto.</p>
 <h3 style="margin-top:16px;">Il tuo messaggio</h3>
-<p style="white-space:pre-wrap;">${data.message}</p>
+<p style="white-space:pre-wrap;">${e(data.message)}</p>
 <p style="margin-top:20px;">Cordiali saluti,<br>Club Volo Libero Ticino<br><a href="https://cvlt.ch">cvlt.ch</a></p>
 `,
   })
@@ -115,14 +126,14 @@ ${data.notes ? `\nOsservazioni: ${data.notes}` : ''}
     html: `
 <h2>Nuova richiesta di adesione al CVLT</h2>
 <table style="border-collapse:collapse;">
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Cognome</td><td>${data.lastName}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Nome</td><td>${data.firstName}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Indirizzo</td><td>${data.address}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">NPA / Domicilio</td><td>${data.city}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Email</td><td><a href="mailto:${data.email}">${data.email}</a></td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Telefono</td><td>${data.phone}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Tipo di iscrizione</td><td>${typeLabel}</td></tr>
-  ${data.notes ? `<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Osservazioni</td><td>${data.notes}</td></tr>` : ''}
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Cognome</td><td>${e(data.lastName)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Nome</td><td>${e(data.firstName)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Indirizzo</td><td>${e(data.address)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">NPA / Domicilio</td><td>${e(data.city)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Email</td><td><a href="mailto:${e(data.email)}">${e(data.email)}</a></td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Telefono</td><td>${e(data.phone)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Tipo di iscrizione</td><td>${e(typeLabel)}</td></tr>
+  ${data.notes ? `<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Osservazioni</td><td>${e(data.notes)}</td></tr>` : ''}
 </table>
 `,
   })
@@ -153,18 +164,18 @@ Club Volo Libero Ticino
 https://cvlt.ch
 `,
     html: `
-<p>Gentile ${data.firstName} ${data.lastName},</p>
+<p>Gentile ${e(data.firstName)} ${e(data.lastName)},</p>
 <p>Abbiamo ricevuto la tua richiesta di adesione al Club Volo Libero Ticino.<br>Ti contatteremo al più presto.</p>
 <h3 style="margin-top:20px;">Riepilogo dei dati inviati</h3>
 <table style="border-collapse:collapse;">
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Cognome</td><td>${data.lastName}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Nome</td><td>${data.firstName}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Indirizzo</td><td>${data.address}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">NPA / Domicilio</td><td>${data.city}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Email</td><td>${data.email}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Telefono</td><td>${data.phone}</td></tr>
-  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Tipo di iscrizione</td><td>${typeLabel}</td></tr>
-  ${data.notes ? `<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Osservazioni</td><td>${data.notes}</td></tr>` : ''}
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Cognome</td><td>${e(data.lastName)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Nome</td><td>${e(data.firstName)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Indirizzo</td><td>${e(data.address)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">NPA / Domicilio</td><td>${e(data.city)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Email</td><td>${e(data.email)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Telefono</td><td>${e(data.phone)}</td></tr>
+  <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Tipo di iscrizione</td><td>${e(typeLabel)}</td></tr>
+  ${data.notes ? `<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Osservazioni</td><td>${e(data.notes)}</td></tr>` : ''}
 </table>
 <p style="margin-top:16px;font-size:14px;color:#666;">Se noti un errore nei dati, contattaci a <a href="mailto:${membershipRecipient}">${membershipRecipient}</a>.</p>
 <p style="margin-top:20px;">Cordiali saluti,<br>Club Volo Libero Ticino<br><a href="https://cvlt.ch">cvlt.ch</a></p>
@@ -264,10 +275,10 @@ export async function sendShopOrderNotification(data: ShopOrderData) {
     .map(
       (item) => `
   <tr>
-    <td style="padding:6px 8px;border:1px solid #ddd;">${item.productName}</td>
-    <td style="padding:6px 8px;border:1px solid #ddd;">${item.edition}</td>
-    <td style="padding:6px 8px;border:1px solid #ddd;">${item.variant}</td>
-    <td style="padding:6px 8px;border:1px solid #ddd;">${item.size}</td>
+    <td style="padding:6px 8px;border:1px solid #ddd;">${e(item.productName)}</td>
+    <td style="padding:6px 8px;border:1px solid #ddd;">${e(item.edition)}</td>
+    <td style="padding:6px 8px;border:1px solid #ddd;">${e(item.variant)}</td>
+    <td style="padding:6px 8px;border:1px solid #ddd;">${e(item.size)}</td>
     <td style="padding:6px 8px;border:1px solid #ddd;text-align:right;">${item.quantity}</td>
     <td style="padding:6px 8px;border:1px solid #ddd;text-align:right;">${formatCurrency(item.unitPrice)}</td>
     <td style="padding:6px 8px;border:1px solid #ddd;text-align:right;">${formatCurrency(item.quantity * item.unitPrice)}</td>
@@ -303,19 +314,19 @@ Totale: ${formatCurrency(data.total)}
 `,
     html: `
 <h2>Nuovo ordine shop</h2>
-<p><strong>Riferimento ordine:</strong> ${data.orderRef}<br>
-<strong>Data:</strong> ${data.createdAt}<br>
-<strong>Metodo di pagamento:</strong> ${methodLabel}<br>
-<strong>Stato pagamento:</strong> <span style="font-weight:700;">${statusLabel}</span></p>
+<p><strong>Riferimento ordine:</strong> ${e(data.orderRef)}<br>
+<strong>Data:</strong> ${e(data.createdAt)}<br>
+<strong>Metodo di pagamento:</strong> ${e(methodLabel)}<br>
+<strong>Stato pagamento:</strong> <span style="font-weight:700;">${e(statusLabel)}</span></p>
 
 <h3>Cliente</h3>
-<p><strong>Nome:</strong> ${data.firstName} ${data.lastName}<br>
-<strong>Email:</strong> <a href="mailto:${data.email}">${data.email}</a><br>
-<strong>Telefono:</strong> ${data.phone}<br>
-<strong>Via:</strong> ${data.address}<br>
-<strong>NPA:</strong> ${data.postalCode}<br>
-<strong>Domicilio:</strong> ${data.city}
-${data.notes ? `<br><strong>Note:</strong> ${data.notes}` : ''}</p>
+<p><strong>Nome:</strong> ${e(data.firstName)} ${e(data.lastName)}<br>
+<strong>Email:</strong> <a href="mailto:${e(data.email)}">${e(data.email)}</a><br>
+<strong>Telefono:</strong> ${e(data.phone)}<br>
+<strong>Via:</strong> ${e(data.address)}<br>
+<strong>NPA:</strong> ${e(data.postalCode)}<br>
+<strong>Domicilio:</strong> ${e(data.city)}
+${data.notes ? `<br><strong>Note:</strong> ${e(data.notes)}` : ''}</p>
 
 <h3>Articoli</h3>
 <table style="border-collapse:collapse;width:100%;font-size:14px;">
@@ -375,11 +386,11 @@ Club Volo Libero Ticino
 https://cvlt.ch
 `,
     html: `
-<p>Gentile ${data.firstName} ${data.lastName},</p>
+<p>Gentile ${e(data.firstName)} ${e(data.lastName)},</p>
 <p>Il tuo ordine è stato registrato con successo.</p>
-<p><strong>Riferimento ordine:</strong> ${data.orderRef}<br>
-<strong>Metodo di pagamento:</strong> ${methodLabel}<br>
-<strong>Stato pagamento:</strong> <span style="font-weight:700;">${statusLabel}</span></p>
+<p><strong>Riferimento ordine:</strong> ${e(data.orderRef)}<br>
+<strong>Metodo di pagamento:</strong> ${e(methodLabel)}<br>
+<strong>Stato pagamento:</strong> <span style="font-weight:700;">${e(statusLabel)}</span></p>
 
 <h3>Articoli ordinati</h3>
 <table style="border-collapse:collapse;width:100%;font-size:14px;">
@@ -402,7 +413,7 @@ https://cvlt.ch
 <p style="margin-top:16px;"><strong>Totale:</strong> ${formatCurrency(data.total)}</p>
 
 <h3>Indirizzo di spedizione</h3>
-<p>${data.firstName} ${data.lastName}<br>${data.address}<br>${data.postalCode} ${data.city}</p>
+    <p>${e(data.firstName)} ${e(data.lastName)}<br>${e(data.address)}<br>${e(data.postalCode)} ${e(data.city)}</p>
 
 ${paymentInstructionsHtml}
 

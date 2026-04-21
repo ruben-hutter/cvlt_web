@@ -1,5 +1,5 @@
 import type { Access, CollectionConfig, FieldHook } from 'payload'
-import { isAdmin } from './Users'
+import { isAdmin, isLoggedIn } from './Users'
 import { titleToSlug, deduplicateSlug } from '../lib/slug'
 
 const formatSlug: FieldHook = async ({ data, req }) => {
@@ -25,6 +25,8 @@ export const Events: CollectionConfig = {
   },
   access: {
     read: () => true,
+    create: isLoggedIn,
+    update: isAdminOrCreator,
     delete: isAdminOrCreator,
   },
   custom: {

@@ -11,7 +11,7 @@ export const isAdminOrSelf = ({ req: { user } }: { req: { user: any } }) => {
   return { id: { equals: user.id } }
 }
 
-const isLoggedIn = ({ req: { user } }: { req: { user: any } }): boolean => {
+export const isLoggedIn = ({ req: { user } }: { req: { user: any } }): boolean => {
   return !!user
 }
 
