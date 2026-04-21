@@ -8,8 +8,9 @@
 
 ## High priority
 
+- [ ] Understand payload rights for "redattore" role and adjust if needed
 - [x] Fix not loaded homepage background image and cvlt logo... maybe also others? Already rebuilt and reloaded but still not showing
-- [ ] I changed the "testo alternativo" for an image, but in "media" menu in payload i canno find it by searching the new alt text. Does it just search for image name?
+- [x] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
 - [ ] Setup pipeline: push to dev branch -> test on dev.cvlt.ch -> merge to main -> deploy to cvlt.ch
     - Setup dev.cvlt.ch to pull from dev branch and cvlt.ch to pull from main branch
 
@@ -20,7 +21,7 @@
 - [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
 - [~] Sezione info volo + TMA/CTR/AWY (pagina creata, da controllare contenuti)
     - [~] Controllare contenuti CTR, TMA, AWY, Zone di tranquillità
-- [ ] Add albums for activities in 2026
+- [x] Add albums for activities in 2026
 - [ ] Gallery page takes a while, maybe we can optimize what's loaded on page call and what can me loaded after (e.g. with lazy loading or pagination)
     - Optimize all pages, especially pages with more and heavier content
 - [ ] In "comitato" page make persons containers "flip" on click and behing them show more info (maybe motivation or contact info)
@@ -49,7 +50,8 @@
 
 - [x] Checkout README.md file
 - [x] Search function (similar to Gallery page) also for News
-- [x] Fuzzy search (Fuse.js) on news, gallery, biposto pages — shared utility in src/lib/search.ts
+- [x] Fuzzy search (Fuse.js + fzf-style sequential matching) on news, gallery, biposto pages — shared utility in src/lib/search.ts
+- [x] Payload admin media search: search by alt text instead of filename (useAsTitle: 'alt')
 - [x] Gallery: search bar should be big and year selector much smaller!
 - [x] Fix not loaded homepage background image and cvlt logo (standalone output missing public/ copy)
 - [x] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo

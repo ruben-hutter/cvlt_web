@@ -1,6 +1,6 @@
 # CVLT Web
 
-Website of the **Club Volo Libero Ticino** (cvlt.ch) - paragliding club of Ticino, Switzerland.
+Website of the **Club Volo Libero Ticino** (cvlt.ch)
 
 Built with [Next.js](https://nextjs.org/) and [Payload CMS](https://payloadcms.com/).
 
@@ -25,7 +25,7 @@ Built with [Next.js](https://nextjs.org/) and [Payload CMS](https://payloadcms.c
 
 ```bash
 # 1. Copy the example env file and fill in your values
-cp .env.example .env.local
+cp .env.example .env
 
 # 2. Install dependencies
 npm install

@@ -5,6 +5,9 @@ export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'Media', plural: 'Media' },
   lockDocuments: false,
+  admin: {
+    useAsTitle: 'alt',
+  },
   upload: {
     mimeTypes: ['image/*', 'video/mp4', 'video/webm', 'video/quicktime'],
   },
@@ -19,7 +22,6 @@ export const Media: CollectionConfig = {
     beforeValidate: [
       ({ data, req }) => {
         if (data && !data.alt) {
-          // Use the uploaded filename (without extension) as alt text
           const filename = data.filename || req?.file?.name || ''
           if (filename) {
             data.alt = filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
