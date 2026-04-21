@@ -8,24 +8,25 @@
 
 ## High priority
 
-- [ ] Make sure that everything is safe! No vulnerabilities, no security issues, no data loss risk, etc.
-    - Check all dependencies for vulnerabilities (npm audit)
-    - Check database security (backups, access control, etc.)
-    - Check Payload CMS security (admin access, user roles, etc.)
-- [ ] Understand payload rights for "redattore" role and adjust if needed
+- [x] Understand payload rights for "redattore" role and adjust if needed — reviewed, access controls are correct (see §3 in security audit)
+- [ ] Check news slug. Why deduplication "-2" is added? Does this happen when modifying an existing news?
 - [ ] Setup pipeline: push to dev branch -> test on dev.cvlt.ch -> merge to main -> deploy to cvlt.ch
     - Setup dev.cvlt.ch to pull from dev branch and cvlt.ch to pull from main branch
+- [ ] Gallery page takes a while, maybe we can optimize what's loaded on page call and what can me loaded after (e.g. with lazy loading or pagination)
+    - Optimize all pages, especially pages with more and heavier content
+- [ ] In "comitato" page make persons containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Update "Info volo" page.
     - Info about agreements with Locarno airport
+- [ ] **Security audit — remaining items**
+    - [ ] Next.js 15.5.15+ (SSRF/DoS/image cache fixes) — bumped to 15.4.11, still blocked by Payload peer dep for 15.5.x. Track [Payload releases](https://github.com/payloadcms/payload/releases) for 15.5.x support, then bump.
+    - [ ] Add `npm audit` to the CI/deploy pipeline so it runs on every build (no CI pipeline yet).
+    - [ ] Consider downloading backups off-server periodically
+        - As soon as ssh access is available, set up a cron job to scp the latest backup to a secure off-server location (e.g. personal cloud storage)
+    - [ ] Verify Infomaniak server-level upload limit for media
 
 ## Medium priority
 
 - [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
-- [~] Sezione info volo + TMA/CTR/AWY (pagina creata, da controllare contenuti)
-    - [~] Controllare contenuti CTR, TMA, AWY, Zone di tranquillità
-- [ ] Gallery page takes a while, maybe we can optimize what's loaded on page call and what can me loaded after (e.g. with lazy loading or pagination)
-    - Optimize all pages, especially pages with more and heavier content
-- [ ] In "comitato" page make persons containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Multiple languages (german, french, english)
     - Maybe start with just the homepage and the news section
     - Use i18n in Next.js
@@ -42,18 +43,22 @@
 - [ ] Database (format is not relevant i think) that keeps track of the quantity of shop items available
     - e.g. if a t-shirt in size x and color y is sold, the quantity in the db is updated and if it reaches 0, the selection of that item in the shop is not shown anymore
 - [ ] Embed TMA Locarno data similar to https://www.pdcs.ch/aktuell/2026/04/13/luftraum-status-bern/
-- [ ] Enforce 2FA for payload login
+- [ ] Update footer credits link from GitHub (github.com/ruben-hutter) to personal website (rubenhutter.ch) once ready
 - [ ] Nuovo logo
     - Concorso per membri
     - Aspettare 40esimo anniversario per lanciarlo
 
 ## Done
 
-- [x] Gallery: human-readable slugs for album URLs (shared slug utils + migration script)
-- [x] Info-volo webcams: 3-column grid on large screens
-- [x] Add albums for activities in 2026
-- [x] Fix not loaded homepage background image and cvlt logo... maybe also others? Already rebuilt and reloaded but still not showing
-- [x] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
+- [x] **Security audit — access controls added**: `create` and `update` access controls added to Events (`update: isAdminOrCreator`), News (`update: isAdminOrAuthor`), and Media (`update: isAdmin`) — previously any logged-in user could modify anyone's content
+- [x] **Security audit — database web-access**: `db/payload.db` returns 404, `.backups/` returns 308→404 — not publicly accessible ✓
+- [x] **Security audit — backups running**: `.backups/` contains recent `.db.YYYY_MM_DD_HHMMSS` files ✓
+- [x] **Security audit — 2FA**: all admin users have TOTP enabled ✓
+- [x] **Security audit — .env verified**: all secrets are strong and correctly configured, never committed to git, file permissions are 600 ✓
+- [x] **Security audit — previous items**: npm audit, backup rotation (prebuild keeps last 30), redattore role, password policy, XSS protection (escapeHtml in all email templates), rate limiting (5 req/min contact/membership, 10 req/min shop), security headers (CSP, X-Frame-Options, etc. in middleware), media mime types (+video/x-m4v), GraphQL disabled — all completed ✓
+- [x] **Security audit — PhotoAlbums access control**: create/update/delete restricted to admin only
+- [x] Bump Next.js 15.3.9 → 15.4.11
+- [x] Footer credits link to GitHub
 - [x] Checkout README.md file
 - [x] Search function (similar to Gallery page) also for News
 - [x] Fuzzy search (Fuse.js + fzf-style sequential matching) on news, gallery, biposto pages — shared utility in src/lib/search.ts
@@ -70,7 +75,7 @@
 - [x] Checkout all the variables that should be set in .env and what the fallback value would be
 - [x] Test shop working now? (mail, payment, failed payment no success email)
 - [x] Webcams
-- [x] Pagina vento — pressione (MAG–KLO) e previsione föhn Lugano–Zürich: dati MOSMIX; finestra previsione 7 giorni (allineata agli ultimi 7 giorni misurati); linee verticali tratteggiate per cambio giorno su entrambi i grafici; griglia orizzontale neutra di riferimento (stesso stile); rimossa linea «ora» sul grafico föhn (l’asse sinistro coincide già con il presente)
+- [x] Pagina vento — pressione (MAG–KLO) e previsione föhn Lugano–Zürich: dati MOSMIX; finestra previsione 7 giorni (allineata agli ultimi 7 giorni misurati); linee verticali tratteggiate per cambio giorno su entrambi i grafici; griglia orizzontale neutra di riferimento (stesso stile); rimossa linea «ora» sul grafico föhn (l'asse sinistro coincide già con il presente)
 - [x] Pin important news (in primo piano): selector in Payload + pinned ordering in listing/home
 - [x] Small counter in image viewer showing current image number and total (e.g. "3/15")
 - [x] Gare page on mobile: entries clickable (not just the title)
@@ -83,7 +88,7 @@
 - [x] Global cursor:pointer for buttons, calendar backup date clicking, shop checkout UX
 - [x] Check password reset
 - [x] Dropdown / submenu per sezioni Vento, Gare, Info volo con anchor links
-- [x] Live pressure chart (MAG-KLO) + föhn forecast (DWD MOSMIX Lugano-Zürich)
+- [x] Live pressure chart (MAG-KLO) + föhn forecast (DWD MOSMIX Lugano–Zürich)
 - [x] TMA Locarno image on homepage sidebar and info volo page
 - [x] Verify vento data matches the old vento.cvlt.ch page
 - [x] Slug-based URLs for events + Payload migration
