@@ -1,4 +1,25 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, FieldHook } from 'payload'
+import { titleToSlug, deduplicateSlug } from '../lib/slug'
+
+const formatSlug: FieldHook = async ({ data, originalDoc, operation, req }) => {
+  if (!data?.title) return undefined
+
+  if (
+    operation === 'update' &&
+    originalDoc?.slug &&
+    originalDoc?.title === data.title &&
+    originalDoc?.date === data.date
+  ) {
+    return originalDoc.slug
+  }
+
+  const baseSlug = data.date
+    ? `${titleToSlug(data.title)}-${new Date(data.date).getFullYear()}`
+    : titleToSlug(data.title)
+
+  if (!req.payload) return baseSlug
+  return deduplicateSlug(req.payload, 'photo-albums', baseSlug, data.id)
+}
 
 export const PhotoAlbums: CollectionConfig = {
   slug: 'photo-albums',
@@ -60,6 +81,17 @@ export const PhotoAlbums: CollectionConfig = {
       type: 'text',
       label: 'Titolo',
       required: true,
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      hooks: {
+        beforeValidate: [formatSlug],
+      },
+      admin: {
+        hidden: true,
+      },
     },
     {
       name: 'date',

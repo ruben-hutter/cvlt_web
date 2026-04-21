@@ -7,6 +7,7 @@ import { SearchYearFilter } from '../components/SearchYearFilter'
 
 type Album = {
   id: string | number
+  slug: string
   title: string
   date: string
   coverUrl: string | null
@@ -65,7 +66,7 @@ export function GalleryFilter({ albums }: { albums: Album[] }) {
                   {yearAlbums.map((album) => (
                     <Link
                       key={album.id}
-                      href={`/galleria/${album.id}`}
+                      href={`/galleria/${album.slug}`}
                       className="group overflow-hidden rounded-lg border border-cvlt-gray-200 transition-all hover:border-cvlt-blue/30 hover:shadow-lg"
                     >
                       {album.coverUrl ? (

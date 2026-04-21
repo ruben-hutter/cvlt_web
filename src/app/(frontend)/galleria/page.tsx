@@ -11,6 +11,7 @@ export const metadata = {
 export default async function GalleryPage() {
   let albums: Array<{
     id: number | string
+    slug: string
     title: string
     date: string
     coverUrl: string | null
@@ -34,6 +35,7 @@ export default async function GalleryPage() {
       const coverMimeType = typeof cover === 'object' && cover?.mimeType ? cover.mimeType : ''
       return {
         id: album.id,
+        slug: album.slug || String(album.id),
         title: album.title,
         date: album.date,
         coverUrl,

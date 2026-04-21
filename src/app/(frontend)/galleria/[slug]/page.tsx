@@ -7,14 +7,25 @@ import config from '@payload-config'
 import { PhotoGrid } from '../PhotoGrid'
 import type { Metadata } from 'next'
 
-type Args = { params: Promise<{ id: string }> }
+type Args = { params: Promise<{ slug: string }> }
+
+async function findAlbumBySlug(payload: any, slug: string) {
+  const result = await payload.find({
+    collection: 'photo-albums',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 1,
+  })
+  return result.docs[0] || null
+}
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { id } = await params
+  const { slug } = await params
   const payload = await getPayload({ config })
 
   try {
-    const album = await payload.findByID({ collection: 'photo-albums', id, depth: 0 })
+    const album = await findAlbumBySlug(payload, slug)
+    if (!album) return { title: 'Album non trovato - CVLT' }
     return { title: `${album.title} - Galleria - CVLT` }
   } catch {
     return { title: 'Album non trovato - CVLT' }
@@ -22,12 +33,13 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 }
 
 export default async function AlbumPage({ params }: Args) {
-  const { id } = await params
+  const { slug } = await params
   const payload = await getPayload({ config })
 
   let album
   try {
-    album = await payload.findByID({ collection: 'photo-albums', id, depth: 1 })
+    album = await findAlbumBySlug(payload, slug)
+    if (!album) notFound()
   } catch {
     notFound()
   }

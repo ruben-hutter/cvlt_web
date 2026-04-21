@@ -282,7 +282,7 @@ export default async function HomePage() {
                 return (
                   <Link
                     key={album.id}
-                    href={`/galleria/${album.id}`}
+                    href={`/galleria/${album.slug || album.id}`}
                     className="group overflow-hidden rounded-lg border border-cvlt-gray-200 transition-all hover:border-cvlt-blue/30 hover:shadow-lg"
                   >
                     {coverUrl ? (
