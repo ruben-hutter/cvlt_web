@@ -1,5 +1,15 @@
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
 import { getPayload } from 'payload'
 import { titleToSlug, deduplicateSlug } from '../src/lib/slug'
+
+const envPath = resolve(import.meta.dirname, '..', '.env')
+for (const line of readFileSync(envPath, 'utf-8').split('\n')) {
+  const match = line.match(/^\s*([A-Z_][A-Z0-9_]*)=(.*)$/)
+  if (match && !process.env[match[1]]) {
+    process.env[match[1]] = match[2].trim()
+  }
+}
 
 async function main() {
   const dryRun = process.argv.includes('--dry-run')
