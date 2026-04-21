@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { fuzzySearch } from '@/lib/search'
 import { uiFieldClass } from '@/lib/ui'
 
 type Pilot = {
@@ -90,9 +91,9 @@ function formatPhone(phone: string) {
 export function BipostoContent() {
   const [search, setSearch] = useState('')
 
-  const filtered = pilots.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()),
-  )
+  const filtered = search
+    ? fuzzySearch(pilots, search, ['name'])
+    : pilots
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">

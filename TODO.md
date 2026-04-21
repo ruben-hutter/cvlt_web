@@ -9,42 +9,47 @@
 ## High priority
 
 - [x] Fix not loaded homepage background image and cvlt logo... maybe also others? Already rebuilt and reloaded but still not showing
-- [ ] Search in payload is probably case sensitive. Check and if so, make it case insensitive.
-- [ ] Embed TMA Locarno data similar to https://www.pdcs.ch/aktuell/2026/04/13/luftraum-status-bern/
-- [ ] Checkout README.md file
+- [ ] I changed the "testo alternativo" for an image, but in "media" menu in payload i canno find it by searching the new alt text. Does it just search for image name?
+- [ ] Setup pipeline: push to dev branch -> test on dev.cvlt.ch -> merge to main -> deploy to cvlt.ch
+    - Setup dev.cvlt.ch to pull from dev branch and cvlt.ch to pull from main branch
 
 ## Medium priority
 
-- [ ] Add a fzf-like search over the complete website. Eventually change the normal search bars to fzf-like search as well (e.g. gallery, news)
+- [ ] Add a fzf-like search over the complete website (server-side endpoint, search across news content + events + gallery)
+- [ ] Extend the news search also to the content of the news.
 - [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
 - [~] Sezione info volo + TMA/CTR/AWY (pagina creata, da controllare contenuti)
     - [~] Controllare contenuti CTR, TMA, AWY, Zone di tranquillità
 - [ ] Add albums for activities in 2026
 - [ ] Gallery page takes a while, maybe we can optimize what's loaded on page call and what can me loaded after (e.g. with lazy loading or pagination)
+    - Optimize all pages, especially pages with more and heavier content
 - [ ] In "comitato" page make persons containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Multiple languages (german, french, english)
     - Maybe start with just the homepage and the news section
     - Use i18n in Next.js
     - Add language switcher in header
     - Translate just static content at first, then maybe also news and events
-- [ ] Aggiungere pin cartina per luogo eventi
+- [ ] Aggiungere pin cartina per luogo eventi (swisstopo API)
 - [ ] Auto-post news to Instagram/Facebook
     - Instagram API requires paid tools (Zapier/Make.com); IFTTT free covers Facebook only
     - Revisit when better free options exist
 
 ## Low priority
 
+- [ ] Extend the news search also to the content of the news (requires parsing Lexical blocks JSON into plain text).
+- [ ] Database (format is not relevant i think) that keeps track of the quantity of shop items available
+    - e.g. if a t-shirt in size x and color y is sold, the quantity in the db is updated and if it reaches 0, the selection of that item in the shop is not shown anymore
+- [ ] Embed TMA Locarno data similar to https://www.pdcs.ch/aktuell/2026/04/13/luftraum-status-bern/
 - [ ] Enforce 2FA for payload login
 - [ ] Nuovo logo
     - Concorso per membri
     - Aspettare 40esimo anniversario per lanciarlo
-- [ ] Add possibility for users to add pictures to the gallery (with admin approval)
-    - Limit uploaded images
-    - DDOS protection
 
 ## Done
 
+- [x] Checkout README.md file
 - [x] Search function (similar to Gallery page) also for News
+- [x] Fuzzy search (Fuse.js) on news, gallery, biposto pages — shared utility in src/lib/search.ts
 - [x] Gallery: search bar should be big and year selector much smaller!
 - [x] Fix not loaded homepage background image and cvlt logo (standalone output missing public/ copy)
 - [x] Aggiungere informazioni Gana (verificare se ci sono altri simili) alla sezione info volo

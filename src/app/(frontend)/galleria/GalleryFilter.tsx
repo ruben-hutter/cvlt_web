@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { fuzzySearch } from '@/lib/search'
 import { SearchYearFilter } from '../components/SearchYearFilter'
 
 type Album = {
@@ -20,11 +21,13 @@ export function GalleryFilter({ albums }: { albums: Album[] }) {
   // Collect all years
   const years = [...new Set(albums.map((a) => new Date(a.date).getFullYear()))].sort((a, b) => b - a)
 
-  // Filter albums
-  const filtered = albums.filter((a) => {
+  const matched = search
+    ? fuzzySearch(albums, search, ['title'])
+    : albums
+
+  const filtered = matched.filter((a) => {
     const year = new Date(a.date).getFullYear()
     if (selectedYear && year !== selectedYear) return false
-    if (search && !a.title.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
 

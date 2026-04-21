@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { fuzzySearch } from '@/lib/search'
 import { FeaturedNewsBadge } from '../components/FeaturedNewsBadge'
 import { SearchYearFilter } from '../components/SearchYearFilter'
 
@@ -23,10 +24,13 @@ export function NewsFilter({ articles }: { articles: Article[] }) {
     (a, b) => b - a,
   )
 
-  const filtered = articles.filter((a) => {
+  const matched = search
+    ? fuzzySearch(articles, search, ['title'])
+    : articles
+
+  const filtered = matched.filter((a) => {
     const year = new Date(a.publishDate).getFullYear()
     if (selectedYear && year !== selectedYear) return false
-    if (search && !a.title.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
 
