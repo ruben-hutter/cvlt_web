@@ -556,7 +556,7 @@ export function InfoVoloContent() {
         <h2 className="text-xl font-bold text-cvlt-gray-900">Webcams</h2>
 
         <h3 className="mt-8 text-lg font-semibold text-cvlt-gray-900">In montagna</h3>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {WEBCAMS_IN_MONTAGNA.map((w) =>
             w.iframeSrc ? (
               <WebcamIframeFigure key={`${w.title}-iframe`} {...w} />
@@ -567,7 +567,7 @@ export function InfoVoloContent() {
         </div>
 
         <h3 className="mt-10 text-lg font-semibold text-cvlt-gray-900">Altre inquadrature</h3>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {WEBCAMS_SECONDARIE.map((w) =>
             w.iframeSrc ? (
               <WebcamIframeFigure key={`${w.title}-iframe`} {...w} />
