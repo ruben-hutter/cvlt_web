@@ -17,11 +17,15 @@
 - [ ] In "comitato" page make persons containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Update "Info volo" page.
     - Info about agreements with Locarno airport
+- [ ] **Backup plan** — Infomaniak cannot be trusted as sole backup
+    - [ ] Create `scripts/backup.sh` — tar media + copy DB + copy .env to `.backups/` with rotation (keep last 10 media, 30 DB)
+    - [ ] Add `npm run backup` script to package.json
+    - [ ] Run backup before every build (add to prebuild or deploy-timed)
+    - [ ] Back up `.env` to password manager immediately (only copy of all secrets)
+    - [ ] Off-server backup: cron job to rsync `.backups/` + `media/` to local/cloud (once SSH keys available)
 - [ ] **Security audit — remaining items**
     - [ ] Next.js 15.5.15+ (SSRF/DoS/image cache fixes) — bumped to 15.4.11, still blocked by Payload peer dep for 15.5.x. Track [Payload releases](https://github.com/payloadcms/payload/releases) for 15.5.x support, then bump.
     - [ ] Add `npm audit` to the CI/deploy pipeline so it runs on every build (no CI pipeline yet).
-    - [ ] Consider downloading backups off-server periodically
-        - As soon as ssh access is available, set up a cron job to scp the latest backup to a secure off-server location (e.g. personal cloud storage)
     - [ ] Verify Infomaniak server-level upload limit for media
 
 ## Medium priority
