@@ -3,6 +3,10 @@ import { RichText } from '@payloadcms/richtext-lexical/react'
 type MediaValue = {
   url: string
   alt?: string
+  sizes?: {
+    medium?: { url: string }
+    thumbnail?: { url: string }
+  }
 }
 
 type RichTextBlock = {
@@ -53,9 +57,10 @@ const gridClasses = {
 }
 
 function ImageFigure({ image, caption, className }: { image: MediaValue; caption?: string; className?: string }) {
+  const src = image.sizes?.medium?.url || image.url
   return (
     <figure className={className}>
-      <img src={image.url} alt={image.alt || ''} className="h-auto w-full rounded" />
+      <img src={src} alt={image.alt || ''} className="h-auto w-full rounded" loading="lazy" />
       {caption && (
         <figcaption className="mt-2 text-center text-sm text-gray-500">{caption}</figcaption>
       )}

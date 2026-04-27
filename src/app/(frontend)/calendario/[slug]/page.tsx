@@ -62,12 +62,12 @@ export default async function EventPage({ params }: Args) {
 
   function getThumbnailUrl(article: any): string | null {
     if (article.thumbnail && typeof article.thumbnail === 'object') {
-      return article.thumbnail.url
+      return article.thumbnail.sizes?.thumbnail?.url || article.thumbnail.url
     }
     for (const block of article.layout || []) {
-      if (block.blockType === 'image' && block.image?.url) return block.image.url
-      if (block.blockType === 'textImage' && block.image?.url) return block.image.url
-      if (block.blockType === 'gallery' && block.images?.[0]?.image?.url) return block.images[0].image.url
+      if (block.blockType === 'image' && block.image?.url) return block.image.sizes?.thumbnail?.url || block.image.url
+      if (block.blockType === 'textImage' && block.image?.url) return block.image.sizes?.thumbnail?.url || block.image.url
+      if (block.blockType === 'gallery' && block.images?.[0]?.image?.url) return block.images[0].image.sizes?.thumbnail?.url || block.images[0].image.url
     }
     return null
   }
@@ -158,7 +158,7 @@ export default async function EventPage({ params }: Args) {
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     {albumResult.docs.map((album) => {
                       const cover = album.photos?.[0]
-                      const coverUrl = typeof cover === 'object' && cover?.url ? cover.url : null
+                      const coverUrl = typeof cover === 'object' && cover?.url ? (cover.sizes?.thumbnail?.url || cover.url) : null
                       return (
                         <Link
                           key={album.id}

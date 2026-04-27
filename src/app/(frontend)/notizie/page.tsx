@@ -11,12 +11,12 @@ export const metadata = {
 
 function getThumbnailUrl(article: any): string | null {
   if (article.thumbnail && typeof article.thumbnail === 'object') {
-    return article.thumbnail.url
+    return article.thumbnail.sizes?.thumbnail?.url || article.thumbnail.url
   }
   for (const block of article.layout || []) {
-    if (block.blockType === 'image' && block.image?.url) return block.image.url
-    if (block.blockType === 'textImage' && block.image?.url) return block.image.url
-    if (block.blockType === 'gallery' && block.images?.[0]?.image?.url) return block.images[0].image.url
+    if (block.blockType === 'image' && block.image?.url) return block.image.sizes?.thumbnail?.url || block.image.url
+    if (block.blockType === 'textImage' && block.image?.url) return block.image.sizes?.thumbnail?.url || block.image.url
+    if (block.blockType === 'gallery' && block.images?.[0]?.image?.url) return block.images[0].image.sizes?.thumbnail?.url || block.images[0].image.url
   }
   return null
 }
