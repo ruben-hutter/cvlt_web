@@ -1,5 +1,5 @@
-import type { Access, Block, CollectionConfig, FieldHook } from 'payload'
-import { isAdmin, isLoggedIn } from './Users'
+import type { Block, CollectionConfig, FieldHook } from 'payload'
+import { isLoggedIn } from './Users'
 import { titleToSlug, deduplicateSlug } from '../lib/slug'
 
 const formatSlug: FieldHook = async ({ data, originalDoc, operation, req }) => {
@@ -14,11 +14,7 @@ const formatSlug: FieldHook = async ({ data, originalDoc, operation, req }) => {
   return deduplicateSlug(req.payload, 'news', baseSlug, data.id)
 }
 
-const isAdminOrAuthor: Access = ({ req: { user } }) => {
-  if (!user) return false
-  if (user.role === 'admin') return true
-  return { author: { equals: user.id } }
-}
+
 
 // --- Layout Blocks ---
 
@@ -179,8 +175,8 @@ export const News: CollectionConfig = {
   access: {
     read: () => true,
     create: isLoggedIn,
-    update: isAdminOrAuthor,
-    delete: isAdminOrAuthor,
+    update: isLoggedIn,
+    delete: isLoggedIn,
   },
   custom: {
     totp: { disableAccessWrapper: { read: true } },

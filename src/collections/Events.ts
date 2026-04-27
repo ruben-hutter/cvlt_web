@@ -1,5 +1,5 @@
-import type { Access, CollectionConfig, FieldHook } from 'payload'
-import { isAdmin, isLoggedIn } from './Users'
+import type { CollectionConfig, FieldHook } from 'payload'
+import { isLoggedIn } from './Users'
 import { titleToSlug, deduplicateSlug } from '../lib/slug'
 
 const formatSlug: FieldHook = async ({ data, req }) => {
@@ -9,11 +9,7 @@ const formatSlug: FieldHook = async ({ data, req }) => {
   return deduplicateSlug(req.payload, 'events', baseSlug, data.id)
 }
 
-const isAdminOrCreator: Access = ({ req: { user } }) => {
-  if (!user) return false
-  if (user.role === 'admin') return true
-  return { createdBy: { equals: user.id } }
-}
+
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -26,8 +22,8 @@ export const Events: CollectionConfig = {
   access: {
     read: () => true,
     create: isLoggedIn,
-    update: isAdminOrCreator,
-    delete: isAdminOrCreator,
+    update: isLoggedIn,
+    delete: isLoggedIn,
   },
   custom: {
     totp: { disableAccessWrapper: { read: true } },

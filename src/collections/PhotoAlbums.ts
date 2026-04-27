@@ -1,5 +1,5 @@
 import type { CollectionConfig, FieldHook } from 'payload'
-import { isAdmin } from './Users'
+import { isLoggedIn } from './Users'
 import { titleToSlug, deduplicateSlug } from '../lib/slug'
 
 const formatSlug: FieldHook = async ({ data, originalDoc, operation, req }) => {
@@ -32,9 +32,9 @@ export const PhotoAlbums: CollectionConfig = {
   },
   access: {
     read: () => true,
-    create: isAdmin,
-    update: isAdmin,
-    delete: isAdmin,
+    create: isLoggedIn,
+    update: isLoggedIn,
+    delete: isLoggedIn,
   },
   custom: {
     totp: { disableAccessWrapper: { read: true } },
