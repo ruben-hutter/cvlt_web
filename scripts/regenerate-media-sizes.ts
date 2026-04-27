@@ -1,10 +1,15 @@
 import { getPayload } from 'payload'
-import { resolve } from 'path'
+import { resolve, parse, format } from 'path'
+import { accessSync } from 'fs'
 
 type CliOptions = { dryRun: boolean }
 
 function parseArgs(argv: string[]): CliOptions {
   return { dryRun: argv.includes('--dry-run') }
+}
+
+function fileExists(p: string): boolean {
+  try { accessSync(p); return true } catch { return false }
 }
 
 async function main() {
@@ -53,7 +58,20 @@ async function main() {
       }
 
       try {
-        const filePath = resolve(process.cwd(), 'media', filename)
+        let filePath = resolve(process.cwd(), 'media', filename)
+
+        if (!fileExists(filePath)) {
+          const { name, ext, ...rest } = parse(filePath)
+          const renamed = resolve(format({ ...rest, name: `${name}-1`, ext }))
+          if (fileExists(renamed)) {
+            console.warn(`[REGEN] ${doc.id}: using renamed file ${name}-1${ext}`)
+            filePath = renamed
+          } else {
+            console.warn(`[REGEN] Skipping media ${doc.id} — file not found: ${filename}`)
+            failed++
+            continue
+          }
+        }
 
         await payload.update({
           collection: 'media',
