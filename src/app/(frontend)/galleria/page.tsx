@@ -25,14 +25,31 @@ export default async function GalleryPage() {
     const result = await payload.find({
       collection: 'photo-albums',
       sort: '-date',
-      limit: 100,
-      depth: 1,
+      limit: 0,
+      depth: 0,
     })
 
+    const coverIds = result.docs
+      .map((a) => a.photos?.[0])
+      .filter((id): id is number => typeof id === 'number')
+
+    const covers =
+      coverIds.length > 0
+        ? await payload.find({
+            collection: 'media',
+            where: { id: { in: coverIds } },
+            depth: 0,
+            limit: 0,
+          })
+        : { docs: [] as any[] }
+
+    const coverMap = new Map(covers.docs.map((c: any) => [String(c.id), c]))
+
     albums = result.docs.map((album) => {
-      const cover = album.photos?.[0]
-      const coverUrl = typeof cover === 'object' && cover?.url ? cover.url : null
-      const coverMimeType = typeof cover === 'object' && cover?.mimeType ? cover.mimeType : ''
+      const firstPhotoId = album.photos?.[0]
+      const cover = firstPhotoId ? coverMap.get(String(firstPhotoId)) : null
+      const coverUrl = cover?.sizes?.thumbnail?.url || cover?.url || null
+      const coverMimeType = cover?.mimeType || ''
       return {
         id: album.id,
         slug: album.slug || String(album.id),

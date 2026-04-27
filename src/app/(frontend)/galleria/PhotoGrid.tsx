@@ -10,6 +10,7 @@ import 'yet-another-react-lightbox/styles.css'
 
 type MediaItem = {
   url: string
+  thumbnailUrl: string
   alt: string
   width: number
   height: number
@@ -78,7 +79,7 @@ export function PhotoGrid({ photos }: { photos: MediaItem[] }) {
             {isVideo(item.mimeType) ? (
               <>
                 <video
-                  src={item.url}
+                  src={item.thumbnailUrl}
                   muted
                   preload="metadata"
                   className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
@@ -87,7 +88,7 @@ export function PhotoGrid({ photos }: { photos: MediaItem[] }) {
               </>
             ) : (
               <img
-                src={item.url}
+                src={item.thumbnailUrl}
                 alt={item.alt}
                 className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
                 loading="lazy"

@@ -10,6 +10,11 @@ export const Media: CollectionConfig = {
   },
   upload: {
     mimeTypes: ['image/*', 'video/mp4', 'video/x-m4v', 'video/webm', 'video/quicktime'],
+    imageSizes: [
+      { name: 'thumbnail', width: 400 },
+      { name: 'medium', width: 1024 },
+    ],
+    adminThumbnail: 'thumbnail',
   },
   access: {
     read: () => true,

@@ -49,13 +49,14 @@ export default async function AlbumPage({ params }: Args) {
       if (!p || typeof p !== 'object' || !p.url) return null
       return {
         url: p.url as string,
+        thumbnailUrl: (p.sizes?.medium?.url as string) || (p.url as string),
         alt: (p.alt as string) || album.title,
         width: (p.width as number) || 1200,
         height: (p.height as number) || 800,
         mimeType: (p.mimeType as string) || '',
       }
     })
-    .filter(Boolean) as { url: string; alt: string; width: number; height: number; mimeType: string }[]
+    .filter(Boolean) as { url: string; thumbnailUrl: string; alt: string; width: number; height: number; mimeType: string }[]
 
   const relatedEvent = album.relatedEvent && typeof album.relatedEvent === 'object'
     ? album.relatedEvent
