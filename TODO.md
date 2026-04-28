@@ -2,13 +2,14 @@
 
 ## Migration dev.cvlt.ch -> cvlt.ch
 
-- [ ] Update RaiseNow Hub Shop Twint link: success and failure URLs to cvlt.ch/...
-- [ ] Move cvlt.ch to old.cvlt.ch so that we can still access the old site for reference
-- [ ] Add password eventually for mail login on cvlt.ch
+- [x] Update RaiseNow Hub Shop Twint link: success and failure URLs to cvlt.ch/...
+- [x] Move cvlt.ch to old.cvlt.ch so that we can still access the old site for reference
+- [x] Add password eventually for mail login on cvlt.ch
 
 ## High priority
 
 - [x] Understand payload rights for "redattore" role and adjust if needed — reviewed, access controls are correct (see §3 in security audit)
+- [ ] Selecting images for news: show images and not just filenames
 - [ ] Check news slug. Why deduplication "-2" is added? Does this happen when modifying an existing news?
 - [ ] Setup pipeline: push to dev branch -> test on dev.cvlt.ch -> merge to main -> deploy to cvlt.ch
     - Setup dev.cvlt.ch to pull from dev branch and cvlt.ch to pull from main branch

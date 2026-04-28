@@ -20,9 +20,9 @@ export function ArticleLightbox({
     (e: React.MouseEvent) => {
       const target = e.target as HTMLElement
       if (target.tagName === 'IMG') {
-        const src = target.getAttribute('src')
-        if (src) {
-          const i = images.indexOf(src)
+        const originalSrc = target.getAttribute('data-original-src') || target.getAttribute('src')
+        if (originalSrc) {
+          const i = images.indexOf(originalSrc)
           if (i >= 0) {
             setIndex(i)
           }
