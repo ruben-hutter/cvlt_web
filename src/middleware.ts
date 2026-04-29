@@ -15,6 +15,20 @@ const csp = [
   "object-src 'none'",
 ].join('; ')
 
+const cspPreview = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https://assets.raisenow.io",
+  "connect-src 'self' https://api3.geo.admin.ch",
+  "frame-src https:",
+  "frame-ancestors 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
+].join('; ')
+
 const securityHeaders: Record<string, string> = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
@@ -23,14 +37,57 @@ const securityHeaders: Record<string, string> = {
   'Content-Security-Policy': csp,
 }
 
+const previewPaths = ['/notizie/preview/']
+const skipPaths = ['/admin', '/api/', '/_next/', '/feed']
+
+const knownRootPaths = new Set([
+  '', 'notizie', 'calendario', 'galleria', 'vento', 'gare',
+  'info-volo', 'comitato', 'statuto', 'adesione', 'quota-sociale',
+  'biposto', 'shop', 'contatto',
+])
+
+function shouldSkip(pathname: string) {
+  return skipPaths.some(p => pathname.startsWith(p))
+}
+
+function isPreviewPath(pathname: string) {
+  return previewPaths.some(p => pathname.startsWith(p))
+}
+
+function isOldWordPressPost(pathname: string) {
+  const segments = pathname.split('/').filter(Boolean)
+  if (segments.length !== 1) return false
+  if (pathname.includes('.')) return false
+  const slug = segments[0]
+  if (knownRootPaths.has(slug)) return false
+  return true
+}
+
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+
+  if (shouldSkip(pathname)) {
+    return NextResponse.next()
+  }
+
+  if (isOldWordPressPost(pathname)) {
+    return NextResponse.redirect(new URL('/notizie', request.url), 301)
+  }
+
   const response = NextResponse.next()
 
   response.headers.append('x-pathname', pathname)
+  const isPreview = isPreviewPath(pathname)
 
   for (const [key, value] of Object.entries(securityHeaders)) {
+    if (isPreview && (key === 'X-Frame-Options' || key === 'Content-Security-Policy')) {
+      continue
+    }
     response.headers.set(key, value)
+  }
+
+  if (isPreview) {
+    response.headers.set('Content-Security-Policy', cspPreview)
   }
 
   return response

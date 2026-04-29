@@ -11,7 +11,7 @@ const formatSlug: FieldHook = async ({ data, originalDoc, operation, req }) => {
 
   const baseSlug = titleToSlug(data.title)
   if (!req.payload) return baseSlug
-  return deduplicateSlug(req.payload, 'news', baseSlug, data.id)
+  return deduplicateSlug(req.payload, 'news', baseSlug, data.id ?? originalDoc?.id)
 }
 
 

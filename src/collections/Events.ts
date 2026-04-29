@@ -2,11 +2,11 @@ import type { CollectionConfig, FieldHook } from 'payload'
 import { isLoggedIn } from './Users'
 import { titleToSlug, deduplicateSlug } from '../lib/slug'
 
-const formatSlug: FieldHook = async ({ data, req }) => {
+const formatSlug: FieldHook = async ({ data, originalDoc, req }) => {
   if (!data?.title) return undefined
   const baseSlug = titleToSlug(data.title)
   if (!req.payload) return baseSlug
-  return deduplicateSlug(req.payload, 'events', baseSlug, data.id)
+  return deduplicateSlug(req.payload, 'events', baseSlug, data.id ?? originalDoc?.id)
 }
 
 

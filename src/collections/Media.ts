@@ -7,6 +7,7 @@ export const Media: CollectionConfig = {
   lockDocuments: false,
   admin: {
     useAsTitle: 'alt',
+    defaultColumns: ['filename', 'alt', 'updatedAt'],
   },
   upload: {
     mimeTypes: ['image/*', 'video/mp4', 'video/x-m4v', 'video/webm', 'video/quicktime'],

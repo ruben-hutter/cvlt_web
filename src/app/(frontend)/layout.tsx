@@ -15,8 +15,15 @@ const ubuntu = Ubuntu({
 validateEnvOrThrow()
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'https://cvlt.ch'),
   title: 'CVLT - Club Volo Libero Ticino',
   description: 'Club di parapendio del canton Ticino',
+  openGraph: {
+    title: 'CVLT - Club Volo Libero Ticino',
+    description: 'Club di parapendio del canton Ticino',
+    locale: 'it_CH',
+    type: 'website',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

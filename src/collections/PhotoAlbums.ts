@@ -19,7 +19,7 @@ const formatSlug: FieldHook = async ({ data, originalDoc, operation, req }) => {
     : titleToSlug(data.title)
 
   if (!req.payload) return baseSlug
-  return deduplicateSlug(req.payload, 'photo-albums', baseSlug, data.id)
+  return deduplicateSlug(req.payload, 'photo-albums', baseSlug, data.id ?? originalDoc?.id)
 }
 
 export const PhotoAlbums: CollectionConfig = {
