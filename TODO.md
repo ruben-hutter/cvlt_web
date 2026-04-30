@@ -2,18 +2,15 @@
 
 ## High priority
 
-- [ ] SEO: handle URL changes after migration from old WordPress site (see club member's message: "Ciao ricordati di aggiornare la seo, i motori di ricerca altrimenti ti danno errore 404")
+- [ ] Think about what features i am missing the CMS compared to what i had on WordPress
+    - no need to clutter, but have the essentials -> minimal but powerful
 - [ ] Setup pipeline: push to dev branch -> test on dev.cvlt.ch -> merge to main -> deploy to cvlt.ch
     - Setup dev.cvlt.ch to pull from dev branch and cvlt.ch to pull from main branch
     - How can i do that since i can just run one node.js application with my hosting plan?
-- [ ] Gallery page takes a while, maybe we can optimize what's loaded on page call and what can me loaded after (e.g. with lazy loading or pagination)
-    - Optimize all pages, especially pages with more and heavier content
 - [ ] In "comitato" page make person's containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Update "Info volo" page.
     - Info about agreements with Locarno airport
-- [ ] Website analytics: is it possible to integrate a into payload (next.js) some analytical features to track visits, popular pages, etc. without using Google Analytics? (privacy-friendly) and since i can just run a single application with my hosting plan. should i use a separate service for analytics that runs in a different application on a php server? (with my plan i can just run one node.js application but multiple php applications...)
-- [ ] Think about what features i am missing the CMS compared to what i had on WordPress
-    - no need to clutter, but have the essentials -> minimal but powerful
+- [ ] Subscribed calendar does not show the reserve date of events that have one. Maybe export the reserve date as well adding like "- riserva" to the title or something like that?
 
 ## Medium priority
 
@@ -41,6 +38,9 @@
 
 ## Done
 
+- [x] SEO: 301 redirects for all old WordPress pages, sitemap.xml, robots.txt, canonical URLs, Google Search Console setup
+- [x] Website analytics: GoatCounter (privacy-friendly, no cookies, free for non-commercial)
+- [x] Gallery page optimization: image sizes, lazy loading, thumbnail/medium sizes
 - [x] Migration dev.cvlt.ch -> cvlt.ch: Update RaiseNow Hub Shop Twint link (success/failure URLs)
 - [x] Migration dev.cvlt.ch -> cvlt.ch: Move cvlt.ch to old.cvlt.ch for reference
 - [x] Migration dev.cvlt.ch -> cvlt.ch: Add password for mail login on cvlt.ch
