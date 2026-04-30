@@ -42,23 +42,25 @@ export async function GET() {
     depth: 0,
   })
 
-  const events = docs.map((event) => {
+  const statusMap: Record<string, string> = {
+    confirmed: 'CONFIRMED',
+    tentative: 'TENTATIVE',
+    cancelled: 'CANCELLED',
+  }
+
+  const now = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+
+  const events = docs.flatMap((event) => {
     const useBackup = event.useBackupDate && event.backupStartDate
     const start = useBackup ? event.backupStartDate! : event.startDate
     const end = useBackup
       ? (event.backupEndDate || event.backupStartDate!)
       : (event.endDate || event.startDate)
 
-    const statusMap: Record<string, string> = {
-      confirmed: 'CONFIRMED',
-      tentative: 'TENTATIVE',
-      cancelled: 'CANCELLED',
-    }
-
     const lines = [
       'BEGIN:VEVENT',
       `UID:event-${event.id}@cvlt.ch`,
-      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
+      `DTSTAMP:${now}`,
       `DTSTART;VALUE=DATE:${formatDate(start as string)}`,
       `DTEND;VALUE=DATE:${nextDay(end as string)}`,
       foldLine(`SUMMARY:${escapeIcs(event.title)}`),
@@ -71,6 +73,25 @@ export async function GET() {
     }
 
     lines.push('END:VEVENT')
+
+    if (event.backupStartDate && !useBackup) {
+      const backupEnd = event.backupEndDate || event.backupStartDate
+      lines.push(
+        'BEGIN:VEVENT',
+        `UID:event-${event.id}-riserva@cvlt.ch`,
+        `DTSTAMP:${now}`,
+        `DTSTART;VALUE=DATE:${formatDate(event.backupStartDate as string)}`,
+        `DTEND;VALUE=DATE:${nextDay(backupEnd as string)}`,
+        foldLine(`SUMMARY:${escapeIcs(event.title)} - riserva`),
+        `STATUS:TENTATIVE`,
+        `URL:${baseUrl}/calendario/${event.slug}`,
+      )
+      if (event.location) {
+        lines.push(foldLine(`LOCATION:${escapeIcs(event.location as string)}`))
+      }
+      lines.push('END:VEVENT')
+    }
+
     return lines.join('\r\n')
   })
 

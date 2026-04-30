@@ -724,6 +724,79 @@ function Legend() {
   )
 }
 
+function MobileLegend() {
+  const [open, setOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState('')
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const navHeight = 80
+      let current = ''
+      for (const id of VENTO_SECTION_IDS) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top <= navHeight + 10) {
+          current = id
+        }
+      }
+      setActiveSection(current)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
+  const showPressure = VENTO_PRESSURE_SECTION_IDS.some((id) => id === activeSection)
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed bottom-4 right-4 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-cvlt-gray-200 bg-white text-cvlt-gray-600 shadow-lg transition-colors hover:bg-cvlt-gray-50 active:bg-cvlt-gray-100 lg:hidden"
+        aria-label="Legenda"
+      >
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-50 lg:hidden" onClick={() => setOpen(false)}>
+          <div className="absolute inset-0 bg-black/30" />
+          <div
+            className="absolute bottom-0 left-0 right-0 rounded-t-xl border-t border-cvlt-gray-200 bg-white p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-cvlt-gray-400">
+                Legenda
+              </h3>
+              <button
+                onClick={() => setOpen(false)}
+                className="text-cvlt-gray-400 transition-colors hover:text-cvlt-gray-600"
+                aria-label="Chiudi"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {showPressure ? <PressureLegend /> : <WindLegend />}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 // ── Forecast section (commented out - enable when needed) ──────────────────
 //
 // type ForecastSite = {
@@ -845,6 +918,17 @@ export function VentoClient() {
         <p className="mt-0.5 text-xs text-cvlt-gray-500 sm:mt-1 sm:text-sm">
           Dati in tempo reale per il volo libero nel Sud delle Alpi.
         </p>
+        <a
+          href="https://vento.cvlt.ch"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1 inline-flex items-center gap-1 text-xs text-cvlt-gray-400 transition-colors hover:text-cvlt-blue sm:mt-1.5 sm:text-sm"
+        >
+          Versione classica: vento.cvlt.ch
+          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-4.5-6H18m0 0v4.5m0-4.5L10.5 13.5" />
+          </svg>
+        </a>
       </div>
 
       {allLoading && (
@@ -936,6 +1020,8 @@ export function VentoClient() {
           <Legend />
         </div>
       )}
+
+      <MobileLegend />
     </main>
   )
 }
