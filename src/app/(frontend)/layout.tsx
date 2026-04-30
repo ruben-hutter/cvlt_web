@@ -31,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="it" suppressHydrationWarning>
       <head>
         <link rel="alternate" type="application/rss+xml" title="CVLT Notizie" href="/feed" />
+        <script data-goatcounter="https://cvlt.goatcounter.com/count" async src="//gc.zgo.at/count.js" />
       </head>
       <body className={`${ubuntu.className} bg-white text-cvlt-gray-900 antialiased`} suppressHydrationWarning>
         <Header />
