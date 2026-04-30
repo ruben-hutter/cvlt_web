@@ -307,16 +307,8 @@ export function InfoVoloContent() {
       <div className="mt-10">
         <h2 className="text-xl font-bold text-cvlt-gray-900">Avvisi decolli</h2>
         <div className="mt-4 rounded-lg border-l-4 border-amber-400 bg-amber-50 p-4">
-          <div className="flex gap-4">
-            <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-cvlt-gray-900">Decollo della Gana</h3>
-              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-cvlt-gray-700">
-                <li>La strada per i <strong>Monti della Gana</strong> non è più percorribile in auto senza autorizzazione dal bivio per i Monti Motti.</li>
-                <li><strong>Non è permesso decollare</strong> dal prato sotto la curva della strada.</li>
-                <li>È possibile decollare dalla bandiera (<strong>Monti di Colla</strong>), ma bisogna salire a piedi.</li>
-              </ul>
-            </div>
-            <div className="flex-shrink-0">
+          <div className="flex flex-col gap-4 md:flex-row">
+            <div className="flex-shrink-0 md:order-last md:self-start">
               <a
                 href="https://s.geo.admin.ch/abmzz7tvqlnp"
                 target="_blank"
@@ -325,7 +317,7 @@ export function InfoVoloContent() {
                 <img
                   src="/gana_map.png"
                   alt="Mappa decollo della Gana"
-                  className="w-56 rounded border border-cvlt-gray-200 transition-opacity hover:opacity-80"
+                  className="w-full rounded border border-cvlt-gray-200 transition-opacity hover:opacity-80 md:w-56"
                 />
               </a>
               <p className="mt-1 text-center text-xs text-cvlt-gray-500">
@@ -333,6 +325,14 @@ export function InfoVoloContent() {
                   map.geo.admin.ch
                 </ExternalLink>
               </p>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-cvlt-gray-900">Decollo della Gana</h3>
+              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-cvlt-gray-700">
+                <li>La strada per i <strong>Monti della Gana</strong> non è più percorribile in auto senza autorizzazione dal bivio per i Monti Motti.</li>
+                <li><strong>Non è permesso decollare</strong> dal prato sotto la curva della strada.</li>
+                <li>È possibile decollare dalla bandiera (<strong>Monti di Colla</strong>), ma bisogna salire a piedi.</li>
+              </ul>
             </div>
           </div>
         </div>
