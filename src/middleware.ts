@@ -3,11 +3,11 @@ import type { NextRequest } from 'next/server'
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://gc.zgo.at",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https://assets.raisenow.io",
-  "connect-src 'self' https://api3.geo.admin.ch",
+  "connect-src 'self' https://api3.geo.admin.ch https://cvlt.goatcounter.com",
   "frame-src https:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
@@ -17,11 +17,11 @@ const csp = [
 
 const cspPreview = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://gc.zgo.at",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https://assets.raisenow.io",
-  "connect-src 'self' https://api3.geo.admin.ch",
+  "connect-src 'self' https://api3.geo.admin.ch https://cvlt.goatcounter.com",
   "frame-src https:",
   "frame-ancestors 'self'",
   "base-uri 'self'",
