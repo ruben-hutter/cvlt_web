@@ -2,7 +2,11 @@
 
 ## High priority
 
+- [ ] Aggiungere link al sito vento.cvlt.ch così da accontentare anche quelli difficili ;)
+- [ ] Aggiungere filtro alpi ticinesi, sopraceneri e sottoceneri per le stazioni del vento
+- [ ] Leggenda pagina vento su mobile non visibile, trovare soluzione
 - [ ] Think about what features i am missing the CMS compared to what i had on WordPress
+- [ ] Hyperlinks per stazioni meteo
     - no need to clutter, but have the essentials -> minimal but powerful
 - [ ] Setup pipeline: push to dev branch -> test on dev.cvlt.ch -> merge to main -> deploy to cvlt.ch
     - Setup dev.cvlt.ch to pull from dev branch and cvlt.ch to pull from main branch
