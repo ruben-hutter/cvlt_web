@@ -11,6 +11,7 @@
 - [x] Setup pipeline: push to dev branch -> test on dev.cvlt.ch -> merge to main -> deploy to cvlt.ch
     - Setup dev.cvlt.ch to pull from dev branch and cvlt.ch to pull from main branch
     - How can i do that since i can just run one node.js application with my hosting plan?
+- [ ] Checkout plan to improve SEO
 - [ ] In "comitato" page make person's containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Update "Info volo" page.
     - Info about agreements with Locarno airport
