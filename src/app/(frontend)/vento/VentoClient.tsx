@@ -652,21 +652,22 @@ function WindLegend() {
 
 function PressureLegend() {
   return (
-    <div className="space-y-2.5 text-xs text-cvlt-gray-600">
+    <div className="space-y-2 text-xs text-cvlt-gray-600">
+      <p className="font-medium text-cvlt-gray-500">Grafici:</p>
       <div className="flex items-center gap-2">
         <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-blue-400/40" />
-        Δ Pressione (hPa)
+        Δ Pressione (hPa) &mdash; barre
       </div>
       <div className="flex items-center gap-2">
         <span className="inline-block h-0.5 w-4 flex-shrink-0 bg-gray-800" />
-        Δ Temperatura (°C)
+        Δ Temperatura (°C) &mdash; linea
       </div>
       <div className="flex items-center gap-2">
         <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-green-500/20 border border-green-500/40" />
-        Vento Matro (km/h)
+        Vento Matro (km/h) &mdash; area
       </div>
-      <div className="border-t border-cvlt-gray-200 pt-2 mt-1">
-        <p className="font-medium text-cvlt-gray-500 mb-1.5">Colori barre:</p>
+      <div className="border-t border-cvlt-gray-200 pt-2 mt-2">
+        <p className="font-medium text-cvlt-gray-500 mb-1.5">Colori barre pressione:</p>
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-blue-400/40" />
@@ -726,24 +727,6 @@ function Legend() {
 
 function MobileLegend() {
   const [open, setOpen] = useState(false)
-  const [activeSection, setActiveSection] = useState('')
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const navHeight = 80
-      let current = ''
-      for (const id of VENTO_SECTION_IDS) {
-        const el = document.getElementById(id)
-        if (el && el.getBoundingClientRect().top <= navHeight + 10) {
-          current = id
-        }
-      }
-      setActiveSection(current)
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll()
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   useEffect(() => {
     if (open) {
@@ -753,8 +736,6 @@ function MobileLegend() {
     }
     return () => { document.body.style.overflow = '' }
   }, [open])
-
-  const showPressure = VENTO_PRESSURE_SECTION_IDS.some((id) => id === activeSection)
 
   return (
     <>
@@ -772,7 +753,7 @@ function MobileLegend() {
         <div className="fixed inset-0 z-50 lg:hidden" onClick={() => setOpen(false)}>
           <div className="absolute inset-0 bg-black/30" />
           <div
-            className="absolute bottom-0 left-0 right-0 rounded-t-xl border-t border-cvlt-gray-200 bg-white p-5 shadow-xl"
+            className="absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto rounded-t-xl border-t border-cvlt-gray-200 bg-white p-5 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-center justify-between">
@@ -789,7 +770,16 @@ function MobileLegend() {
                 </svg>
               </button>
             </div>
-            {showPressure ? <PressureLegend /> : <WindLegend />}
+            <div className="space-y-5">
+              <div>
+                <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-cvlt-gray-400">Vento — stazioni</h4>
+                <WindLegend />
+              </div>
+              <div className="border-t-2 border-cvlt-gray-200 pt-7">
+                <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-cvlt-gray-400">Pressione — grafici</h4>
+                <PressureLegend />
+              </div>
+            </div>
           </div>
         </div>
       )}
