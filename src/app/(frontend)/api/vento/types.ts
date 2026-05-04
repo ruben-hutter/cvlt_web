@@ -8,6 +8,7 @@ export type WindStation = {
   temp: string | null
   cloudBase: string | null
   lastUpdate: string | null
+  sourceUrl: string | null
 }
 
 export type LakeLevel = {

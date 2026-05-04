@@ -11,9 +11,9 @@ function WindArrow({ degrees, size = 28 }: { degrees: number; size?: number }) {
       height={size}
       viewBox="0 0 24 24"
       style={{ transform: `rotate(${(degrees + 180) % 360}deg)` }}
-      className="inline-block"
+      className="inline-block translate-y-[1px]"
     >
-      <path d="M12 2 L8 14 L12 11 L16 14 Z" fill="currentColor" />
+      <path d="M12 4 L8 16 L12 13 L16 16 Z" fill="currentColor" />
     </svg>
   )
 }
@@ -46,24 +46,36 @@ function StationCard({ station }: { station: WindStation }) {
   )
 
   return (
-    <div className={`rounded-lg border p-2 transition-shadow hover:shadow-md sm:p-3 ${windLevelBorder(station.windLevel)}`}>
+    <a
+      href={station.sourceUrl ?? undefined}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`block rounded-lg border p-2 transition-shadow hover:shadow-md sm:p-3 ${windLevelBorder(station.windLevel)}`}
+    >
       {/* Mobile: single compact row */}
-      <div className="flex items-center gap-2 sm:hidden">
+      <div className="flex items-center gap-1.5 sm:hidden">
         {peakIcon}
-        <span className="min-w-0 flex-1 truncate text-xs font-semibold text-cvlt-gray-900">{station.name}</span>
-        {station.windDir !== null && (
-          <span className="text-cvlt-gray-500" title={`${station.windDir}°`}>
-            <WindArrow degrees={station.windDir} size={20} />
-          </span>
-        )}
-        <span className={`text-sm font-bold tabular-nums ${windLevelColor(station.windLevel)}`}>
+        <span className="min-w-0 flex-1 truncate text-base font-semibold text-cvlt-gray-900">{station.name}</span>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {station.windDir !== null && (
+            <span className="text-cvlt-gray-500" title={`${station.windDir}°`}>
+              <WindArrow degrees={station.windDir} size={30} />
+            </span>
+          )}
           {station.windAvg !== null ? (
-            <>{station.windAvg}<span className="text-[10px] font-normal">-</span>{station.windGust}</>
-          ) : '-'}
-        </span>
-        {station.temp && (
-          <span className="text-xs text-cvlt-gray-500">{station.temp}</span>
-        )}
+            <span className={`text-base font-bold tabular-nums ${windLevelColor(station.windLevel)}`}>
+              {station.windAvg}<span className="text-sm font-bold text-cvlt-gray-400"> - </span>{station.windGust}
+            </span>
+          ) : (
+            <span className="text-base text-cvlt-gray-400">—</span>
+          )}
+          {station.temp && (
+            <span className="text-base text-cvlt-gray-500">{station.temp}</span>
+          )}
+          {station.cloudBase && (
+            <span className="text-base text-green-700">☁ {station.cloudBase}</span>
+          )}
+        </div>
       </div>
 
       {/* Desktop: original two-row layout */}
@@ -104,7 +116,7 @@ function StationCard({ station }: { station: WindStation }) {
           )}
         </div>
       </div>
-    </div>
+    </a>
   )
 }
 
@@ -190,6 +202,61 @@ type PressurePoint = {
 type FoehnPoint = {
   time: string
   diffP: number
+}
+
+const STATION_REGIONS: Record<string, string> = {
+  'Gottardo': 'alpi',
+  'Piotta': 'alpi',
+  'San Bernardino': 'alpi',
+  'Robiei': 'alpi',
+  'Matro': 'alpi',
+  'Cimetta': 'sopraceneri',
+  'SLF-Löita': 'alpi',
+  'SLF-Vallascia': 'alpi',
+  'SLF-Preda': 'alpi',
+  'HFY-Lago Ritom': 'alpi',
+  'SLF-Cassinello': 'alpi',
+  'SLF-Tremorgio': 'alpi',
+  'SLF-Bassa di Nara': 'alpi',
+  'SLF-Piano del Simano': 'alpi',
+  'SLF-Fontane': 'alpi',
+  'SLF-Motto Crostel': 'alpi',
+  'SLF-Cima del Simano': 'alpi',
+  'SLF-Piz Pian Grand': 'alpi',
+  'SLF-Pian Grand': 'alpi',
+  'SLF-Predanass': 'alpi',
+  'WBD-StaMariaGR': 'sopraceneri',
+  'WBD-AlpeMatro': 'alpi',
+  'Comprovasco': 'sopraceneri',
+  'Biasca': 'sopraceneri',
+  'Cevio': 'sopraceneri',
+  'Faido': 'alpi',
+  'Grono': 'sopraceneri',
+  'Locarno': 'sopraceneri',
+  'Cadenazzo': 'sopraceneri',
+  'PWS-Lodrino': 'sopraceneri',
+  'PWS-Gordevio': 'sopraceneri',
+  'PWS-Rivera': 'sottoceneri',
+  'HFY-Alpe Foppa': 'sottoceneri',
+  'WBD-Carlazzo': 'sottoceneri',
+  'HFY-Mte Lema': 'sottoceneri',
+  'Lugano': 'sottoceneri',
+  'Generoso': 'sottoceneri',
+  'Stabio': 'sottoceneri',
+}
+
+const REGION_ORDER = ['alpi', 'sopraceneri', 'sottoceneri'] as const
+
+const REGION_LABELS: Record<string, string> = {
+  alpi: 'Alpi ticinesi',
+  sopraceneri: 'Sopraceneri',
+  sottoceneri: 'Sottoceneri',
+}
+
+const REGION_ALL = 'all'
+
+function getStationRegion(name: string): string {
+  return STATION_REGIONS[name] || 'sopraceneri'
 }
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
@@ -821,6 +888,8 @@ export function VentoClient() {
   const [lakes, setLakes] = useState<SectionState<LakesResponse>>({ data: null, loading: true, error: false })
   const [pressure, setPressure] = useState<SectionState<{ data: PressurePoint[] }>>({ data: null, loading: true, error: false })
   const [foehn, setFoehn] = useState<SectionState<{ data: FoehnPoint[] }>>({ data: null, loading: true, error: false })
+  const [regionFilter, setRegionFilter] = useState<string>(REGION_ALL)
+
   const fetchSection = useCallback(async <T,>(
     url: string,
     setter: React.Dispatch<React.SetStateAction<SectionState<T>>>,
@@ -838,11 +907,10 @@ export function VentoClient() {
     }
   }, [])
 
-  // Load cached data instantly, then fetch fresh data with differentiated intervals
   useEffect(() => {
     const cacheKeys = [
-      { key: 'vento:mch', setter: setMch },
-      { key: 'vento:others', setter: setOthers },
+      { key: 'vento:mch:v2', setter: setMch },
+      { key: 'vento:others:v3', setter: setOthers },
       { key: 'vento:lakes', setter: setLakes },
       { key: 'vento:pressure', setter: setPressure },
       { key: 'vento:foehn', setter: setFoehn },
@@ -854,10 +922,9 @@ export function VentoClient() {
       } catch {}
     }
 
-    // Initial fetch for all sections
     const fetchWind = () => {
-      fetchSection<StationsResponse>('/api/vento/mch', setMch, 'vento:mch')
-      fetchSection<StationsResponse>('/api/vento/others', setOthers, 'vento:others')
+      fetchSection<StationsResponse>('/api/vento/mch', setMch, 'vento:mch:v2')
+      fetchSection<StationsResponse>('/api/vento/others', setOthers, 'vento:others:v3')
     }
     const fetchPressureFn = () => fetchSection<{ data: PressurePoint[] }>('/api/vento/pressure', setPressure, 'vento:pressure')
     const fetchFoehnFn = () => fetchSection<{ data: FoehnPoint[] }>('/api/vento/foehn', setFoehn, 'vento:foehn')
@@ -867,13 +934,9 @@ export function VentoClient() {
     fetchPressureFn()
     fetchFoehnFn()
 
-    // Wind: every 5min
     const windInterval = setInterval(fetchWind, 5 * 60_000)
-    // Pressure: every 10min
     const pressureInterval = setInterval(fetchPressureFn, 10 * 60_000)
-    // Foehn: every 15min
     const foehnInterval = setInterval(fetchFoehnFn, 15 * 60_000)
-    // Lakes: no polling (24h cache, only fetched on page load)
 
     return () => {
       clearInterval(windInterval)
@@ -882,7 +945,25 @@ export function VentoClient() {
     }
   }, [fetchSection])
 
-  // Scroll to hash anchor after content renders
+  const allStations = useMemo(() => {
+    const merged = [...(mch.data?.stations ?? []), ...(others.data?.stations ?? [])]
+    return merged.map((s) => ({ ...s, region: getStationRegion(s.name) }))
+  }, [mch.data, others.data])
+
+  const stationsByRegion = useMemo(() => {
+    const groups: Record<string, WindStation[]> = {}
+    for (const s of allStations) {
+      if (regionFilter !== REGION_ALL && s.region !== regionFilter) continue
+      if (!groups[s.region]) groups[s.region] = []
+      groups[s.region].push(s)
+    }
+    return REGION_ORDER
+      .filter((r) => groups[r])
+      .map((r) => ({ region: r, label: REGION_LABELS[r], stations: groups[r] }))
+  }, [allStations, regionFilter])
+
+  const timestamp = mch.data?.timestamp || others.data?.timestamp
+
   const hasScrolled = useRef(false)
   useEffect(() => {
     if (hasScrolled.current) return
@@ -891,7 +972,6 @@ export function VentoClient() {
     const hasAny = mch.data || others.data || lakes.data || pressure.data || foehn.data
     if (!hasAny) return
     hasScrolled.current = true
-    // Wait a tick for DOM to render
     requestAnimationFrame(() => {
       const el = document.getElementById(hash)
       if (el) el.scrollIntoView({ behavior: 'smooth' })
@@ -900,6 +980,7 @@ export function VentoClient() {
 
   const hasAnyData = mch.data || others.data || lakes.data || pressure.data || foehn.data
   const allLoading = mch.loading && others.loading && lakes.loading && pressure.loading && foehn.loading && !hasAnyData
+  const windLoading = mch.loading && others.loading && !mch.data && !others.data
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:py-12">
@@ -923,42 +1004,47 @@ export function VentoClient() {
 
       {allLoading && (
         <div className="mt-8 space-y-10">
-          <SectionSkeleton title="Stazioni MeteoSwiss" />
-          <SectionSkeleton title="Altre stazioni" />
+          <SectionSkeleton title="Stazioni" />
         </div>
       )}
 
       {!allLoading && (
         <div className="mt-4 flex gap-6 sm:mt-8">
           <div className="min-w-0 flex-1 space-y-6 sm:space-y-10">
-            {/* MeteoSwiss stations */}
-            <div id="stazioni-meteoswiss">
-              {mch.loading && !mch.data ? (
-                <SectionSkeleton title="Stazioni MeteoSwiss" />
-              ) : mch.error && !mch.data ? (
-                <SectionError title="Stazioni MeteoSwiss" />
-              ) : mch.data ? (
-                <StationsSection
-                  title="Stazioni MeteoSwiss"
-                  timestamp={mch.data.timestamp}
-                  stations={mch.data.stations}
-                />
-              ) : null}
-            </div>
-
-            {/* Other stations */}
-            <div id="altre-stazioni">
-              {others.loading && !others.data ? (
-                <SectionSkeleton title="Altre stazioni" />
-              ) : others.error && !others.data ? (
-                <SectionError title="Altre stazioni" />
-              ) : others.data ? (
-                <StationsSection
-                  title="Altre stazioni"
-                  timestamp={others.data.timestamp}
-                  stations={others.data.stations}
-                />
-              ) : null}
+            {/* Region filter + stations */}
+            <div id="stazioni">
+              <div className="flex items-baseline justify-between">
+                <h2 className="text-lg font-bold text-cvlt-gray-900">Stazioni</h2>
+                <div className="flex items-center gap-2">
+                  {timestamp && <span className="text-xs text-cvlt-gray-400">{timestamp}</span>}
+                  <select
+                    value={regionFilter}
+                    onChange={(e) => setRegionFilter(e.target.value)}
+                    className="rounded-md border border-cvlt-gray-200 bg-white px-2 py-1 text-xs text-cvlt-gray-700 shadow-sm focus:border-cvlt-blue focus:outline-none focus:ring-1 focus:ring-cvlt-blue"
+                  >
+                    <option value={REGION_ALL}>Tutte le regioni</option>
+                    {REGION_ORDER.map((r) => (
+                      <option key={r} value={r}>{REGION_LABELS[r]}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              {windLoading ? (
+                <SectionSkeleton title="" />
+              ) : (
+                <div className="mt-2 space-y-5">
+                  {stationsByRegion.map(({ region, label, stations }) => (
+                    <div key={region}>
+                      {regionFilter === REGION_ALL && (
+                        <h3 className="mb-1.5 text-sm font-semibold text-cvlt-gray-500">{label}</h3>
+                      )}
+                      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
+                        {stations.map((s, i) => <StationCard key={`${s.name}-${i}`} station={s} />)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Pressure */}

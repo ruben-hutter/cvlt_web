@@ -57,6 +57,7 @@ async function fetchPWSStations(): Promise<(WindStation & { lat: number })[]> {
         cloudBase,
         lastUpdate: minutesAgo >= 0 && minutesAgo < 120 ? `${minutesAgo}min` : null,
         lat: obs.lat ?? 0,
+        sourceUrl: `https://www.wunderground.com/dashboard/pws/${id}`,
       }
       return station
     }),
@@ -138,6 +139,7 @@ async function fetchSLFStations(): Promise<(WindStation & { lat: number })[]> {
       cloudBase: null,
       lastUpdate: null,
       lat: meta.lat,
+      sourceUrl: 'https://whiterisk.ch/en/conditions/measurements/wind',
     })
   }
 
@@ -202,6 +204,7 @@ async function fetchHolfuyStations(): Promise<(WindStation & { lat: number })[]>
             ? `${lastUpdateMin}min`
             : null,
         lat: info.lat,
+        sourceUrl: `https://holfuy.com/en/weather/${idStr}`,
       }
       return station
     }),
@@ -257,6 +260,7 @@ async function fetchWindbirdStations(): Promise<(WindStation & { lat: number })[
             ? `${minutesAgo}min`
             : null,
         lat: d.location?.latitude ?? info.lat,
+        sourceUrl: `https://www.openwindmap.org/windbird-${idStr}`,
       }
       return station
     }),
@@ -315,6 +319,7 @@ async function fetchFaidoStation(): Promise<(WindStation & { lat: number }) | nu
           ? `${minutesAgo}min`
           : null,
       lat: FAIDO_LAT,
+      sourceUrl: 'http://www.tencia.ch/',
     }
   } catch {
     return null
