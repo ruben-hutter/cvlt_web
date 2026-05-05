@@ -33,6 +33,7 @@ run_step() {
 echo "=== CVLT timed deploy started at $(date) ===" | tee "${log_file}"
 
 {
+  git checkout -- package-lock.json 2>/dev/null || true
   run_step "git pull" git pull origin main
   run_step "npm run build:timed" npm run build:timed
 
