@@ -25,4 +25,14 @@ for (const method of ['log', 'error', 'warn']) {
   }
 }
 
+const mb = (bytes) => `${Math.round(bytes / 1024 / 1024)}MB`
+const logMemory = () => {
+  const m = process.memoryUsage()
+  console.log(`memory: rss=${mb(m.rss)} heap=${mb(m.heapUsed)}/${mb(m.heapTotal)} ext=${mb(m.external)}`)
+}
+
+console.log(`Node.js ${process.version} — pid ${process.pid}`)
+logMemory()
+setInterval(logMemory, 300000)
+
 await import('../.next/standalone/server.js')
