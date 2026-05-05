@@ -549,6 +549,16 @@ export function InfoVoloContent() {
             description="Mappa interattiva siti e condizioni"
             href="https://map.burnair.cloud/"
           />
+          <LinkCard
+            title="Winds.mobi"
+            description="Mappa vento in tempo reale"
+            href="https://winds.mobi/stations/map"
+          />
+          <LinkCard
+            title="Windspion"
+            description="Stazioni vento alpine in tempo reale"
+            href="https://www.windspion.app"
+          />
         </div>
       </div>
 

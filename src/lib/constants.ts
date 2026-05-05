@@ -4,8 +4,7 @@ export type NavSubLink = {
 }
 
 export const VENTO_SECTION_IDS = [
-  'stazioni-meteoswiss',
-  'altre-stazioni',
+  'stazioni',
   'pressione',
   'laghi',
   'radiosondaggi',
@@ -14,8 +13,7 @@ export const VENTO_SECTION_IDS = [
 export const VENTO_PRESSURE_SECTION_IDS = ['pressione'] as const
 
 export const VENTO_SUB_LINKS = [
-  { href: '/vento#stazioni-meteoswiss', label: 'Stazioni MeteoSwiss' },
-  { href: '/vento#altre-stazioni', label: 'Altre stazioni' },
+  { href: '/vento#stazioni', label: 'Stazioni' },
   { href: '/vento#pressione', label: 'Pressione' },
   { href: '/vento#laghi', label: 'Laghi' },
   { href: '/vento#radiosondaggi', label: 'Radiosondaggi' },
