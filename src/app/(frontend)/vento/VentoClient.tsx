@@ -55,8 +55,14 @@ function StationCard({ station }: { station: WindStation }) {
       {/* Mobile: single compact row */}
       <div className="flex items-center gap-1.5 sm:hidden">
         {peakIcon}
-        <span className="min-w-0 flex-1 truncate text-base font-semibold text-cvlt-gray-900">{station.name}</span>
+        <span className="min-w-0 flex-1 truncate text-base font-semibold text-cvlt-gray-900">{formatDisplayName(station.name)}</span>
         <div className="flex items-center gap-3 flex-shrink-0">
+          {station.cloudBase && (
+            <span className="text-base text-green-700">☁ {station.cloudBase}</span>
+          )}
+          {station.temp && (
+            <span className="text-base text-cvlt-gray-500">{station.temp}</span>
+          )}
           {station.windDir !== null && (
             <span className="text-cvlt-gray-500" title={`${station.windDir}°`}>
               <WindArrow degrees={station.windDir} size={30} />
@@ -69,12 +75,6 @@ function StationCard({ station }: { station: WindStation }) {
           ) : (
             <span className="text-base text-cvlt-gray-400">—</span>
           )}
-          {station.temp && (
-            <span className="text-base text-cvlt-gray-500">{station.temp}</span>
-          )}
-          {station.cloudBase && (
-            <span className="text-base text-green-700">☁ {station.cloudBase}</span>
-          )}
         </div>
       </div>
 
@@ -84,7 +84,7 @@ function StationCard({ station }: { station: WindStation }) {
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               {peakIcon}
-              <span className="truncate text-sm font-semibold text-cvlt-gray-900">{station.name}</span>
+              <span className="truncate text-sm font-semibold text-cvlt-gray-900">{formatDisplayName(station.name)}</span>
             </div>
           </div>
           {station.lastUpdate && (
@@ -227,7 +227,7 @@ const STATION_REGIONS: Record<string, string> = {
   'SLF-Predanass': 'alpi',
   'WBD-StaMariaGR': 'sopraceneri',
   'WBD-AlpeMatro': 'alpi',
-  'Comprovasco': 'sopraceneri',
+  'Comprovasco': 'alpi',
   'Biasca': 'sopraceneri',
   'Cevio': 'sopraceneri',
   'Faido': 'alpi',
@@ -257,6 +257,19 @@ const REGION_ALL = 'all'
 
 function getStationRegion(name: string): string {
   return STATION_REGIONS[name] || 'sopraceneri'
+}
+
+const DISPLAY_NAME_OVERRIDES: Record<string, string> = {
+  'WBD-StaMariaGR': 'Sta Maria GR',
+  'WBD-AlpeMatro': 'Alpe Matro',
+  'HFY-Mte Lema': 'Monte Lema',
+}
+
+function formatDisplayName(name: string): string {
+  if (DISPLAY_NAME_OVERRIDES[name]) return DISPLAY_NAME_OVERRIDES[name]
+  const match = name.match(/^([A-Z]+)-(.+)$/)
+  if (match) return match[2]
+  return name
 }
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
@@ -956,6 +969,12 @@ export function VentoClient() {
       if (regionFilter !== REGION_ALL && s.region !== regionFilter) continue
       if (!groups[s.region]) groups[s.region] = []
       groups[s.region].push(s)
+    }
+    for (const key of Object.keys(groups)) {
+      groups[key].sort((a, b) => {
+        if (a.isPeak !== b.isPeak) return a.isPeak ? -1 : 1
+        return formatDisplayName(a.name).localeCompare(formatDisplayName(b.name), 'it')
+      })
     }
     return REGION_ORDER
       .filter((r) => groups[r])
