@@ -2,20 +2,10 @@
 
 ## High priority
 
-- [x] Aggiungere link al sito vento.cvlt.ch così da accontentare anche quelli difficili ;)
-- [x] Aggiungere filtro alpi ticinesi, sopraceneri e sottoceneri per le stazioni del vento
-- [x] Leggenda pagina vento su mobile non visibile, trovare soluzione
-- [x] Think about what features i am missing the CMS compared to what i had on WordPress
-    - no need to clutter, but have the essentials -> minimal but powerful
-- [x] Hyperlinks per stazioni meteo
-- [x] Setup pipeline: push to dev branch -> test on dev.cvlt.ch -> merge to main -> deploy to cvlt.ch
-    - Setup dev.cvlt.ch to pull from dev branch and cvlt.ch to pull from main branch
-    - How can i do that since i can just run one node.js application with my hosting plan?
-- [ ] Checkout plan to improve SEO
+- [ ] Implement remaining SEO improvements (plan at `plans/cvlt-seo-performance-improvements.md` — sitemap, robots.txt, lang attr, 301 redirects, basic meta already done; structured data, per-page OG, image filename sanitization, WebP still pending)
 - [ ] In "comitato" page make person's containers "flip" on click and behing them show more info (maybe motivation or contact info)
-- [ ] Update "Info volo" page.
-    - Info about agreements with Locarno airport
-- [ ] Subscribed calendar does not show the reserve date of events that have one. Maybe export the reserve date as well adding like "- riserva" to the title or something like that?
+- [ ] Update "Info volo" page: add formal agreements with Locarno airport (airspace/TMA info already present)
+- [ ] Check hyprlinks for stazioni meteo in "Vento" page
 
 ## Medium priority
 
@@ -30,6 +20,8 @@
     - Instagram API requires paid tools (Zapier/Make.com); IFTTT free covers Facebook only
     - Revisit when better free options exist
 
+- [ ] Improve foehn forecast resilience: retry on DNS failures, reduce log noise, pre-seed cache on deploy (plan at `plans/foehn-dns-resilience.md`)
+
 ## Low priority
 
 - [ ] Extend the news search also to the content of the news (requires parsing Lexical blocks JSON into plain text).
@@ -43,6 +35,15 @@
 
 ## Done
 
+- [x] Aggiungere link al sito vento.cvlt.ch così da accontentare anche quelli difficili ;)
+- [x] Aggiungere filtro alpi ticinesi, sopraceneri e sottoceneri per le stazioni del vento
+- [x] Leggenda pagina vento su mobile non visibile, trovare soluzione
+- [x] Think about what features i am missing the CMS compared to what i had on WordPress
+    - no need to clutter, but have the essentials -> minimal but powerful
+- [x] Hyperlinks per stazioni meteo
+- [x] Setup pipeline: push to dev branch -> test on dev.cvlt.ch -> merge to main -> deploy to cvlt.ch
+    - Setup dev.cvlt.ch to pull from dev branch and cvlt.ch to pull from main branch
+    - How can i do that since i can just run one node.js application with my hosting plan?
 - [x] Vento mobile: raggruppamento stazioni per regione (Alpi ticinesi, Sopraceneri, Sottoceneri) con dropdown filtro
 - [x] Vento mobile: layout compatto con nome più grande, freccia vento, velocità, temperatura e base nuvola
 - [x] Vento mobile: leggenda unificata (vento + pressione) nel bottom sheet dal pulsante ?
@@ -65,6 +66,8 @@
 - [x] **Security audit — PhotoAlbums access control**: create/update/delete restricted to admin only
 - [x] Bump Next.js 15.3.9 → 15.4.11
 - [x] Footer credits link to GitHub
+- [x] Subscribed calendar: reserve dates exported as separate TENTATIVE events with "- riserva" suffix in iCal
+- [x] Wind station hyperlinks: all stations link to their respective sources (MeteoSwiss, Wunderground, SLF, Holfuy, OpenWindMap, Tencia)
 - [x] Checkout README.md file
 - [x] Search function (similar to Gallery page) also for News
 - [x] Fuzzy search (Fuse.js + fzf-style sequential matching) on news, gallery, biposto pages — shared utility in src/lib/search.ts

@@ -6,22 +6,22 @@ import { cachedFetch } from '../cache'
 const MCH_URL =
   'https://s3-eu-central-1.amazonaws.com/app-prod-static-fra.meteoswiss-app.ch/v1/currentWeather.json'
 
-const STATIONS: Record<string, { name: string; elev: number; chx: number; mchId: string }> = {
-  GUE: { name: 'Gottardo', elev: 2283, chx: 167426, mchId: 'GUE' },
-  PIO: { name: 'Piotta', elev: 990, chx: 152284, mchId: 'PIO' },
-  SBE: { name: 'San Bernardino', elev: 1639, chx: 147345, mchId: 'SBE' },
-  COM: { name: 'Comprovasco', elev: 575, chx: 146503, mchId: 'COM' },
-  ROE: { name: 'Robiei', elev: 1896, chx: 144082, mchId: 'ROE' },
-  MTR: { name: 'Matro', elev: 2200, chx: 140944, mchId: 'MTR' },
-  BIA: { name: 'Biasca', elev: 278, chx: 132785, mchId: 'BIA' },
-  CEV: { name: 'Cevio', elev: 417, chx: 130509, mchId: 'CEV' },
-  GRO: { name: 'Grono', elev: 324, chx: 124081, mchId: 'GRO' },
-  CIM: { name: 'Cimetta', elev: 1661, chx: 117405, mchId: 'CIM' },
-  OTL: { name: 'Locarno', elev: 367, chx: 114288, mchId: 'OTL' },
-  MAG: { name: 'Cadenazzo', elev: 203, chx: 113158, mchId: 'MAG' },
-  LUG: { name: 'Lugano', elev: 273, chx: 95858, mchId: 'LUG' },
-  GEN: { name: 'Generoso', elev: 1600, chx: 87500, mchId: 'GEN' },
-  SBO: { name: 'Stabio', elev: 353, chx: 77922, mchId: 'SBO' },
+const STATIONS: Record<string, { name: string; elev: number; chx: number; mchId: string; isPeak?: boolean }> = {
+  GUE: { name: 'Gottardo', elev: 2283, chx: 167426, mchId: 'GUE', isPeak: true },
+  PIO: { name: 'Piotta', elev: 990, chx: 152284, mchId: 'PIO', isPeak: false },
+  SBE: { name: 'San Bernardino', elev: 1639, chx: 147345, mchId: 'SBE', isPeak: true },
+  COM: { name: 'Comprovasco', elev: 575, chx: 146503, mchId: 'COM', isPeak: false },
+  ROE: { name: 'Robiei', elev: 1896, chx: 144082, mchId: 'ROE', isPeak: true },
+  MTR: { name: 'Matro', elev: 2200, chx: 140944, mchId: 'MTR', isPeak: true },
+  BIA: { name: 'Biasca', elev: 278, chx: 132785, mchId: 'BIA', isPeak: false },
+  CEV: { name: 'Cevio', elev: 417, chx: 130509, mchId: 'CEV', isPeak: false },
+  GRO: { name: 'Grono', elev: 324, chx: 124081, mchId: 'GRO', isPeak: false },
+  CIM: { name: 'Cimetta', elev: 1661, chx: 117405, mchId: 'CIM', isPeak: true },
+  OTL: { name: 'Locarno', elev: 367, chx: 114288, mchId: 'OTL', isPeak: false },
+  MAG: { name: 'Cadenazzo', elev: 203, chx: 113158, mchId: 'MAG', isPeak: false },
+  LUG: { name: 'Lugano', elev: 273, chx: 95858, mchId: 'LUG', isPeak: false },
+  GEN: { name: 'Generoso', elev: 1600, chx: 87500, mchId: 'GEN', isPeak: true },
+  SBO: { name: 'Stabio', elev: 353, chx: 77922, mchId: 'SBO', isPeak: false },
 }
 
 // Sorted north → south by CH1903 X coordinate (matches original Perl ordering)
@@ -69,7 +69,7 @@ async function fetchMCHData(): Promise<StationsResponse> {
 
       return {
         name: info.name,
-        isPeak: info.elev > 700,
+        isPeak: info.isPeak ?? info.elev > 700,
         windDir,
         windAvg: windSpeed != null && windSpeed >= 0 && windSpeed <= 360 ? windSpeed : null,
         windGust: windGust != null && windGust >= 0 && windGust <= 360 ? windGust : null,
