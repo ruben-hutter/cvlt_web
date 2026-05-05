@@ -319,7 +319,7 @@ async function fetchFaidoStation(): Promise<(WindStation & { lat: number }) | nu
           ? `${minutesAgo}min`
           : null,
       lat: FAIDO_LAT,
-      sourceUrl: 'http://www.tencia.ch/',
+      sourceUrl: 'http://www.tencia.ch/data/11___24h_Wind.png',
     }
   } catch {
     return null
