@@ -11,7 +11,7 @@
     "db:migrate": "payload migrate",
     "db:migrate:status": "payload migrate:status",
     "deploy:timed": "bash scripts/deploy-timed.sh",
-    "start": "node --max-old-space-size=512 scripts/start.mjs"
+    "start": "node --max-old-space-size=1024 scripts/start.mjs"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.79.1",
