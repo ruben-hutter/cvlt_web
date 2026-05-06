@@ -274,17 +274,31 @@ function formatDisplayName(name: string): string {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
-/** MOSMIX includes past timesteps; keep only ~7d forward from now so the x-axis matches the subtitle. */
+function useIsMobilePortrait(): boolean {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)')
+    const check = () => setIsMobile(mq.matches && window.innerWidth < window.innerHeight)
+    check()
+    const onResize = () => check()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+  return isMobile
+}
+
 function capFoehnForecastSevenDays(points: FoehnPoint[]): FoehnPoint[] {
-  const now = Date.now()
-  const end = now + 7 * MS_PER_DAY
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  const start = now.getTime()
+  const end = start + 7 * MS_PER_DAY
   return points.filter((p) => {
     const t = new Date(p.time).getTime()
-    return !Number.isNaN(t) && t >= now && t <= end
+    return !Number.isNaN(t) && t >= start && t < end
   })
 }
 
-function PressureChart({ data }: { data: PressurePoint[] }) {
+function PressureChart({ data, isMobilePortrait }: { data: PressurePoint[]; isMobilePortrait: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -307,14 +321,25 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
     const cW = W - pad.left - pad.right
     const cH = H - pad.top - pad.bottom
 
-    // Compute ranges
-    const pressures = data.map(d => d.diffP).filter((v): v is number => v !== null)
-    const temps = data.map(d => d.diffT).filter((v): v is number => v !== null)
-    const winds = data.map(d => d.windMTR).filter((v): v is number => v !== null)
-    const times = data.map(d => new Date(d.time).getTime())
+    const isNarrow = window.innerWidth < 640 && window.innerWidth < window.innerHeight
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const chartTMin = isNarrow
+      ? today.getTime() - 3 * MS_PER_DAY
+      : today.getTime() - 6 * MS_PER_DAY
+    const chartTMax = today.getTime() + MS_PER_DAY
+    const chartData = data.filter(d => {
+      const t = new Date(d.time).getTime()
+      return t >= chartTMin
+    })
+    if (chartData.length === 0) return
 
-    const tMin = Math.min(...times)
-    const tMax = Math.max(...times)
+    const tMin = chartTMin
+    const tMax = chartTMax
+
+    const pressures = chartData.map(d => d.diffP).filter((v): v is number => v !== null)
+    const temps = chartData.map(d => d.diffT).filter((v): v is number => v !== null)
+    const winds = chartData.map(d => d.windMTR).filter((v): v is number => v !== null)
     const pMin = Math.min(...pressures, 0)
     const pMax = Math.max(...pressures, 0)
     const pRange = Math.max(Math.abs(pMin), Math.abs(pMax), 2)
@@ -366,11 +391,14 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
     const dayStep = pxPerDay < 40 ? 2 : 1
     const startDay = new Date(tMin)
     startDay.setHours(0, 0, 0, 0)
-    let dayIdx = 0
-    for (let d = startDay.getTime(); d <= tMax; d += dayMs) {
-      if (d >= tMin) {
-        const x = xScale(d)
-        // Per-day vertical (neutral dashed; distinct from any accent lines)
+    const allDays: number[] = []
+    for (let d = startDay.getTime(); d < tMax; d += dayMs) {
+      allDays.push(d)
+    }
+    for (let dayIdx = 0; dayIdx < allDays.length; dayIdx++) {
+      const d = allDays[dayIdx]
+      const x = xScale(d)
+      if (x > pad.left + 1 && x < W - pad.right - 1) {
         ctx.strokeStyle = 'rgba(148, 163, 184, 0.9)'
         ctx.lineWidth = 1
         ctx.setLineDash([4, 4])
@@ -379,12 +407,14 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
         ctx.lineTo(x, pad.top + cH)
         ctx.stroke()
         ctx.setLineDash([])
-        // Label only every dayStep
-        if (dayIdx % dayStep === 0) {
+      }
+      if (dayIdx % dayStep === 0) {
+        const midDay = d + dayMs / 2
+        const labelX = xScale(midDay)
+        if (labelX >= pad.left && labelX <= W - pad.right - 5) {
           ctx.fillStyle = '#6b7280'
-          ctx.fillText(new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' }), x, H - pad.bottom + 15)
+          ctx.fillText(new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' }), labelX, H - pad.bottom + 15)
         }
-        dayIdx++
       }
     }
 
@@ -397,9 +427,9 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
       }
     }
     // Pressure bars
-    const barWidth = Math.max(1, (cW / data.length) * 0.7)
+    const barWidth = Math.max(1, (cW / chartData.length) * 0.7)
     const zeroY = yP(0)
-    for (const point of data) {
+    for (const point of chartData) {
       if (point.diffP === null) continue
       const x = xScale(new Date(point.time).getTime())
       const y = yP(point.diffP)
@@ -418,7 +448,7 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
     ctx.lineWidth = 1.5
     ctx.beginPath()
     let started = false
-    for (const point of data) {
+    for (const point of chartData) {
       if (point.diffT === null) continue
       const x = xScale(new Date(point.time).getTime())
       const y = yT(point.diffT)
@@ -433,7 +463,7 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
     ctx.lineWidth = 1.5
     ctx.beginPath()
     const windPoints: { x: number; y: number }[] = []
-    for (const point of data) {
+    for (const point of chartData) {
       if (point.windMTR === null) continue
       const x = xScale(new Date(point.time).getTime())
       const y = yW(point.windMTR)
@@ -448,6 +478,26 @@ function PressureChart({ data }: { data: PressurePoint[] }) {
       ctx.moveTo(windPoints[0].x, windPoints[0].y)
       for (let i = 1; i < windPoints.length; i++) ctx.lineTo(windPoints[i].x, windPoints[i].y)
       ctx.stroke()
+    }
+
+    // "Now" vertical line
+    const nowMs = Date.now()
+    if (nowMs >= tMin && nowMs <= tMax) {
+      const nowX = xScale(nowMs)
+      ctx.save()
+      ctx.strokeStyle = '#f97316'
+      ctx.lineWidth = 1.5
+      ctx.setLineDash([5, 3])
+      ctx.beginPath()
+      ctx.moveTo(nowX, pad.top)
+      ctx.lineTo(nowX, pad.top + cH)
+      ctx.stroke()
+      ctx.setLineDash([])
+      ctx.fillStyle = '#f97316'
+      ctx.font = 'bold 9px system-ui, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.fillText('ora', nowX, pad.top + 10)
+      ctx.restore()
     }
 
     // Right axis labels (temp) - tick marks with values
@@ -511,8 +561,10 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
     const pressures = data.map(d => d.diffP)
     const times = data.map(d => new Date(d.time).getTime())
 
-    const tMin = Math.min(...times)
-    const tMax = Math.max(...times)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tMin = today.getTime()
+    const tMax = tMin + 7 * MS_PER_DAY
     const pMin = Math.min(...pressures, -4)
     const pMax = Math.max(...pressures, 4)
     const pRange = Math.max(Math.abs(pMin), Math.abs(pMax), 4)
@@ -591,28 +643,43 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
     const useShort = pxPerDay < 55
     const startDay = new Date(tMin)
     startDay.setHours(0, 0, 0, 0)
-    let dayIdx = 0
+    const allDays: number[] = []
     for (let d = startDay.getTime(); d <= tMax; d += dayMs) {
-      if (d < tMin) continue
-      const x = xScale(d)
-      ctx.strokeStyle = 'rgba(148, 163, 184, 0.9)'
-      ctx.lineWidth = 1
-      ctx.setLineDash([4, 4])
-      ctx.beginPath()
-      ctx.moveTo(x, pad.top)
-      ctx.lineTo(x, pad.top + cH)
-      ctx.stroke()
-      ctx.setLineDash([])
-      // Label only every dayStep
-      if (dayIdx % dayStep === 0) {
-        ctx.fillStyle = '#6b7280'
-        const label = useShort
-          ? new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' })
-          : new Date(d).toLocaleDateString('it-CH', { weekday: 'short', day: 'numeric', month: 'short' })
-        ctx.fillText(label, x, H - pad.bottom + 15)
-      }
-      dayIdx++
+      allDays.push(d)
     }
+    for (let dayIdx = 0; dayIdx < allDays.length; dayIdx++) {
+      const d = allDays[dayIdx]
+      const isFirst = dayIdx === 0
+      const isLast = dayIdx === allDays.length - 1
+      if (!isFirst && !isLast) {
+        const x = xScale(d)
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.9)'
+        ctx.lineWidth = 1
+        ctx.setLineDash([4, 4])
+        ctx.beginPath()
+        ctx.moveTo(x, pad.top)
+        ctx.lineTo(x, pad.top + cH)
+        ctx.stroke()
+        ctx.setLineDash([])
+      }
+      if (dayIdx % dayStep === 0) {
+        const midDay = d + dayMs / 2
+        const labelX = midDay <= tMax ? xScale(midDay) : xScale(d)
+        if (labelX <= W - pad.right - 5) {
+          ctx.fillStyle = '#6b7280'
+          const label = useShort
+            ? new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' })
+            : new Date(d).toLocaleDateString('it-CH', { weekday: 'short', day: 'numeric', month: 'short' })
+          ctx.fillText(label, labelX, H - pad.bottom + 15)
+        }
+      }
+    }
+
+    // Clip chart area so pre-midnight anchor point doesn't bleed into y-axis
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(pad.left, pad.top, cW, cH)
+    ctx.clip()
 
     // Pressure line
     ctx.strokeStyle = '#1e40af'
@@ -621,6 +688,7 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
     let started = false
     for (const point of data) {
       const x = xScale(new Date(point.time).getTime())
+      if (x < pad.left) continue
       const y = yP(point.diffP)
       if (!started) { ctx.moveTo(x, y); started = true }
       else ctx.lineTo(x, y)
@@ -628,11 +696,49 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
     ctx.stroke()
 
     // Fill below line
-    ctx.lineTo(xScale(new Date(data[data.length - 1].time).getTime()), yP(0))
-    ctx.lineTo(xScale(new Date(data[0].time).getTime()), yP(0))
-    ctx.closePath()
-    ctx.fillStyle = 'rgba(30, 64, 175, 0.08)'
-    ctx.fill()
+    ctx.beginPath()
+    let fillStarted = false
+    for (const point of data) {
+      const x = xScale(new Date(point.time).getTime())
+      if (x < pad.left) continue
+      const y = yP(point.diffP)
+      if (!fillStarted) {
+        ctx.moveTo(x, yP(0))
+        ctx.lineTo(x, y)
+        fillStarted = true
+      } else {
+        ctx.lineTo(x, y)
+      }
+    }
+    if (fillStarted) {
+      const lastX = xScale(new Date(data[data.length - 1].time).getTime())
+      ctx.lineTo(lastX, yP(0))
+      ctx.closePath()
+      ctx.fillStyle = 'rgba(30, 64, 175, 0.08)'
+      ctx.fill()
+    }
+
+    // "Now" dot on the pressure line
+    const nowMs = Date.now()
+    if (nowMs >= tMin && nowMs <= tMax) {
+      let nearest = data[0]
+      let nearestDist = Math.abs(new Date(data[0].time).getTime() - nowMs)
+      for (const point of data) {
+        const dist = Math.abs(new Date(point.time).getTime() - nowMs)
+        if (dist < nearestDist) { nearest = point; nearestDist = dist }
+      }
+      const dotX = xScale(new Date(nearest.time).getTime())
+      const dotY = yP(nearest.diffP)
+      ctx.beginPath()
+      ctx.arc(dotX, dotY, 5, 0, Math.PI * 2)
+      ctx.fillStyle = '#1e40af'
+      ctx.fill()
+      ctx.strokeStyle = '#fff'
+      ctx.lineWidth = 2
+      ctx.stroke()
+    }
+
+    ctx.restore()
     } // end draw()
     draw()
     window.addEventListener('resize', draw)
@@ -652,6 +758,7 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
   data: PressurePoint[] | null; loading: boolean; error: boolean
   foehnData: FoehnPoint[] | null; foehnLoading: boolean; foehnError: boolean
 }) {
+  const isMobilePortrait = useIsMobilePortrait()
   const foehnForChart = useMemo(
     () => (foehnData ? capFoehnForecastSevenDays(foehnData) : []),
     [foehnData],
@@ -665,7 +772,9 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
           <h3 className="mb-1 text-sm font-medium text-cvlt-gray-600">
             Dati misurati: Magadino&ndash;Kloten (MAG-KLO) e Vento Matro
           </h3>
-          <p className="mb-2 text-xs text-cvlt-gray-400">Ultimi 7 giorni &mdash; dati orari MeteoSwiss</p>
+          <p className="mb-2 text-xs text-cvlt-gray-400">
+            {isMobilePortrait ? 'Ultimi 3 giorni' : 'Ultimi 7 giorni'} &mdash; dati orari MeteoSwiss
+          </p>
           {loading && !data ? (
             <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
               <span className="text-sm text-cvlt-gray-400 animate-pulse">Caricamento dati pressione...</span>
@@ -675,14 +784,14 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
               <span className="text-sm text-cvlt-gray-400">Dati pressione non disponibili.</span>
             </div>
           ) : data && data.length > 0 ? (
-            <PressureChart data={data} />
+            <PressureChart data={data} isMobilePortrait={isMobilePortrait} />
           ) : null}
         </div>
         <div>
           <h3 className="mb-1 text-sm font-medium text-cvlt-gray-600">
             Previsione föhn: Lugano&ndash;Zürich
           </h3>
-          <p className="mb-2 text-xs text-cvlt-gray-400">Prossimi ~7 giorni &mdash; prognosi MOSMIX (DWD)</p>
+          <p className="mb-2 text-xs text-cvlt-gray-400">Oggi + prossimi ~7 giorni &mdash; prognosi MOSMIX (DWD)</p>
           {foehnLoading && !foehnData ? (
             <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
               <span className="text-sm text-cvlt-gray-400 animate-pulse">Caricamento previsione föhn...</span>
