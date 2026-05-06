@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server'
 import { fetchWithTimeout } from '../types'
 import { decompress } from './decompress'
 import { cachedFetch } from '../cache'
+import { readFile, writeFile, mkdir } from 'fs/promises'
+import { join } from 'path'
 
-// DWD MOSMIX-L forecast data for Lugano (06770) and Zürich (06660)
+const HISTORY_FILE = join(process.cwd(), 'cache', 'foehn-history.json')
+
 const URL_LUGANO = 'https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_L/single_stations/06770/kml/MOSMIX_L_LATEST_06770.kmz'
 const URL_ZURICH = 'https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_L/single_stations/06660/kml/MOSMIX_L_LATEST_06660.kmz'
 
@@ -12,25 +15,59 @@ type FoehnPoint = {
   diffP: number
 }
 
+async function loadHistory(): Promise<FoehnPoint[]> {
+  try {
+    const raw = await readFile(HISTORY_FILE, 'utf-8')
+    return JSON.parse(raw) as FoehnPoint[]
+  } catch {
+    return []
+  }
+}
+
+async function saveHistory(points: FoehnPoint[]): Promise<void> {
+  try {
+    await mkdir(join(process.cwd(), 'cache'), { recursive: true })
+    await writeFile(HISTORY_FILE, JSON.stringify(points))
+  } catch (e) {
+    console.error('[FOEHN] Failed to save history:', e)
+  }
+}
+
+function mergeWithHistory(current: FoehnPoint[], history: FoehnPoint[]): FoehnPoint[] {
+  const currentFirstMs = current.length > 0 ? new Date(current[0].time).getTime() : Date.now()
+  const dayMs = 24 * 60 * 60 * 1000
+  const cutoff = currentFirstMs - 7 * dayMs
+
+  const relevant = history.filter(p => {
+    const t = new Date(p.time).getTime()
+    return t < currentFirstMs && t >= cutoff
+  })
+
+  const map = new Map<string, FoehnPoint>()
+  for (const p of relevant) map.set(p.time, p)
+  for (const p of current) map.set(p.time, p)
+
+  const merged = Array.from(map.values())
+  merged.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
+  return merged
+}
+
 async function extractPressure(url: string): Promise<{ times: string[]; pressures: number[] }> {
   const res = await fetchWithTimeout(url, 15000)
   const buffer = await res.arrayBuffer()
 
-  // KMZ is a zip file - decompress to get KML
   const kml = await decompress(buffer)
 
-  // Extract timestamps
   const timeMatches = kml.match(/<dwd:TimeStep>([^<]+)<\/dwd:TimeStep>/g) ?? []
   const times = timeMatches.map(m => {
     const match = m.match(/>([^<]+)</)
     return match ? match[1] : ''
   }).filter(Boolean)
 
-  // Extract PPPP (pressure in Pa)
   const ppppMatch = kml.match(/elementName="PPPP"[\s\S]*?<dwd:value>([\s\S]*?)<\/dwd:value>/)
   if (!ppppMatch) throw new Error('PPPP not found')
 
-  const pressures = ppppMatch[1].trim().split(/\s+/).map(v => parseFloat(v) / 100) // Pa → hPa
+  const pressures = ppppMatch[1].trim().split(/\s+/).map(v => parseFloat(v) / 100)
 
   return { times, pressures }
 }
@@ -55,14 +92,29 @@ async function fetchFoehnData(): Promise<{ data: FoehnPoint[] }> {
     })
   }
 
-  // Forward-only window: [now, now+7d]. (Raw MOSMIX also has past steps; keeping those made the x-axis ~10+ calendar days wide.)
-  const now = Date.now()
+  const history = await loadHistory()
+  const merged = mergeWithHistory(data, history)
+
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  const startMs = now.getTime()
   const dayMs = 24 * 60 * 60 * 1000
-  const horizonMs = now + 7 * dayMs
-  const capped = data.filter((p) => {
+  const horizonMs = startMs + 7 * dayMs
+  const capped = merged.filter((p) => {
     const t = new Date(p.time).getTime()
-    return !Number.isNaN(t) && t >= now && t <= horizonMs
+    return !Number.isNaN(t) && t >= startMs && t < horizonMs
   })
+
+  const toSave = data.filter(p => {
+    const t = new Date(p.time).getTime()
+    return t < Date.now()
+  })
+  if (toSave.length > 0) {
+    const updatedHistory = mergeWithHistory(toSave, history)
+    const pruneBefore = Date.now() - 7 * dayMs
+    const pruned = updatedHistory.filter(p => new Date(p.time).getTime() >= pruneBefore)
+    await saveHistory(pruned)
+  }
 
   return { data: capped }
 }
