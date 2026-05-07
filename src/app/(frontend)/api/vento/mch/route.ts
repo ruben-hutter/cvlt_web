@@ -7,7 +7,7 @@ const MCH_URL =
   'https://s3-eu-central-1.amazonaws.com/app-prod-static-fra.meteoswiss-app.ch/v1/currentWeather.json'
 
 const STATIONS: Record<string, { name: string; elev: number; chx: number; mchId: string; isPeak?: boolean }> = {
-  GUE: { name: 'Gottardo', elev: 2283, chx: 167426, mchId: 'GUE', isPeak: true },
+  GUE: { name: 'Andermatt', elev: 2283, chx: 167426, mchId: 'GUE', isPeak: true },
   PIO: { name: 'Piotta', elev: 990, chx: 152284, mchId: 'PIO', isPeak: false },
   SBE: { name: 'San Bernardino', elev: 1639, chx: 147345, mchId: 'SBE', isPeak: true },
   COM: { name: 'Comprovasco', elev: 575, chx: 146503, mchId: 'COM', isPeak: false },

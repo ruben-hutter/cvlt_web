@@ -77,7 +77,7 @@ const SLF_DATA_URL =
 
 const SLF_IDS = [
   'BED1', 'MES1', 'CAM1', 'SIM1', 'VAL1', 'SIM2', 'BED2', 'MES2',
-  'NAR1', 'VAL2', 'CAM2', 'MTR1', 'BED3', 'NAR2', 'DTR2', 'MTR2',
+  'NAR1', 'CAM2', 'MTR1', 'BED3', 'NAR2', 'DTR2', 'MTR2', 'BOG3', 'VRG3',
 ]
 
 type SLFMeta = { lat: number; lon: number; elev: number; label: string }
@@ -142,7 +142,7 @@ async function fetchSLFStations(): Promise<(WindStation & { lat: number })[]> {
       cloudBase: null,
       lastUpdate: obsTime,
       lat: meta.lat,
-      sourceUrl: 'https://whiterisk.ch/en/conditions/measurements/wind',
+      sourceUrl: `https://whiterisk.ch/en/conditions/measurements/station/IMIS/${id}`,
     })
   }
 
