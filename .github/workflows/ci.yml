@@ -24,10 +24,10 @@ jobs:
       SHOP_PAYLINK_URL: https://pay.placeholder.local/ci
       SHOP_ORDER_TOKEN_SECRET: ci-placeholder-secret
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
 
