@@ -1,7 +1,7 @@
 ---
 description: "Read-only code reviewer — checks security, style, duplicates, best practices"
 mode: subagent
-model: github-copilot/claude-sonnet-4-20250514
+model: github-copilot/gpt-5.2-codex
 permission:
   edit: deny
   bash: deny
