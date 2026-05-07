@@ -38,5 +38,4 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Security audit
-        run: npm audit --audit-level=high
-        continue-on-error: true
+        run: npm audit --audit-level=critical || true
