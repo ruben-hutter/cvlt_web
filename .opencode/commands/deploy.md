@@ -28,15 +28,21 @@ Invoke the `@reviewer` subagent on the staged diff. Pass it all changed files so
 - Push to origin dev: `git push origin dev`
 - If the push fails, report the error and stop
 
-## 5. Merge into main
-Since this project uses git worktrees:
-- The main worktree is at `/home/ruben/repos/cvlt_web`
-- Run: `git -C /home/ruben/repos/cvlt_web merge dev`
-- If there are merge conflicts, report them and STOP — do not resolve automatically
-- Push main: `git -C /home/ruben/repos/cvlt_web push origin main`
+## 5. Create or update PR
+- Check if there's already an open PR from dev to main: `gh pr list --head dev --base main`
+- If no PR exists, create one: `gh pr create --base main --head dev --title "deploy: <commit subject>" --body "<summary>"`
+- If a PR already exists, it will automatically update with the new commit
 
-## 6. Report
-- Confirm both dev and main are pushed successfully
+## 6. Wait for CI
+- Wait for the CI check to pass on the PR: `gh pr checks <pr-number>`
+- If CI fails, report the failure and STOP — do not merge
+
+## 7. Merge PR to main
+- Once CI passes, merge the PR: `gh pr merge <pr-number> --merge`
+- This deploys to production (cvlt.ch)
+
+## 8. Report
+- Confirm the merge was successful
 - Report what was deployed to production (cvlt.ch)
 
 IMPORTANT: Never force push. Never use --no-verify. If anything fails, stop and report.
