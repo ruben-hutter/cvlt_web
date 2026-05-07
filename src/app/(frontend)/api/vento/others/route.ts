@@ -190,10 +190,18 @@ async function fetchHolfuyStations(): Promise<(WindStation & { lat: number })[]>
         if (tempM) temp = parseFloat(tempM[1])
         const timeM = clean.match(/data_time\s*=\s*(\d+):(\d+)/)
         if (timeM) {
-          const now = new Date()
           const h = parseInt(timeM[1], 10)
           const m = parseInt(timeM[2], 10)
-          lastUpdateMin = (now.getHours() - h) * 60 + (now.getMinutes() - m)
+          const fmt = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Europe/Zurich',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false,
+          })
+          const parts = fmt.formatToParts(new Date())
+          const nowH = parseInt(parts.find(p => p.type === 'hour')!.value, 10)
+          const nowM = parseInt(parts.find(p => p.type === 'minute')!.value, 10)
+          lastUpdateMin = (nowH - h) * 60 + (nowM - m)
           if (lastUpdateMin < 0) lastUpdateMin += 1440
         }
       }
