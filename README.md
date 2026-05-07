@@ -1,6 +1,6 @@
 # CVLT Web
 
-Website of the **Club Volo Libero Ticino** (cvlt.ch)
+[Website](https://cvlt.ch) of the **Club Volo Libero Ticino**
 
 Built with [Next.js](https://nextjs.org/) and [Payload CMS](https://payloadcms.com/).
 
