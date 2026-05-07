@@ -75,14 +75,17 @@ This project uses **git worktrees**. The branches live in separate directories:
 ### Deploy pipeline
 1. Work on `dev` branch (current directory is the dev worktree)
 2. Test locally with `npm run dev`
-3. Merge into `main` → deploys to `cvlt.ch`
+3. Push to `origin dev`
+4. Create PR from dev to main (via `gh pr create`)
+5. Wait for CI to pass
+6. Merge PR → deploys to `cvlt.ch`
 
 ### How to merge into main from the dev worktree
 ```bash
-git -C /home/ruben/repos/cvlt_web merge dev
-git -C /home/ruben/repos/cvlt_web push origin main
+gh pr create --base main --head dev --title "deploy: description" --body "summary"
+gh pr merge <number> --merge
 ```
-Do NOT `git checkout main` in the dev worktree. Always operate on the main worktree via `git -C`.
+Do NOT `git checkout main` in the dev worktree. Use PR-based merges via `gh`.
 
 ### Commit conventions
 - Commit messages in English, imperative mood (e.g. "add contact section")
