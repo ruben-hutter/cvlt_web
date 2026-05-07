@@ -42,6 +42,9 @@ tsconfig.tsbuildinfo
 .claude/
 .cursor/
 
+# opencode local config (contains local paths)
+opencode.json
+
 # misc
 .DS_Store
 *.pem

@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // .tool_input.filePath // empty'); EXT=${FILE##*.}; case \"$EXT\" in ts|tsx|js|jsx|mjs) npx next lint --file \"$FILE\" 2>&1 || true;; esac"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // .tool_input.filePath // empty'); if echo \"$FILE\" | grep -qE '(\\.env$|\\.env\\.local$|package-lock\\.json)'; then echo \"Blocked: editing $FILE is not allowed\" >&2; exit 2; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
