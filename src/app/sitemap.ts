@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const newsPages: MetadataRoute.Sitemap = news.docs.map((doc) => ({
       url: `${BASE_URL}/notizie/${doc.slug}`,
-      lastModified: new Date(doc.updatedAt),
+      lastModified: new Date(doc.updatedAt as string),
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     }))
@@ -46,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const eventPages: MetadataRoute.Sitemap = events.docs.map((doc) => ({
       url: `${BASE_URL}/calendario/${doc.slug}`,
-      lastModified: new Date(doc.updatedAt),
+      lastModified: new Date(doc.updatedAt as string),
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     }))
@@ -59,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const albumPages: MetadataRoute.Sitemap = albums.docs.map((doc) => ({
       url: `${BASE_URL}/galleria/${doc.slug}`,
-      lastModified: new Date(doc.updatedAt),
+      lastModified: new Date(doc.updatedAt as string),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     }))
