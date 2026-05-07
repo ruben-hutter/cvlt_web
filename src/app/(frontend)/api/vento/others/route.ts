@@ -31,7 +31,7 @@ async function fetchPWSStations(): Promise<(WindStation & { lat: number })[]> {
       if (!obs) return null
 
       const m = obs.metric
-      const minutesAgo = Math.round((Date.now() / 1000 - obs.epoch) / 60)
+      const obsTime = obs.epoch != null ? obs.epoch * 1000 : null
       const windAvg = m?.windSpeed ?? null
       const windGust = m?.windGust ?? null
       const windDir = obs.winddir != null && obs.winddir <= 360 ? obs.winddir : null
@@ -55,7 +55,7 @@ async function fetchPWSStations(): Promise<(WindStation & { lat: number })[]> {
         windLevel: computeWindLevel(windDir, windAvg, windGust),
         temp: temp != null ? `${Math.round(temp)}°C` : null,
         cloudBase,
-        lastUpdate: minutesAgo >= 0 && minutesAgo < 120 ? `${minutesAgo}min` : null,
+        lastUpdate: obsTime,
         lat: obs.lat ?? 0,
         sourceUrl: `https://www.wunderground.com/dashboard/pws/${id}`,
       }
@@ -127,9 +127,7 @@ async function fetchSLFStations(): Promise<(WindStation & { lat: number })[]> {
     if (windAvg == null && windGust == null) continue
 
     const slfTimestamp = data?.windVelocityMean?.timestamp ?? data?.windVelocityMax?.timestamp
-    const minutesAgo = slfTimestamp
-      ? Math.round((Date.now() - new Date(slfTimestamp).getTime()) / 60000)
-      : null
+    const obsTime = slfTimestamp ? new Date(slfTimestamp).getTime() : null
 
     const label = meta.label.replace(/\s+\d{4,}$/, '')
 
@@ -142,10 +140,7 @@ async function fetchSLFStations(): Promise<(WindStation & { lat: number })[]> {
       windLevel: computeWindLevel(windDir, windAvg, windGust),
       temp: temp != null && Math.abs(temp) < 100 ? `${Math.round(temp)}°C` : null,
       cloudBase: null,
-      lastUpdate:
-        minutesAgo != null && minutesAgo >= 0 && minutesAgo < 120
-          ? `${minutesAgo}min`
-          : null,
+      lastUpdate: obsTime,
       lat: meta.lat,
       sourceUrl: 'https://whiterisk.ch/en/conditions/measurements/wind',
     })
@@ -176,7 +171,7 @@ async function fetchHolfuyStations(): Promise<(WindStation & { lat: number })[]>
       let windAvg: number | null = null
       let windGust: number | null = null
       let temp: number | null = null
-      let lastUpdateMin: number | null = null
+      let obsTime: number | null = null
 
       for (const line of text.split('\n')) {
         const clean = line.replace(/"/g, '')
@@ -201,8 +196,9 @@ async function fetchHolfuyStations(): Promise<(WindStation & { lat: number })[]>
           const parts = fmt.formatToParts(new Date())
           const nowH = parseInt(parts.find(p => p.type === 'hour')!.value, 10)
           const nowM = parseInt(parts.find(p => p.type === 'minute')!.value, 10)
-          lastUpdateMin = (nowH - h) * 60 + (nowM - m)
-          if (lastUpdateMin < 0) lastUpdateMin += 1440
+          let diffMin = (nowH - h) * 60 + (nowM - m)
+          if (diffMin < -60) diffMin += 1440
+          obsTime = Date.now() - diffMin * 60000
         }
       }
 
@@ -215,10 +211,7 @@ async function fetchHolfuyStations(): Promise<(WindStation & { lat: number })[]>
         windLevel: computeWindLevel(windDir, windAvg, windGust),
         temp: temp != null ? `${Math.round(temp)}°C` : null,
         cloudBase: null,
-        lastUpdate:
-          lastUpdateMin != null && lastUpdateMin >= 0 && lastUpdateMin < 120
-            ? `${lastUpdateMin}min`
-            : null,
+        lastUpdate: obsTime,
         lat: info.lat,
         sourceUrl: `https://holfuy.com/en/weather/${idStr}`,
       }
@@ -257,10 +250,7 @@ async function fetchWindbirdStations(): Promise<(WindStation & { lat: number })[
       const windGust = meas?.wind_speed_max != null ? Math.round(meas.wind_speed_max) : null
       const windDir = meas?.wind_heading != null ? Math.round(meas.wind_heading) : null
 
-      let minutesAgo: number | null = null
-      if (meas?.date) {
-        minutesAgo = Math.round((Date.now() - new Date(meas.date).getTime()) / 60000)
-      }
+      const obsTime = meas?.date ? new Date(meas.date).getTime() : null
 
       const station: WindStation & { lat: number } = {
         name: `WBD-${info.name}`,
@@ -271,10 +261,7 @@ async function fetchWindbirdStations(): Promise<(WindStation & { lat: number })[
         windLevel: computeWindLevel(windDir, windAvg, windGust),
         temp: null as string | null,
         cloudBase: null as string | null,
-        lastUpdate:
-          minutesAgo != null && minutesAgo >= 0 && minutesAgo < 120
-            ? `${minutesAgo}min`
-            : null,
+        lastUpdate: obsTime,
         lat: d.location?.latitude ?? info.lat,
         sourceUrl: `https://www.openwindmap.org/windbird-${idStr}`,
       }
@@ -330,10 +317,7 @@ async function fetchFaidoStation(): Promise<(WindStation & { lat: number }) | nu
       windLevel: computeWindLevel(windDir, windAvg, windGust),
       temp: temp != null ? `${Math.round(temp)}°C` : null,
       cloudBase: null,
-      lastUpdate:
-        minutesAgo != null && minutesAgo >= 0 && minutesAgo < 120
-          ? `${minutesAgo}min`
-          : null,
+      lastUpdate: utcDate,
       lat: FAIDO_LAT,
       sourceUrl: 'http://www.tencia.ch/data/11___24h_Wind.png',
     }

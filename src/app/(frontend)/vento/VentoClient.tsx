@@ -34,7 +34,14 @@ function windLevelBorder(level: WindStation['windLevel']) {
   }
 }
 
-function StationCard({ station }: { station: WindStation }) {
+function formatLastUpdate(epochMs: number | null): string {
+  if (epochMs == null) return '—'
+  const minutesAgo = Math.round((Date.now() - epochMs) / 60000)
+  if (minutesAgo < 0 || minutesAgo >= 120) return '—'
+  return `${minutesAgo}min`
+}
+
+function StationCard({ station, now }: { station: WindStation; now: number }) {
   const peakIcon = station.isPeak ? (
     <svg className="h-3.5 w-3.5 flex-shrink-0 text-cvlt-gray-400 sm:h-4 sm:w-4" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z" />
@@ -76,7 +83,7 @@ function StationCard({ station }: { station: WindStation }) {
             <span className="text-base text-cvlt-gray-400">—</span>
           )}
         </div>
-        <span className="flex-shrink-0 text-[11px] text-cvlt-gray-400">{station.lastUpdate ?? '—'}</span>
+        <span className="flex-shrink-0 text-[11px] text-cvlt-gray-400">{formatLastUpdate(station.lastUpdate)}</span>
       </div>
 
       {/* Desktop: original two-row layout */}
@@ -88,7 +95,7 @@ function StationCard({ station }: { station: WindStation }) {
               <span className="truncate text-sm font-semibold text-cvlt-gray-900">{formatDisplayName(station.name)}</span>
             </div>
           </div>
-          <span className="flex-shrink-0 text-xs text-cvlt-gray-400">{station.lastUpdate ?? '—'}</span>
+          <span className="flex-shrink-0 text-xs text-cvlt-gray-400">{formatLastUpdate(station.lastUpdate)}</span>
         </div>
 
         <div className="mt-2 flex items-center gap-4">
@@ -151,7 +158,7 @@ function StationsSection({ title, timestamp, stations }: { title: string; timest
         {timestamp && <span className="text-xs text-cvlt-gray-400">{timestamp}</span>}
       </div>
       <div className="mt-2 grid grid-cols-1 gap-1.5 sm:mt-3 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
-        {stations.map((s, i) => <StationCard key={`${s.name}-${i}`} station={s} />)}
+        {stations.map((s, i) => <StationCard key={`${s.name}-${i}`} station={s} now={Date.now()} />)}
       </div>
     </section>
   )
@@ -1028,6 +1035,12 @@ export function VentoClient() {
   const [pressure, setPressure] = useState<SectionState<{ data: PressurePoint[] }>>({ data: null, loading: true, error: false })
   const [foehn, setFoehn] = useState<SectionState<{ data: FoehnPoint[] }>>({ data: null, loading: true, error: false })
   const [regionFilter, setRegionFilter] = useState<string>(REGION_ALL)
+  const [tick, setTick] = useState(Date.now())
+
+  useEffect(() => {
+    const id = setInterval(() => setTick(Date.now()), 60_000)
+    return () => clearInterval(id)
+  }, [])
 
   const fetchSection = useCallback(async <T,>(
     url: string,
@@ -1048,8 +1061,8 @@ export function VentoClient() {
 
   useEffect(() => {
     const cacheKeys = [
-      { key: 'vento:mch:v2', setter: setMch },
-      { key: 'vento:others:v3', setter: setOthers },
+      { key: 'vento:mch:v3', setter: setMch },
+      { key: 'vento:others:v4', setter: setOthers },
       { key: 'vento:lakes', setter: setLakes },
       { key: 'vento:pressure', setter: setPressure },
       { key: 'vento:foehn', setter: setFoehn },
@@ -1062,8 +1075,8 @@ export function VentoClient() {
     }
 
     const fetchWind = () => {
-      fetchSection<StationsResponse>('/api/vento/mch', setMch, 'vento:mch:v2')
-      fetchSection<StationsResponse>('/api/vento/others', setOthers, 'vento:others:v3')
+      fetchSection<StationsResponse>('/api/vento/mch', setMch, 'vento:mch:v3')
+      fetchSection<StationsResponse>('/api/vento/others', setOthers, 'vento:others:v4')
     }
     const fetchPressureFn = () => fetchSection<{ data: PressurePoint[] }>('/api/vento/pressure', setPressure, 'vento:pressure')
     const fetchFoehnFn = () => fetchSection<{ data: FoehnPoint[] }>('/api/vento/foehn', setFoehn, 'vento:foehn')
@@ -1184,7 +1197,7 @@ export function VentoClient() {
                         <h3 className="mb-1.5 text-sm font-semibold text-cvlt-gray-500">{label}</h3>
                       )}
                       <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
-                        {stations.map((s, i) => <StationCard key={`${s.name}-${i}`} station={s} />)}
+                        {stations.map((s, i) => <StationCard key={`${s.name}-${i}`} station={s} now={tick} />)}
                       </div>
                     </div>
                   ))}
