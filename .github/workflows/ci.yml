@@ -8,25 +8,26 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [24]
+    env:
+      PAYLOAD_SECRET: ci-placeholder
+      DATABASE_URI: file:./ci.db
+      NEXT_PUBLIC_SERVER_URL: https://cvlt.ch
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 24
 
       - name: Install dependencies
         run: npm install
 
+      - name: Build (generates importMap + types)
+        run: npm run build
+
       - name: Typecheck
         run: npx tsc --noEmit
-
-      - name: Build
-        run: npm run build
 
       - name: Security audit
         run: npm audit --audit-level=moderate
