@@ -500,9 +500,9 @@ function PressureChart({ data, isMobilePortrait }: { data: PressurePoint[]; isMo
       ctx.stroke()
       ctx.setLineDash([])
       ctx.fillStyle = '#f97316'
-      ctx.font = 'bold 9px system-ui, sans-serif'
+      ctx.font = 'bold 11px system-ui, sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('ora', nowX, pad.top + 10)
+      ctx.fillText('ora', nowX, pad.top - 2)
       ctx.restore()
     }
 
