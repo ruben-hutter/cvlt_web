@@ -47,7 +47,7 @@ async function fetchMCHData(): Promise<StationsResponse> {
     .map((id) => {
       const d = json.data[id]
       const info = STATIONS[id]
-      const minutesAgo = Math.round((Date.now() - (d.smnTime || smnTime)) / 60000)
+      const obsTime = d.smnTime || smnTime
 
       const windSpeed = d.windSpeed != null ? Math.round(d.windSpeed) : null
       const windGust = d.windGust != null ? Math.round(d.windGust) : null
@@ -76,13 +76,14 @@ async function fetchMCHData(): Promise<StationsResponse> {
         windLevel: computeWindLevel(windDir, windSpeed, windGust),
         temp: temp != null ? `${Math.round(temp)}°C` : null,
         cloudBase,
-        lastUpdate: minutesAgo >= 0 && minutesAgo < 120 ? `${minutesAgo}min` : null,
+        lastUpdate: obsTime,
         sourceUrl: `https://www.meteosvizzera.admin.ch/servizi-e-pubblicazioni/applicazioni/valori-attuali.html#param=messwerte-windgeschwindigkeit-kmh-10min&station=${info.mchId}`,
       }
     })
     .filter((s) => {
       if (s.windAvg === 0 && s.windDir === 0 && (s.windGust ?? 0) === 0) return false
-      if (s.lastUpdate == null) return false
+      const minutesAgo = Math.round((Date.now() - s.lastUpdate!) / 60000)
+      if (minutesAgo < 0 || minutesAgo >= 120) return false
       return true
     })
 

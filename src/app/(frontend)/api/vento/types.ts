@@ -7,7 +7,7 @@ export type WindStation = {
   windLevel: 'strong' | 'moderate' | 'light'
   temp: string | null
   cloudBase: string | null
-  lastUpdate: string | null
+  lastUpdate: number | null
   sourceUrl: string | null
 }
 
