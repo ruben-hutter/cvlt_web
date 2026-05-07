@@ -7,7 +7,7 @@
 - [ ] Update "Info volo" page: add formal agreements with Locarno airport (airspace/TMA info already present)
 - [ ] Check hyprlinks for stazioni meteo in "Vento" page
 - [ ] Avere una lista (magari nella db) come per le richieste di adesione, anche per le richieste di contatto e ordini dallo shop, in modo da poterle gestire e sopratutto tenere traccia anche qualora non dovesse funzionare l'invio mail
-- [ ] Make agent hooks or something like that (maybe just read into CLAUDE.md) to automatically add to feedback loop when i give a screenshot in a session, for every prompt to check the last screenshot with the latest changes. Also add a command to commit, push and merge changes into main branch. Think about other improvements to the workflow with AI agents. One possible hook could be to automatically update the TODO.md file with the new changes of the session or to add a plan into plans/ if i have just an idea (could be a command).
+- [x] Agent workflow improvements: `/deploy` command (commit+push+merge), `/idea` command (quick plans), `AGENTS.md` with worktree+git workflow, screenshot feedback loop, `external_directory` permission for worktree access
 - [ ] Refactor code base. Some fixes probably "messed" up the code base and made it a bit messy. I should go through the code and refactor it to make it cleaner and more maintainable. This could include things like:
     - Removing duplicate code
     - Organizing files and folders better

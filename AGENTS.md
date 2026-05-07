@@ -1,4 +1,4 @@
-# CVLT Web - Project Context for Claude
+# CVLT Web - Project Context
 
 ## What is this?
 The paragliding club website [cvlt.ch](https://cvlt.ch) for **Club Volo Libero Ticino**.
