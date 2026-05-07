@@ -211,14 +211,13 @@ type FoehnPoint = {
 }
 
 const STATION_REGIONS: Record<string, string> = {
-  'Gottardo': 'alpi',
+  'Andermatt': 'alpi',
   'Piotta': 'alpi',
   'San Bernardino': 'alpi',
   'Robiei': 'alpi',
   'Matro': 'alpi',
   'Cimetta': 'sopraceneri',
   'SLF-Löita': 'alpi',
-  'SLF-Vallascia': 'alpi',
   'SLF-Preda': 'alpi',
   'HFY-Lago Ritom': 'alpi',
   'SLF-Cassinello': 'alpi',
@@ -231,8 +230,11 @@ const STATION_REGIONS: Record<string, string> = {
   'SLF-Piz Pian Grand': 'alpi',
   'SLF-Pian Grand': 'alpi',
   'SLF-Predanass': 'alpi',
+  'SLF-Lucendro': 'alpi',
+  'SLF-Bombögn Wind': 'alpi',
   'WBD-StaMariaGR': 'sopraceneri',
-  'WBD-AlpeMatro': 'alpi',
+  'SLF-Porcaresc': 'sopraceneri',
+  'WBD-AlpeMatro': 'sottoceneri',
   'Comprovasco': 'alpi',
   'Biasca': 'sopraceneri',
   'Cevio': 'sopraceneri',
@@ -267,8 +269,9 @@ function getStationRegion(name: string): string {
 
 const DISPLAY_NAME_OVERRIDES: Record<string, string> = {
   'WBD-StaMariaGR': 'Sta Maria GR',
-  'WBD-AlpeMatro': 'Alpe Matro',
+  'WBD-AlpeMatro': 'Piccolo Matro',
   'HFY-Mte Lema': 'Monte Lema',
+  'SLF-Bombögn Wind': 'Bombögn',
 }
 
 function formatDisplayName(name: string): string {
