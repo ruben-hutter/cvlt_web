@@ -126,6 +126,11 @@ async function fetchSLFStations(): Promise<(WindStation & { lat: number })[]> {
 
     if (windAvg == null && windGust == null) continue
 
+    const slfTimestamp = data?.windVelocityMean?.timestamp ?? data?.windVelocityMax?.timestamp
+    const minutesAgo = slfTimestamp
+      ? Math.round((Date.now() - new Date(slfTimestamp).getTime()) / 60000)
+      : null
+
     const label = meta.label.replace(/\s+\d{4,}$/, '')
 
     stations.push({
@@ -137,7 +142,10 @@ async function fetchSLFStations(): Promise<(WindStation & { lat: number })[]> {
       windLevel: computeWindLevel(windDir, windAvg, windGust),
       temp: temp != null && Math.abs(temp) < 100 ? `${Math.round(temp)}°C` : null,
       cloudBase: null,
-      lastUpdate: null,
+      lastUpdate:
+        minutesAgo != null && minutesAgo >= 0 && minutesAgo < 120
+          ? `${minutesAgo}min`
+          : null,
       lat: meta.lat,
       sourceUrl: 'https://whiterisk.ch/en/conditions/measurements/wind',
     })
