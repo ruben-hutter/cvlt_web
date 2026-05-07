@@ -9,9 +9,17 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     env:
-      PAYLOAD_SECRET: ci-placeholder
+      PAYLOAD_SECRET: ci-placeholder-secret
       DATABASE_URI: file:./ci.db
       NEXT_PUBLIC_SERVER_URL: https://cvlt.ch
+      SMTP_USER: ci@placeholder.local
+      SMTP_PASS: ci-placeholder
+      SMTP_FROM: ci@placeholder.local
+      MEMBERSHIP_EMAIL: ci@placeholder.local
+      SHOP_EMAIL: ci@placeholder.local
+      CONTACT_EMAIL: ci@placeholder.local
+      SHOP_PAYLINK_URL: https://pay.placeholder.local/ci
+      SHOP_ORDER_TOKEN_SECRET: ci-placeholder-secret
     steps:
       - uses: actions/checkout@v4
 
