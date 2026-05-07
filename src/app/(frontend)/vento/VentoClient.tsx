@@ -52,7 +52,7 @@ function StationCard({ station }: { station: WindStation }) {
       rel="noopener noreferrer"
       className={`block rounded-lg border p-2 transition-shadow hover:shadow-md sm:p-3 ${windLevelBorder(station.windLevel)}`}
     >
-      {/* Mobile: single compact row */}
+      {/* Mobile: single compact row with lastUpdate */}
       <div className="flex items-center gap-1.5 sm:hidden">
         {peakIcon}
         <span className="min-w-0 flex-1 truncate text-base font-semibold text-cvlt-gray-900">{formatDisplayName(station.name)}</span>
@@ -76,6 +76,7 @@ function StationCard({ station }: { station: WindStation }) {
             <span className="text-base text-cvlt-gray-400">—</span>
           )}
         </div>
+        <span className="flex-shrink-0 text-[11px] text-cvlt-gray-400">{station.lastUpdate ?? '—'}</span>
       </div>
 
       {/* Desktop: original two-row layout */}
@@ -87,9 +88,7 @@ function StationCard({ station }: { station: WindStation }) {
               <span className="truncate text-sm font-semibold text-cvlt-gray-900">{formatDisplayName(station.name)}</span>
             </div>
           </div>
-          {station.lastUpdate && (
-            <span className="flex-shrink-0 text-xs text-cvlt-gray-400">{station.lastUpdate}</span>
-          )}
+          <span className="flex-shrink-0 text-xs text-cvlt-gray-400">{station.lastUpdate ?? '—'}</span>
         </div>
 
         <div className="mt-2 flex items-center gap-4">
@@ -112,7 +111,7 @@ function StationCard({ station }: { station: WindStation }) {
           )}
 
           {station.cloudBase && (
-            <span className="text-xs text-green-700">{station.cloudBase}</span>
+            <span className="text-sm text-green-700">{station.cloudBase}</span>
           )}
         </div>
       </div>
@@ -772,9 +771,7 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
           <h3 className="mb-1 text-sm font-medium text-cvlt-gray-600">
             Dati misurati: Magadino&ndash;Kloten (MAG-KLO) e Vento Matro
           </h3>
-          <p className="mb-2 text-xs text-cvlt-gray-400">
-            {isMobilePortrait ? 'Ultimi 3 giorni' : 'Ultimi 7 giorni'} &mdash; dati orari MeteoSwiss
-          </p>
+          <p className="mb-2 text-xs text-cvlt-gray-400">MeteoSwiss</p>
           {loading && !data ? (
             <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
               <span className="text-sm text-cvlt-gray-400 animate-pulse">Caricamento dati pressione...</span>
@@ -791,7 +788,7 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
           <h3 className="mb-1 text-sm font-medium text-cvlt-gray-600">
             Previsione föhn: Lugano&ndash;Zürich
           </h3>
-          <p className="mb-2 text-xs text-cvlt-gray-400">Oggi + prossimi ~7 giorni &mdash; prognosi MOSMIX (DWD)</p>
+          <p className="mb-2 text-xs text-cvlt-gray-400">MOSMIX (DWD)</p>
           {foehnLoading && !foehnData ? (
             <div className="flex h-64 items-center justify-center rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50">
               <span className="text-sm text-cvlt-gray-400 animate-pulse">Caricamento previsione föhn...</span>
@@ -811,7 +808,7 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
 
 function WindLegend() {
   return (
-    <div className="space-y-2.5 text-xs text-cvlt-gray-600">
+    <div className="space-y-2 text-xs text-cvlt-gray-600">
       <div className="flex items-center gap-2">
         <svg className="h-3.5 w-3.5 flex-shrink-0 text-cvlt-gray-400" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z" />
@@ -825,15 +822,35 @@ function WindLegend() {
         Fondovalle
       </div>
       <div className="flex items-center gap-2">
-        <span className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-red-300 bg-red-50" />
-        <span className="text-red-600">&gt;15 km/h</span>
+        <WindArrow degrees={45} size={14} />
+        <span>Direzione vento</span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-amber-200 bg-amber-50" />
-        <span className="text-amber-600">5&ndash;15 km/h</span>
+        <span className="font-bold tabular-nums text-amber-600">5-12</span>
+        <span>Media &ndash; raffica (km/h)</span>
       </div>
-      <div className="pt-1 text-cvlt-gray-400">
-        Velocità media &ndash; raffica
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-green-700">☁</span>
+        <span>Base nubi stimata (solo vetta)</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-cvlt-gray-400">10min</span>
+        <span>Ultimo aggiornamento</span>
+      </div>
+      <div className="border-t border-cvlt-gray-200 pt-2 mt-2 space-y-2">
+        <p className="font-medium text-cvlt-gray-500">Colore bordo e testo:</p>
+        <div className="flex items-start gap-2">
+          <span className="mt-0.5 inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-red-300 bg-red-50" />
+          <span>Rosso &ndash; vento forte oppure da nord con &gt;8 km/h</span>
+        </div>
+        <div className="flex items-start gap-2">
+          <span className="mt-0.5 inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-amber-200 bg-amber-50" />
+          <span>Arancione &ndash; vento moderato oppure da nord con raffiche</span>
+        </div>
+        <div className="flex items-start gap-2">
+          <span className="mt-0.5 inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full border border-cvlt-gray-200 bg-white" />
+          <span>Normale &ndash; condizioni calme</span>
+        </div>
       </div>
     </div>
   )
@@ -845,15 +862,15 @@ function PressureLegend() {
       <p className="font-medium text-cvlt-gray-500">Grafici:</p>
       <div className="flex items-center gap-2">
         <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-blue-400/40" />
-        Δ Pressione (hPa) &mdash; barre
+        Δ Pressione (hPa)
       </div>
       <div className="flex items-center gap-2">
         <span className="inline-block h-0.5 w-4 flex-shrink-0 bg-gray-800" />
-        Δ Temperatura (°C) &mdash; linea
+        Δ Temperatura (°C)
       </div>
       <div className="flex items-center gap-2">
         <span className="inline-block h-2.5 w-4 flex-shrink-0 rounded-sm bg-green-500/20 border border-green-500/40" />
-        Vento Matro (km/h) &mdash; area
+        Vento Matro (km/h)
       </div>
       <div className="border-t border-cvlt-gray-200 pt-2 mt-2">
         <p className="font-medium text-cvlt-gray-500 mb-1.5">Colori barre pressione:</p>
@@ -903,8 +920,8 @@ function Legend() {
   const showPressure = VENTO_PRESSURE_SECTION_IDS.some((id) => id === activeSection)
 
   return (
-    <aside className="hidden flex-shrink-0 lg:block lg:w-44">
-      <div className="sticky top-20 space-y-3 rounded-lg border border-cvlt-gray-200 p-4">
+    <aside className="hidden flex-shrink-0 lg:block lg:w-52">
+      <div className="sticky top-20 space-y-3 rounded-lg border border-cvlt-gray-200 p-3">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-cvlt-gray-400">
           Legenda
         </h3>
