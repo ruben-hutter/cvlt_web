@@ -19,6 +19,25 @@ function escapeIcs(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n')
 }
 
+function buildDescription(event: { title: string; slug?: string | null; location?: string | null; externalLink?: string | null }, baseUrl: string, suffix?: string): string[] {
+  const slug = event.slug ?? ''
+  const eventUrl = `${baseUrl}/calendario/${slug}`
+  const title = suffix ? `${event.title} ${suffix}` : event.title
+
+  const plainParts = [`Vedi "${title}" su cvlt.ch: ${eventUrl}`]
+  if (event.externalLink) plainParts.push(`Link esterno: ${event.externalLink}`)
+  const plainDesc = plainParts.join('\\n')
+
+  const htmlParts = [`<a href="${eventUrl}">Vedi "${escapeIcs(title)}" su cvlt.ch</a>`]
+  if (event.externalLink) htmlParts.push(`<br><a href="${event.externalLink}">Link esterno</a>`)
+  const htmlDesc = `<html><body style="font-family:sans-serif">${htmlParts.join('<br>')}</body></html>`
+
+  return [
+    foldLine(`DESCRIPTION:${escapeIcs(plainDesc)}`),
+    foldLine(`X-ALT-DESC;FMTTYPE=text/html:${escapeIcs(htmlDesc)}`),
+  ]
+}
+
 function foldLine(line: string): string {
   // ICS lines must be max 75 octets; fold with CRLF + space
   const parts: string[] = []
@@ -66,6 +85,7 @@ export async function GET() {
       foldLine(`SUMMARY:${escapeIcs(event.title)}`),
       `STATUS:${statusMap[event.status as string] || 'CONFIRMED'}`,
       `URL:${baseUrl}/calendario/${event.slug}`,
+      ...buildDescription(event, baseUrl),
     ]
 
     if (event.location) {
@@ -85,6 +105,7 @@ export async function GET() {
         foldLine(`SUMMARY:${escapeIcs(event.title)} - riserva`),
         `STATUS:TENTATIVE`,
         `URL:${baseUrl}/calendario/${event.slug}`,
+        ...buildDescription(event, baseUrl, '- riserva'),
       )
       if (event.location) {
         lines.push(foldLine(`LOCATION:${escapeIcs(event.location as string)}`))

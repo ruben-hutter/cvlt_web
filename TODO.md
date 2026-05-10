@@ -2,8 +2,7 @@
 
 ## High priority
 
-- [ ] Avere una lista (magari nella db) come per le richieste di adesione, anche per le richieste di contatto e ordini dallo shop, in modo da poterle gestire e sopratutto tenere traccia anche qualora non dovesse funzionare l'invio mail
-- [ ] If possible add to the events in the calendar, the link to the event page -> When i subscribe the calendar, i want to be able to have the link in the description so that i can click on it and go to the website to see more info about the event.
+- [x] If possible add to the events in the calendar, the link to the event page -> When i subscribe the calendar, i want to be able to have the link in the description so that i can click on it and go to the website to see more info about the event.
 - [ ] Implement remaining SEO improvements (plan at `plans/cvlt-seo-performance-improvements.md` — sitemap, robots.txt, lang attr, 301 redirects, basic meta already done; structured data, per-page OG, image filename sanitization, WebP still pending)
 - [ ] Create automated generation of whatsapp message / news when a new news entry is published on the website.
     - Maybe use the RSS feed to trigger some program (maybe write one myself with a cronjob) that checks for new news and then sends a message to the whatsapp group or to myself (also on telegram or other platforms) so that i can just copy and paste it.
@@ -34,8 +33,6 @@
     - Instagram API requires paid tools (Zapier/Make.com); IFTTT free covers Facebook only
     - Revisit when better free options exist
 
-- [ ] Improve foehn forecast resilience: retry on DNS failures, reduce log noise, pre-seed cache on deploy (plan at `plans/foehn-dns-resilience.md`)
-
 ## Low priority
 
 - [ ] Extend the news search also to the content of the news (requires parsing Lexical blocks JSON into plain text).
@@ -49,6 +46,8 @@
 
 ## Done
 
+- [x] Avere una lista (magari nella db) come per le richieste di adesione, anche per le richieste di contatto e ordini dallo shop, in modo da poterle gestire e sopratutto tenere traccia anche qualora non dovesse funzionare l'invio mail
+- [x] Improve foehn forecast resilience: retry on DNS failures, reduce log noise, pre-seed cache on deploy (plan at `plans/foehn-dns-resilience.md`)
 - [x] Aggiungere link al sito vento.cvlt.ch così da accontentare anche quelli difficili ;)
 - [x] Aggiungere filtro alpi ticinesi, sopraceneri e sottoceneri per le stazioni del vento
 - [x] Leggenda pagina vento su mobile non visibile, trovare soluzione
