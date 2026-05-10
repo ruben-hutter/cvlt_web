@@ -56,9 +56,37 @@ export function formatCloudBase(hBase: number): string | null {
   return `${rounded}m`
 }
 
-export async function fetchWithTimeout(url: string, timeoutMs = 8000): Promise<Response> {
-  return fetch(url, {
-    signal: AbortSignal.timeout(timeoutMs),
-    headers: { 'User-Agent': 'Mozilla/5.0' },
-  })
+const RETRYABLE_ERRORS = new Set(['EAI_AGAIN', 'ENOTFOUND', 'ECONNREFUSED', 'ECONNRESET'])
+
+function isRetryableError(err: unknown): boolean {
+  if (err instanceof TypeError && err.cause instanceof Error) {
+    const code = (err.cause as NodeJS.ErrnoException).code
+    return RETRYABLE_ERRORS.has(code ?? '')
+  }
+  return false
+}
+
+export async function fetchWithTimeout(
+  url: string,
+  timeoutMs = 8000,
+  retries = 2,
+  retryDelayMs = 1500,
+): Promise<Response> {
+  let lastError: unknown
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fetch(url, {
+        signal: AbortSignal.timeout(timeoutMs),
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+      })
+    } catch (err) {
+      lastError = err
+      if (attempt < retries && isRetryableError(err)) {
+        await new Promise(r => setTimeout(r, retryDelayMs))
+        continue
+      }
+      throw err
+    }
+  }
+  throw lastError
 }
