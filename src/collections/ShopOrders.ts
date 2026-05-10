@@ -45,13 +45,13 @@ export const ShopOrders: CollectionConfig = {
       type: 'row',
       fields: [
         {
-          name: 'firstName',
+          name: 'lastName',
           type: 'text',
           label: 'Cognome',
           required: true,
         },
         {
-          name: 'lastName',
+          name: 'firstName',
           type: 'text',
           label: 'Nome',
           required: true,
