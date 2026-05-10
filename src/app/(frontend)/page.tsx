@@ -26,7 +26,7 @@ export default async function HomePage() {
 
   try {
     const payload = await getPayload({ config })
-    news.docs = await getPublishedNewsWithFeaturedFirst({ payload, limit: 9, depth: 1 })
+    news.docs = await getPublishedNewsWithFeaturedFirst({ payload, limit: 8, depth: 1 })
 
     events = await payload.find({
       collection: 'events',
@@ -228,7 +228,7 @@ export default async function HomePage() {
             </div>
 
             {/* TMA Locarno */}
-            <div className="mt-auto rounded-lg border border-cvlt-gray-200 p-4">
+            <div className="rounded-lg border border-cvlt-gray-200 p-4">
               <h2 className="text-xl font-bold text-cvlt-gray-900">TMA Locarno</h2>
               <a
                 href="https://www.facebook.com/TMA-Locarno-1037676889614177/"

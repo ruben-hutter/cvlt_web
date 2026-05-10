@@ -7,6 +7,9 @@ import { join } from 'path'
 
 const HISTORY_FILE = join(process.cwd(), 'cache', 'foehn-history.json')
 
+let lastErrorLogMs = 0
+const ERROR_LOG_INTERVAL = 15 * 60 * 1000
+
 const URL_LUGANO = 'https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_L/single_stations/06770/kml/MOSMIX_L_LATEST_06770.kmz'
 const URL_ZURICH = 'https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_L/single_stations/06660/kml/MOSMIX_L_LATEST_06660.kmz'
 
@@ -121,12 +124,16 @@ async function fetchFoehnData(): Promise<{ data: FoehnPoint[] }> {
 
 export async function GET() {
   try {
-    const result = await cachedFetch('vento-foehn', 900, fetchFoehnData)
+    const result = await cachedFetch('vento-foehn', 1800, fetchFoehnData)
     return NextResponse.json(result, {
-      headers: { 'Cache-Control': 'public, max-age=900, stale-while-revalidate=300' },
+      headers: { 'Cache-Control': 'public, max-age=1800, stale-while-revalidate=300' },
     })
   } catch (e) {
-    console.error('[FOEHN] Failed to fetch forecast data:', e)
+    const now = Date.now()
+    if (now - lastErrorLogMs > ERROR_LOG_INTERVAL) {
+      lastErrorLogMs = now
+      console.error('[FOEHN] Failed to fetch forecast data:', e)
+    }
     return NextResponse.json({ data: [] }, { status: 500 })
   }
 }

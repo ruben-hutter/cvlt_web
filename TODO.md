@@ -2,11 +2,15 @@
 
 ## High priority
 
-- [ ] Implement remaining SEO improvements (plan at `plans/cvlt-seo-performance-improvements.md` — sitemap, robots.txt, lang attr, 301 redirects, basic meta already done; structured data, per-page OG, image filename sanitization, WebP still pending)
-- [ ] In "comitato" page make person's containers "flip" on click and behing them show more info (maybe motivation or contact info)
-- [ ] Update "Info volo" page: add formal agreements with Locarno airport (airspace/TMA info already present)
-- [ ] Check hyprlinks for stazioni meteo in "Vento" page
 - [ ] Avere una lista (magari nella db) come per le richieste di adesione, anche per le richieste di contatto e ordini dallo shop, in modo da poterle gestire e sopratutto tenere traccia anche qualora non dovesse funzionare l'invio mail
+- [ ] If possible add to the events in the calendar, the link to the event page -> When i subscribe the calendar, i want to be able to have the link in the description so that i can click on it and go to the website to see more info about the event.
+- [ ] Implement remaining SEO improvements (plan at `plans/cvlt-seo-performance-improvements.md` — sitemap, robots.txt, lang attr, 301 redirects, basic meta already done; structured data, per-page OG, image filename sanitization, WebP still pending)
+- [ ] Create automated generation of whatsapp message / news when a new news entry is published on the website.
+    - Maybe use the RSS feed to trigger some program (maybe write one myself with a cronjob) that checks for new news and then sends a message to the whatsapp group or to myself (also on telegram or other platforms) so that i can just copy and paste it.
+    - Same API or so would be great also for Instagram generation!
+- [ ] In comitato page make person's containers "flip" on click and behing them show more info (maybe motivation or contact info)
+- [ ] Update "Info volo" page: add formal agreements with Locarno airport (airspace/TMA info already present)
+- [x] Check hyprlinks for stazioni meteo in "Vento" page
 - [x] Agent workflow improvements: `/deploy` command (commit+push+merge), `/idea` command (quick plans), `AGENTS.md` with worktree+git workflow, screenshot feedback loop, `external_directory` permission for worktree access
 - [ ] Refactor code base. Some fixes probably "messed" up the code base and made it a bit messy. I should go through the code and refactor it to make it cleaner and more maintainable. This could include things like:
     - Removing duplicate code

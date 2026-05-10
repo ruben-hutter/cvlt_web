@@ -36,3 +36,13 @@ logMemory()
 setInterval(logMemory, 300000)
 
 await import('../.next/standalone/server.js')
+
+setTimeout(async () => {
+  try {
+    const port = process.env.PORT || 3000
+    const res = await fetch(`http://localhost:${port}/api/vento/foehn`)
+    console.log(`[CACHE] Foehn cache warmed (status ${res.status})`)
+  } catch (e) {
+    console.error('[CACHE] Failed to warm foehn cache:', e)
+  }
+}, 5000)
