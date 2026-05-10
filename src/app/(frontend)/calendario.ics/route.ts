@@ -19,6 +19,16 @@ function escapeIcs(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n')
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+function safeHref(url: string): string {
+  const lower = url.trim().toLowerCase()
+  if (lower.startsWith('http://') || lower.startsWith('https://')) return url.trim()
+  return ''
+}
+
 function buildDescription(event: { title: string; slug?: string | null; location?: string | null; externalLink?: string | null }, baseUrl: string, suffix?: string): string[] {
   const slug = event.slug ?? ''
   const eventUrl = `${baseUrl}/calendario/${slug}`
@@ -28,8 +38,12 @@ function buildDescription(event: { title: string; slug?: string | null; location
   if (event.externalLink) plainParts.push(`Link esterno: ${event.externalLink}`)
   const plainDesc = plainParts.join('\\n')
 
-  const htmlParts = [`<a href="${eventUrl}">Vedi "${escapeIcs(title)}" su cvlt.ch</a>`]
-  if (event.externalLink) htmlParts.push(`<br><a href="${event.externalLink}">Link esterno</a>`)
+  const safeEventUrl = escapeHtml(safeHref(eventUrl))
+  const htmlParts = [`<a href="${safeEventUrl}">Vedi "${escapeHtml(title)}" su cvlt.ch</a>`]
+  if (event.externalLink) {
+    const safeExt = escapeHtml(safeHref(event.externalLink))
+    if (safeExt) htmlParts.push(`<br><a href="${safeExt}">Link esterno</a>`)
+  }
   const htmlDesc = `<html><body style="font-family:sans-serif">${htmlParts.join('<br>')}</body></html>`
 
   return [
