@@ -29,11 +29,13 @@ import { requireEnv, getServerUrl, validateEnvOrThrow } from './lib/env'
 
 sharp.cache(false)
 sharp.concurrency(1)
+import { ContactSubmissions } from './collections/ContactSubmissions'
 import { Events } from './collections/Events'
 import { Media } from './collections/Media'
 import { MembershipSubmissions } from './collections/MembershipSubmissions'
 import { News } from './collections/News'
 import { PhotoAlbums } from './collections/PhotoAlbums'
+import { ShopOrders } from './collections/ShopOrders'
 import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -61,7 +63,7 @@ export default buildConfig({
       ],
     },
   },
-  collections: [News, Events, PhotoAlbums, MembershipSubmissions, Media, Users],
+  collections: [News, Events, PhotoAlbums, MembershipSubmissions, ContactSubmissions, ShopOrders, Media, Users],
   db: sqliteAdapter({
     client: {
       url: requireEnv('DATABASE_URI'),
