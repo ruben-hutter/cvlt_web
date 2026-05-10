@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import { sendShopOrderNotification } from '@/lib/mail'
 import { getServerUrl, requireEnv } from '@/lib/env'
 import { rateLimit } from '@/lib/rate-limit'
@@ -48,7 +48,6 @@ type OrderPayload = {
   items: CartItem[]
 }
 
-const confirmedOrdersFile = path.join(process.cwd(), 'cache', 'shop-orders-confirmed.json')
 const allowedPaylinkHosts = new Set(['pay.raisenow.io'])
 
 function base64UrlEncode(input: string) {
@@ -92,31 +91,14 @@ function verifyOrderToken(token: string) {
   } as OrderPayload
 }
 
-async function readConfirmedRefs() {
-  try {
-    const content = await fs.readFile(confirmedOrdersFile, 'utf8')
-    const parsed = JSON.parse(content) as string[]
-    return new Set(parsed)
-  } catch {
-    return new Set<string>()
-  }
-}
-
-async function writeConfirmedRefs(refs: Set<string>) {
-  await fs.mkdir(path.dirname(confirmedOrdersFile), { recursive: true })
-  await fs.writeFile(confirmedOrdersFile, JSON.stringify([...refs], null, 2), 'utf8')
-}
-
-async function pruneOldConfirmedRefs() {
-  try {
-    const content = await fs.readFile(confirmedOrdersFile, 'utf8')
-    const parsed = JSON.parse(content) as string[]
-    if (parsed.length <= 100) return
-    const pruned = parsed.slice(-100)
-    await fs.writeFile(confirmedOrdersFile, JSON.stringify(pruned, null, 2), 'utf8')
-  } catch {
-    // file doesn't exist yet, nothing to prune
-  }
+async function isOrderConfirmed(orderRef: string): Promise<boolean> {
+  const payload = await getPayload({ config })
+  const existing = await payload.find({
+    collection: 'shop-orders',
+    where: { orderRef: { equals: orderRef } },
+    limit: 1,
+  })
+  return existing.totalDocs > 0
 }
 
 function isValidCartItem(item: CartItem) {
@@ -199,6 +181,28 @@ function buildCheckoutUrl(payload: OrderPayload) {
   return url.toString()
 }
 
+async function saveOrderToDb(order: OrderPayload) {
+  const payload = await getPayload({ config })
+  await payload.create({
+    collection: 'shop-orders',
+    data: {
+      orderRef: order.orderRef,
+      firstName: order.firstName,
+      lastName: order.lastName,
+      email: order.email,
+      phone: order.phone,
+      address: order.address,
+      postalCode: order.postalCode,
+      city: order.city,
+      notes: order.notes || '',
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      total: order.total,
+      items: order.items,
+    },
+  })
+}
+
 async function handlePrepare(body: PrepareRequest) {
   const { firstName, lastName, email, phone, address, postalCode, city, notes, paymentMethod, items } = body
 
@@ -229,7 +233,7 @@ async function handlePrepare(body: PrepareRequest) {
     return NextResponse.json({ error: 'Totale ordine non valido.' }, { status: 400 })
   }
 
-  const payload: OrderPayload = {
+  const order: OrderPayload = {
     orderRef: crypto.randomUUID(),
     firstName: firstName.trim(),
     lastName: lastName.trim(),
@@ -247,39 +251,36 @@ async function handlePrepare(body: PrepareRequest) {
   }
 
   if (paymentMethod === 'invoice') {
-    const confirmedRefs = await readConfirmedRefs()
-    if (confirmedRefs.has(payload.orderRef)) {
+    if (await isOrderConfirmed(order.orderRef)) {
       return NextResponse.json({
         success: true,
         alreadyConfirmed: true,
-        orderRef: payload.orderRef,
-        paymentMethod: payload.paymentMethod,
-        paymentStatus: payload.paymentStatus,
+        orderRef: order.orderRef,
+        paymentMethod: order.paymentMethod,
+        paymentStatus: order.paymentStatus,
       })
     }
 
+    await saveOrderToDb(order)
+
     try {
-      await sendShopOrderNotification(payload)
+      await sendShopOrderNotification(order)
     } catch (emailError) {
       console.error('Failed to send shop order email:', emailError)
     }
 
-    confirmedRefs.add(payload.orderRef)
-    await writeConfirmedRefs(confirmedRefs)
-    await pruneOldConfirmedRefs()
-
     return NextResponse.json({
       success: true,
-      orderRef: payload.orderRef,
-      paymentMethod: payload.paymentMethod,
-      paymentStatus: payload.paymentStatus,
+      orderRef: order.orderRef,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
     })
   }
 
-  const orderToken = signOrderPayload(payload)
-  const checkoutUrl = buildCheckoutUrl(payload)
+  const orderToken = signOrderPayload(order)
+  const checkoutUrl = buildCheckoutUrl(order)
 
-  return NextResponse.json({ success: true, checkoutUrl, orderToken, orderRef: payload.orderRef })
+  return NextResponse.json({ success: true, checkoutUrl, orderToken, orderRef: order.orderRef })
 }
 
 async function handleConfirm(body: ConfirmRequest) {
@@ -288,40 +289,37 @@ async function handleConfirm(body: ConfirmRequest) {
     return NextResponse.json({ error: 'Token ordine mancante.' }, { status: 400 })
   }
 
-  const payload = verifyOrderToken(orderToken)
-  const createdAtMs = new Date(payload.createdAt).getTime()
+  const order = verifyOrderToken(orderToken)
+  const createdAtMs = new Date(order.createdAt).getTime()
   const isExpired = Number.isNaN(createdAtMs) || Date.now() - createdAtMs > 1000 * 60 * 60 * 24
 
   if (isExpired) {
     return NextResponse.json({ error: 'Ordine scaduto, riprovare dal carrello.' }, { status: 400 })
   }
 
-  const confirmedRefs = await readConfirmedRefs()
-  if (confirmedRefs.has(payload.orderRef)) {
+  if (await isOrderConfirmed(order.orderRef)) {
     return NextResponse.json({
       success: true,
       alreadyConfirmed: true,
-      orderRef: payload.orderRef,
-      paymentMethod: payload.paymentMethod,
-      paymentStatus: payload.paymentStatus,
+      orderRef: order.orderRef,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
     })
   }
 
+  await saveOrderToDb(order)
+
   try {
-    await sendShopOrderNotification(payload)
+    await sendShopOrderNotification(order)
   } catch (emailError) {
     console.error('Failed to send shop order email:', emailError)
   }
 
-  confirmedRefs.add(payload.orderRef)
-  await writeConfirmedRefs(confirmedRefs)
-  await pruneOldConfirmedRefs()
-
   return NextResponse.json({
     success: true,
-    orderRef: payload.orderRef,
-    paymentMethod: payload.paymentMethod,
-    paymentStatus: payload.paymentStatus,
+    orderRef: order.orderRef,
+    paymentMethod: order.paymentMethod,
+    paymentStatus: order.paymentStatus,
   })
 }
 

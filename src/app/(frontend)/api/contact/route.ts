@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import { sendContactNotification } from '@/lib/mail'
 import { rateLimit } from '@/lib/rate-limit'
 
@@ -16,7 +18,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Tutti i campi obbligatori devono essere compilati.' }, { status: 400 })
     }
 
-    await sendContactNotification({ firstName, lastName, email, message })
+    const payload = await getPayload({ config })
+
+    await payload.create({
+      collection: 'contact-submissions',
+      data: {
+        firstName,
+        lastName,
+        email,
+        message,
+      },
+    })
+
+    try {
+      await sendContactNotification({ firstName, lastName, email, message })
+    } catch (emailError) {
+      console.error('Failed to send contact email:', emailError)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
