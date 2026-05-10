@@ -277,14 +277,16 @@ export const News: CollectionConfig = {
       relationTo: 'users',
       hooks: {
         beforeChange: [
-          ({ req, value }) => {
-            if (!value && req.user) return req.user.id
+          ({ req, value, operation }) => {
+            if (operation === 'create' && req.user) return req.user.id
+            if (req.user?.role !== 'admin' && req.user) return req.user.id
             return value
           },
         ],
       },
       admin: {
-        hidden: true,
+        position: 'sidebar',
+        condition: (_data, _siblingData, { user }) => user?.role === 'admin',
       },
     },
   ],
