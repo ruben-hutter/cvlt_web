@@ -326,7 +326,7 @@ function PressureChart({ data, isMobilePortrait }: { data: PressurePoint[]; isMo
       const W = rect.width
       const H = rect.height
 
-      const pad = { top: 10, right: 70, bottom: 25, left: 40 }
+      const pad = { top: 10, right: 70, bottom: 38, left: 40 }
     const cW = W - pad.left - pad.right
     const cH = H - pad.top - pad.bottom
 
@@ -422,7 +422,8 @@ function PressureChart({ data, isMobilePortrait }: { data: PressurePoint[]; isMo
         const labelX = xScale(midDay)
         if (labelX >= pad.left && labelX <= W - pad.right - 5) {
           ctx.fillStyle = '#6b7280'
-          ctx.fillText(new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' }), labelX, H - pad.bottom + 15)
+          ctx.fillText(new Date(d).toLocaleDateString('it-CH', { weekday: 'short' }), labelX, H - pad.bottom + 13)
+          ctx.fillText(new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' }), labelX, H - pad.bottom + 25)
         }
       }
     }
@@ -563,7 +564,7 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
       const W = rect.width
       const H = rect.height
 
-      const pad = { top: 10, right: 30, bottom: 25, left: 40 }
+      const pad = { top: 10, right: 30, bottom: 38, left: 40 }
     const cW = W - pad.left - pad.right
     const cH = H - pad.top - pad.bottom
 
@@ -648,8 +649,7 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
     const dayMs = 24 * 60 * 60 * 1000
     const totalDays = (tMax - tMin) / dayMs
     const pxPerDay = cW / totalDays
-    const dayStep = pxPerDay < 35 ? 2 : 1
-    const useShort = pxPerDay < 55
+      const dayStep = pxPerDay < 35 ? 2 : 1
     const startDay = new Date(tMin)
     startDay.setHours(0, 0, 0, 0)
     const allDays: number[] = []
@@ -676,10 +676,8 @@ function FoehnChart({ data }: { data: FoehnPoint[] }) {
         const labelX = midDay <= tMax ? xScale(midDay) : xScale(d)
         if (labelX <= W - pad.right - 5) {
           ctx.fillStyle = '#6b7280'
-          const label = useShort
-            ? new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' })
-            : new Date(d).toLocaleDateString('it-CH', { weekday: 'short', day: 'numeric', month: 'short' })
-          ctx.fillText(label, labelX, H - pad.bottom + 15)
+          ctx.fillText(new Date(d).toLocaleDateString('it-CH', { weekday: 'short' }), labelX, H - pad.bottom + 13)
+          ctx.fillText(new Date(d).toLocaleDateString('it-CH', { day: 'numeric', month: 'short' }), labelX, H - pad.bottom + 25)
         }
       }
     }
