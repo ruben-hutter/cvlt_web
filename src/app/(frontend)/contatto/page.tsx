@@ -1,7 +1,10 @@
 import { ContactForm } from './ContactForm'
 
 export const metadata = {
-  title: 'Contatto - CVLT',
+  title: 'Contatto',
+  description:
+    'Contatta il Club Volo Libero Ticino: modulo di contatto, indirizzo postale e email.',
+  alternates: { canonical: '/contatto' },
 }
 
 export default function ContactPage() {

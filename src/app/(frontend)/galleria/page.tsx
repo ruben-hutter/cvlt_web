@@ -5,7 +5,10 @@ import config from '@payload-config'
 import { GalleryFilter } from './GalleryFilter'
 
 export const metadata = {
-  title: 'Galleria - CVLT',
+  title: 'Galleria',
+  description:
+    'Galleria fotografica del Club Volo Libero Ticino: foto di volo, gare, eventi e momenti del club.',
+  alternates: { canonical: '/galleria' },
 }
 
 export default async function GalleryPage() {

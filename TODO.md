@@ -3,7 +3,25 @@
 ## High priority
 
 - [x] If possible add to the events in the calendar, the link to the event page -> When i subscribe the calendar, i want to be able to have the link in the description so that i can click on it and go to the website to see more info about the event.
-- [ ] Implement remaining SEO improvements (plan at `plans/cvlt-seo-performance-improvements.md` — sitemap, robots.txt, lang attr, 301 redirects, basic meta already done; structured data, per-page OG, image filename sanitization, WebP still pending)
+- [~] Implement remaining SEO improvements (plan at `plans/cvlt-seo-performance-improvements.md` — sitemap, robots.txt, lang attr, 301 redirects, basic meta already done; structured data, per-page OG, image filename sanitization, WebP still pending)
+    - **Session notes (May 2026):** All code changes are done and typecheck passes. NOT YET COMMITTED. Review before committing.
+    - **What was done:**
+      1. `src/lib/jsonld.ts` (new) — JSON-LD helpers (Organization, WebSite, Article, Event, BreadcrumbList)
+      2. `src/app/(frontend)/opengraph-image.tsx` (new) — default OG image via Edge ImageResponse
+      3. Root `layout.tsx` — Organization JSON-LD, OG image ref, title template (`%s - CVLT`), improved description
+      4. All 14 static pages — added `description` and `alternates.canonical`, switched to short titles (template handles suffix)
+      5. Dynamic pages (`notizie/[slug]`, `calendario/[slug]`, `galleria/[slug]`) — OG image, description, canonical, JSON-LD in `generateMetadata` + page JSX
+      6. `src/collections/Media.ts` — filename sanitization (`beforeChange` hook: lowercase, strip accents, spaces→hyphens) + WebP `formatOptions` on image sizes
+      7. `scripts/regenerate-webp.mjs` (new) — one-time migration to re-process existing media as WebP
+    - **To verify before commit:**
+      - Run `npm run dev` and check pages load correctly
+      - View page source to verify `<script type="application/ld+json">` is present
+      - Check OG image at `/opengraph-image` route
+      - Verify meta descriptions in `<head>` on various pages
+    - **After deploying to production:**
+      - Run `node scripts/regenerate-webp.mjs` on server to convert existing images
+      - Submit updated sitemap to Google Search Console
+      - Test OG images with Facebook Debugger / Twitter Card Validator
 - [ ] Create automated generation of whatsapp message / news when a new news entry is published on the website.
     - Maybe use the RSS feed to trigger some program (maybe write one myself with a cronjob) that checks for new news and then sends a message to the whatsapp group or to myself (also on telegram or other platforms) so that i can just copy and paste it.
     - Same API or so would be great also for Instagram generation!

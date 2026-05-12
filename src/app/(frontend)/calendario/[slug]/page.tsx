@@ -5,7 +5,10 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { RichText } from '@payloadcms/richtext-lexical/react'
+import { eventJsonLd, breadcrumbJsonLd } from '@/lib/jsonld'
 import type { Metadata } from 'next'
+
+const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://cvlt.ch'
 
 type Args = { params: Promise<{ slug: string }> }
 
@@ -25,10 +28,24 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   try {
     const event = await findEventBySlug(payload, slug)
-    if (!event) return { title: 'Evento non trovato - CVLT' }
-    return { title: `${event.title} - CVLT` }
+    if (!event) return { title: 'Evento non trovato' }
+
+    const desc = event.location
+      ? `${event.title} — ${new Date(event.startDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}, ${event.location}.`
+      : `${event.title} — ${new Date(event.startDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long', year: 'numeric' })}.`
+
+    return {
+      title: event.title,
+      description: desc,
+      alternates: { canonical: `/calendario/${slug}` },
+      openGraph: {
+        title: event.title,
+        description: desc,
+        type: 'article',
+      },
+    }
   } catch {
-    return { title: 'Evento non trovato - CVLT' }
+    return { title: 'Evento non trovato' }
   }
 }
 
@@ -84,6 +101,29 @@ export default async function EventPage({ params }: Args) {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: eventJsonLd({
+            title: event.title,
+            slug: event.slug || event.id,
+            startDate: event.startDate,
+            endDate: event.endDate,
+            location: event.location,
+            baseUrl,
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: breadcrumbJsonLd([
+            { name: 'Home', url: baseUrl },
+            { name: 'Calendario', url: `${baseUrl}/calendario` },
+            { name: event.title, url: `${baseUrl}/calendario/${event.slug || event.id}` },
+          ]),
+        }}
+      />
       <Link
         href="/calendario"
         className="inline-flex items-center gap-1 text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"

@@ -1,6 +1,19 @@
 import type { CollectionConfig } from 'payload'
 import { isAdmin, isLoggedIn } from './Users'
 
+function sanitizeFilename(name: string): string {
+  const ext = name.match(/\.[^.]+$/)?.[0] || ''
+  const base = name.replace(/\.[^.]+$/, '')
+  const sanitized = base
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase()
+  return sanitized + ext.toLowerCase()
+}
+
 export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'Media', plural: 'Media' },
@@ -12,8 +25,8 @@ export const Media: CollectionConfig = {
   upload: {
     mimeTypes: ['image/*', 'video/mp4', 'video/x-m4v', 'video/webm', 'video/quicktime'],
     imageSizes: [
-      { name: 'thumbnail', width: 400 },
-      { name: 'medium', width: 1024 },
+      { name: 'thumbnail', width: 400, formatOptions: { format: 'webp' } },
+      { name: 'medium', width: 1024, formatOptions: { format: 'webp' } },
     ],
     adminThumbnail: 'thumbnail',
   },
@@ -34,6 +47,14 @@ export const Media: CollectionConfig = {
           if (filename) {
             data.alt = filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
           }
+        }
+        return data
+      },
+    ],
+    beforeChange: [
+      ({ data, req }) => {
+        if (req?.file?.name) {
+          data.filename = sanitizeFilename(req.file.name)
         }
         return data
       },

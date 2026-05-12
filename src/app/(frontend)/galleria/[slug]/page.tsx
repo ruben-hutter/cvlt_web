@@ -5,7 +5,10 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { PhotoGrid } from '../PhotoGrid'
+import { breadcrumbJsonLd } from '@/lib/jsonld'
 import type { Metadata } from 'next'
+
+const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://cvlt.ch'
 
 type Args = { params: Promise<{ slug: string }> }
 
@@ -25,10 +28,26 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   try {
     const album = await findAlbumBySlug(payload, slug)
-    if (!album) return { title: 'Album non trovato - CVLT' }
-    return { title: `${album.title} - Galleria - CVLT` }
+    if (!album) return { title: 'Album non trovato' }
+
+    const cover = album.photos?.[0]
+    const coverUrl = typeof cover === 'object' && cover?.url
+      ? new URL(cover.url, baseUrl).toString()
+      : undefined
+
+    return {
+      title: `${album.title} - Galleria`,
+      description: `Album fotografico: ${album.title} — ${album.photos?.length || 0} foto.`,
+      alternates: { canonical: `/galleria/${slug}` },
+      openGraph: {
+        title: album.title,
+        description: `Album fotografico — CVLT`,
+        type: 'article',
+        ...(coverUrl && { images: [{ url: coverUrl, alt: album.title }] }),
+      },
+    }
   } catch {
-    return { title: 'Album non trovato - CVLT' }
+    return { title: 'Album non trovato' }
   }
 }
 
@@ -64,6 +83,16 @@ export default async function AlbumPage({ params }: Args) {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: breadcrumbJsonLd([
+            { name: 'Home', url: baseUrl },
+            { name: 'Galleria', url: `${baseUrl}/galleria` },
+            { name: album.title, url: `${baseUrl}/galleria/${album.slug || album.id}` },
+          ]),
+        }}
+      />
       <Link
         href="/galleria"
         className="inline-flex items-center gap-1 text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"

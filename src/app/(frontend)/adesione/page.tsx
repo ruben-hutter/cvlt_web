@@ -1,7 +1,10 @@
 import { MembershipForm } from './MembershipForm'
 
 export const metadata = {
-  title: 'Aderire al club - CVLT',
+  title: 'Aderire al club',
+  description:
+    'Diventa socio del Club Volo Libero Ticino: moduli di adesione, quote annuali e informazioni.',
+  alternates: { canonical: '/adesione' },
 }
 
 export default function MembershipPage() {
