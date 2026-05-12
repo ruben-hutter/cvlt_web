@@ -1,7 +1,26 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-sqlite'
 
+async function safeCreateTable(db: any, tableName: string, ddl: string) {
+  const result = await db.run(sql`SELECT name FROM sqlite_master WHERE type='table' AND name=${tableName};`)
+  if (result.rows?.length) return
+  await db.run(sql.raw(ddl))
+}
+
+async function safeAddColumn(db: any, table: string, column: string, type: string) {
+  const result = await db.run(sql`PRAGMA table_info(${sql.raw(table)});`)
+  const exists = result.rows?.some((row: any) => row.name === column)
+  if (exists) return
+  await db.run(sql`ALTER TABLE ${sql.raw(table)} ADD ${sql.raw(column)} ${sql.raw(type)};`)
+}
+
+async function safeCreateIndex(db: any, indexName: string, ddl: string) {
+  const result = await db.run(sql`SELECT name FROM sqlite_master WHERE type='index' AND name=${indexName};`)
+  if (result.rows?.length) return
+  await db.run(sql.raw(ddl))
+}
+
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
-  await db.run(sql`CREATE TABLE \`contact_submissions\` (
+  await safeCreateTable(db, 'contact_submissions', `CREATE TABLE \`contact_submissions\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`full_name\` text,
   	\`last_name\` text NOT NULL,
@@ -10,11 +29,11 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`message\` text NOT NULL,
   	\`updated_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
   	\`created_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL
-  );
-  `)
-  await db.run(sql`CREATE INDEX \`contact_submissions_updated_at_idx\` ON \`contact_submissions\` (\`updated_at\`);`)
-  await db.run(sql`CREATE INDEX \`contact_submissions_created_at_idx\` ON \`contact_submissions\` (\`created_at\`);`)
-  await db.run(sql`CREATE TABLE \`shop_orders\` (
+  );`)
+  await safeCreateIndex(db, 'contact_submissions_updated_at_idx', `CREATE INDEX \`contact_submissions_updated_at_idx\` ON \`contact_submissions\` (\`updated_at\`);`)
+  await safeCreateIndex(db, 'contact_submissions_created_at_idx', `CREATE INDEX \`contact_submissions_created_at_idx\` ON \`contact_submissions\` (\`created_at\`);`)
+
+  await safeCreateTable(db, 'shop_orders', `CREATE TABLE \`shop_orders\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`order_ref\` text NOT NULL,
   	\`full_name\` text,
@@ -32,46 +51,35 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	\`items\` text NOT NULL,
   	\`updated_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
   	\`created_at\` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL
-  );
-  `)
-  await db.run(sql`CREATE UNIQUE INDEX \`shop_orders_order_ref_idx\` ON \`shop_orders\` (\`order_ref\`);`)
-  await db.run(sql`CREATE INDEX \`shop_orders_updated_at_idx\` ON \`shop_orders\` (\`updated_at\`);`)
-  await db.run(sql`CREATE INDEX \`shop_orders_created_at_idx\` ON \`shop_orders\` (\`created_at\`);`)
-  await db.run(sql`ALTER TABLE \`photo_albums\` ADD \`slug\` text;`)
-  await db.run(sql`CREATE UNIQUE INDEX \`photo_albums_slug_idx\` ON \`photo_albums\` (\`slug\`);`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_thumbnail_url\` text;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_thumbnail_width\` numeric;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_thumbnail_height\` numeric;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_thumbnail_mime_type\` text;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_thumbnail_filesize\` numeric;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_thumbnail_filename\` text;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_url\` text;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_width\` numeric;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_height\` numeric;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_mime_type\` text;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_filesize\` numeric;`)
-  await db.run(sql`ALTER TABLE \`media\` ADD \`sizes_medium_filename\` text;`)
-  await db.run(sql`CREATE INDEX \`media_sizes_thumbnail_sizes_thumbnail_filename_idx\` ON \`media\` (\`sizes_thumbnail_filename\`);`)
-  await db.run(sql`CREATE INDEX \`media_sizes_medium_sizes_medium_filename_idx\` ON \`media\` (\`sizes_medium_filename\`);`)
+  );`)
+  await safeCreateIndex(db, 'shop_orders_order_ref_idx', `CREATE UNIQUE INDEX \`shop_orders_order_ref_idx\` ON \`shop_orders\` (\`order_ref\`);`)
+  await safeCreateIndex(db, 'shop_orders_updated_at_idx', `CREATE INDEX \`shop_orders_updated_at_idx\` ON \`shop_orders\` (\`updated_at\`);`)
+  await safeCreateIndex(db, 'shop_orders_created_at_idx', `CREATE INDEX \`shop_orders_created_at_idx\` ON \`shop_orders\` (\`created_at\`);`)
+
+  await safeAddColumn(db, 'photo_albums', 'slug', 'text')
+  await safeCreateIndex(db, 'photo_albums_slug_idx', `CREATE UNIQUE INDEX \`photo_albums_slug_idx\` ON \`photo_albums\` (\`slug\`);`)
+
+  await safeAddColumn(db, 'media', 'sizes_thumbnail_url', 'text')
+  await safeAddColumn(db, 'media', 'sizes_thumbnail_width', 'numeric')
+  await safeAddColumn(db, 'media', 'sizes_thumbnail_height', 'numeric')
+  await safeAddColumn(db, 'media', 'sizes_thumbnail_mime_type', 'text')
+  await safeAddColumn(db, 'media', 'sizes_thumbnail_filesize', 'numeric')
+  await safeAddColumn(db, 'media', 'sizes_thumbnail_filename', 'text')
+  await safeAddColumn(db, 'media', 'sizes_medium_url', 'text')
+  await safeAddColumn(db, 'media', 'sizes_medium_width', 'numeric')
+  await safeAddColumn(db, 'media', 'sizes_medium_height', 'numeric')
+  await safeAddColumn(db, 'media', 'sizes_medium_mime_type', 'text')
+  await safeAddColumn(db, 'media', 'sizes_medium_filesize', 'numeric')
+  await safeAddColumn(db, 'media', 'sizes_medium_filename', 'text')
+  await safeCreateIndex(db, 'media_sizes_thumbnail_sizes_thumbnail_filename_idx', `CREATE INDEX \`media_sizes_thumbnail_sizes_thumbnail_filename_idx\` ON \`media\` (\`sizes_thumbnail_filename\`);`)
+  await safeCreateIndex(db, 'media_sizes_medium_sizes_medium_filename_idx', `CREATE INDEX \`media_sizes_medium_sizes_medium_filename_idx\` ON \`media\` (\`sizes_medium_filename\`);`)
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
-  await db.run(sql`DROP TABLE \`contact_submissions\`;`)
-  await db.run(sql`DROP TABLE \`shop_orders\`;`)
-  await db.run(sql`DROP INDEX \`photo_albums_slug_idx\`;`)
-  await db.run(sql`ALTER TABLE \`photo_albums\` DROP COLUMN \`slug\`;`)
-  await db.run(sql`DROP INDEX \`media_sizes_thumbnail_sizes_thumbnail_filename_idx\`;`)
-  await db.run(sql`DROP INDEX \`media_sizes_medium_sizes_medium_filename_idx\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_thumbnail_url\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_thumbnail_width\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_thumbnail_height\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_thumbnail_mime_type\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_thumbnail_filesize\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_thumbnail_filename\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_url\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_width\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_height\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_mime_type\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_filesize\`;`)
-  await db.run(sql`ALTER TABLE \`media\` DROP COLUMN \`sizes_medium_filename\`;`)
+  await db.run(sql`DROP TABLE IF EXISTS \`contact_submissions\`;`)
+  await db.run(sql`DROP TABLE IF EXISTS \`shop_orders\`;`)
+  await db.run(sql`DROP INDEX IF EXISTS \`photo_albums_slug_idx\`;`)
+  await safeAddColumn(db, 'photo_albums', 'slug', 'text')
+  await db.run(sql`DROP INDEX IF EXISTS \`media_sizes_thumbnail_sizes_thumbnail_filename_idx\`;`)
+  await db.run(sql`DROP INDEX IF EXISTS \`media_sizes_medium_sizes_medium_filename_idx\`;`)
 }
