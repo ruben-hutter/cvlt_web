@@ -6,9 +6,24 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { NewsLayout } from '../../components/RichTextImage'
 import { ArticleLightbox } from '../../components/ArticleLightbox'
+import { articleJsonLd, breadcrumbJsonLd } from '@/lib/jsonld'
 import type { Metadata } from 'next'
 
+const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://cvlt.ch'
+
 type Args = { params: Promise<{ slug: string }> }
+
+function getThumbnailUrl(article: any): string | null {
+  if (article.thumbnail && typeof article.thumbnail === 'object') {
+    return article.thumbnail.url
+  }
+  for (const block of article.layout || []) {
+    if (block.blockType === 'image' && block.image?.url) return block.image.url
+    if (block.blockType === 'textImage' && block.image?.url) return block.image.url
+    if (block.blockType === 'gallery' && block.images?.[0]?.image?.url) return block.images[0].image.url
+  }
+  return null
+}
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { slug } = await params
@@ -21,12 +36,27 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
       status: { equals: 'published' },
     },
     limit: 1,
+    depth: 1,
   })
 
   const article = result.docs[0]
-  if (!article) return { title: 'Notizia non trovata - CVLT' }
+  if (!article) return { title: 'Notizia non trovata' }
 
-  return { title: `${article.title} - CVLT` }
+  const thumb = getThumbnailUrl(article)
+  const ogImage = thumb ? new URL(thumb, baseUrl).toString() : undefined
+
+  return {
+    title: article.title,
+    description: `${article.title} — notizia del Club Volo Libero Ticino.`,
+    alternates: { canonical: `/notizie/${slug}` },
+    openGraph: {
+      title: article.title,
+      description: `${article.title} — CVLT`,
+      type: 'article',
+      publishedTime: article.publishDate,
+      ...(ogImage && { images: [{ url: ogImage, alt: article.title }] }),
+    },
+  }
 }
 
 export default async function NewsArticlePage({ params }: Args) {
@@ -65,8 +95,38 @@ export default async function NewsArticlePage({ params }: Args) {
     }
   }
 
+  const authorName =
+    article.author && typeof article.author === 'object' && article.author.name
+      ? article.author.name
+      : undefined
+  const thumb = getThumbnailUrl(article)
+  const ogImageUrl = thumb ? new URL(thumb, baseUrl).toString() : undefined
+
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: articleJsonLd({
+            title: article.title,
+            slug: article.slug || slug,
+            publishDate: article.publishDate,
+            authorName,
+            imageUrl: ogImageUrl,
+            baseUrl,
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: breadcrumbJsonLd([
+            { name: 'Home', url: baseUrl },
+            { name: 'Notizie', url: `${baseUrl}/notizie` },
+            { name: article.title, url: `${baseUrl}/notizie/${article.slug}` },
+          ]),
+        }}
+      />
       <Link
         href="/notizie"
         className="inline-flex items-center gap-1 text-sm font-medium text-cvlt-blue transition-colors hover:text-cvlt-blue-dark"

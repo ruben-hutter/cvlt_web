@@ -3,9 +3,20 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import type { Metadata } from 'next'
 import { TwintButton } from './components/TwintButton'
 import { getPublishedNewsWithFeaturedFirst } from './lib/news'
 import { FeaturedNewsBadge } from './components/FeaturedNewsBadge'
+import { websiteJsonLd } from '@/lib/jsonld'
+
+const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://cvlt.ch'
+
+export const metadata: Metadata = {
+  title: 'CVLT - Club Volo Libero Ticino',
+  description:
+    'Club Volo Libero Ticino — notizie, eventi, meteo e galleria del club di parapendio e deltaplano del Canton Ticino.',
+  alternates: { canonical: '/' },
+}
 
 function getThumbnailUrl(article: any): string | null {
   if (article.thumbnail && typeof article.thumbnail === 'object') {
@@ -50,6 +61,10 @@ export default async function HomePage() {
 
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: websiteJsonLd(baseUrl) }}
+      />
       {/* Hero */}
       <section className="relative bg-cvlt-navy">
         <div

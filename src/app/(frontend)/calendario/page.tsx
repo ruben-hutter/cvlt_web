@@ -7,7 +7,10 @@ import { SubscribeButton } from './SubscribeButton'
 import { uiSecondaryButtonClass } from '@/lib/ui'
 
 export const metadata = {
-  title: 'Calendario - CVLT',
+  title: 'Calendario',
+  description:
+    'Calendario eventi del Club Volo Libero Ticino: gare, raduni, corsi e attività per parapendisti e deltisti in Ticino.',
+  alternates: { canonical: '/calendario' },
 }
 
 export default async function CalendarPage() {

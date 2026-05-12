@@ -2,7 +2,10 @@ import type { Metadata } from 'next'
 import { TwintButton } from '../components/TwintButton'
 
 export const metadata: Metadata = {
-  title: 'Pagamento quota sociale - CVLT',
+  title: 'Pagamento quota sociale',
+  description:
+    'Pagamento della quota sociale del Club Volo Libero Ticino tramite bonifico bancario o Twint.',
+  alternates: { canonical: '/quota-sociale' },
 }
 
 export default function QuotaSocialePage() {

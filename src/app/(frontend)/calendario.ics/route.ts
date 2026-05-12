@@ -34,12 +34,12 @@ function buildDescription(eventTitle: string, slug: string | null | undefined, e
   const eventUrl = `${baseUrl}/calendario/${eventSlug}`
   const title = suffix ? `${eventTitle} ${suffix}` : eventTitle
 
-  const plainParts = [`Vedi "${title}" su cvlt.ch: ${eventUrl}`]
+  const plainParts = [`Maggiori info su: ${eventUrl}`]
   if (externalLink) plainParts.push(`Link esterno: ${externalLink}`)
   const plainDesc = plainParts.join('\\n')
 
   const safeEventUrl = escapeHtml(safeHref(eventUrl))
-  const htmlParts = [`<a href="${safeEventUrl}">Vedi "${escapeHtml(title)}" su cvlt.ch</a>`]
+  const htmlParts = [`Maggiori info su: <a href="${safeEventUrl}">${safeEventUrl}</a>`]
   if (externalLink) {
     const safeExt = escapeHtml(safeHref(externalLink))
     if (safeExt) htmlParts.push(`<br><a href="${safeExt}">Link esterno</a>`)

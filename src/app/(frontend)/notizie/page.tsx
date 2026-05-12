@@ -6,7 +6,10 @@ import { getPublishedNewsWithFeaturedFirst } from '../lib/news'
 import { NewsFilter } from './NewsFilter'
 
 export const metadata = {
-  title: 'Notizie - CVLT',
+  title: 'Notizie',
+  description:
+    'Ultime notizie dal Club Volo Libero Ticino: eventi, gare, condizioni meteo e aggiornamenti dalla comunità del volo libero ticinese.',
+  alternates: { canonical: '/notizie' },
 }
 
 function getThumbnailUrl(article: any): string | null {

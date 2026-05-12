@@ -1,5 +1,7 @@
 export const metadata = {
-  title: 'Statuto - CVLT',
+  title: 'Statuto',
+  description: 'Statuto del Club Volo Libero Ticino — approvato in assemblea, febbraio 2016.',
+  alternates: { canonical: '/statuto' },
 }
 
 export default function StatutoPage() {

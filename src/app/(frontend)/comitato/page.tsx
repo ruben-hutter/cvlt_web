@@ -1,7 +1,10 @@
 import Image from 'next/image'
 
 export const metadata = {
-  title: 'Comitato - CVLT',
+  title: 'Comitato',
+  description:
+    'Il comitato direttivo del Club Volo Libero Ticino: presidente, vicepresidente, segretario, cassiere e membri.',
+  alternates: { canonical: '/comitato' },
 }
 
 const members = [
