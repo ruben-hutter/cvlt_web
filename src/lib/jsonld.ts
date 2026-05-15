@@ -65,8 +65,16 @@ export function eventJsonLd(args: {
   startDate: string
   endDate?: string | null
   location?: string | null
+  status?: string | null
+  description?: string | null
   baseUrl: string
 }) {
+  const statusMap: Record<string, string> = {
+    confirmed: 'https://schema.org/EventScheduled',
+    tentative: 'https://schema.org/EventPostponed',
+    cancelled: 'https://schema.org/EventCancelled',
+  }
+
   return jsonLdScript({
     '@context': 'https://schema.org',
     '@type': 'Event',
@@ -83,6 +91,9 @@ export function eventJsonLd(args: {
         },
       },
     }),
+    eventStatus: statusMap[args.status || 'confirmed'] || 'https://schema.org/EventScheduled',
+    ...(args.description && { description: args.description }),
+    image: `${args.baseUrl}/logo_CVLT.png`,
     organizer: {
       '@type': 'SportsOrganization',
       name: 'Club Volo Libero Ticino',

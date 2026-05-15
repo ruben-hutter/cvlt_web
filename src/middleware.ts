@@ -70,6 +70,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  if (pathname !== '/' && pathname.endsWith('/')) {
+    const url = new URL(pathname.replace(/\/+$/, '') + request.nextUrl.search, request.url)
+    return NextResponse.redirect(url, 308)
+  }
+
   if (isOldWordPressPost(pathname)) {
     return NextResponse.redirect(new URL('/notizie', request.url), 301)
   }
