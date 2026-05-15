@@ -12,6 +12,15 @@ const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://cvlt.ch'
 
 type Args = { params: Promise<{ slug: string }> }
 
+function extractPlainText(nodes: any[]): string {
+  const parts: string[] = []
+  for (const node of nodes) {
+    if (node.type === 'text') parts.push(node.text)
+    if (node.children) parts.push(extractPlainText(node.children))
+  }
+  return parts.join(' ').replace(/\s+/g, ' ').trim()
+}
+
 async function findEventBySlug(payload: any, slug: string) {
   const result = await payload.find({
     collection: 'events',
@@ -110,6 +119,10 @@ export default async function EventPage({ params }: Args) {
             startDate: event.startDate,
             endDate: event.endDate,
             location: event.location,
+            status: event.status,
+            description: event.description?.root
+              ? extractPlainText(event.description.root.children).slice(0, 300)
+              : undefined,
             baseUrl,
           }),
         }}
