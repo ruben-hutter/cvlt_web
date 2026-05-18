@@ -443,14 +443,15 @@ export function CalendarGrid({ events }: { events: Event[] }) {
                       const isSelected = selectedEvent?.id === bar.event.id
 
                       return (
-                        <div
+                        <Link
                           key={`${bar.event.id}-${bar.isBackup ? 'b' : 'm'}`}
+                          href={`/calendario/${bar.event.slug}`}
                           style={{ gridColumn: `${bar.startCol + 1} / ${bar.endCol + 2}` }}
-                          onClick={() => selectEvent(bar.event)}
+                          onClick={(e) => { e.preventDefault(); selectEvent(bar.event); }}
                           className={`mx-0.5 mb-0.5 cursor-pointer truncate px-1.5 py-0.5 text-[11px] font-medium leading-tight ${colors} ${rounding} ${isSelected ? 'ring-2 ring-cvlt-blue ring-offset-1' : ''}`}
                         >
                           {bar.isBackup ? `↻ ${bar.event.title}` : bar.event.title}
-                        </div>
+                        </Link>
                       )
                     })}
                   </div>
@@ -509,25 +510,26 @@ export function CalendarGrid({ events }: { events: Event[] }) {
           return (
             <ul className="mt-3 space-y-3">
               {upcoming.map((e) => (
-                <li
-                  key={e.id}
-                  onClick={() => selectEvent(e)}
-                  className={`flex cursor-pointer items-center gap-4 rounded border px-4 py-3 transition-colors hover:bg-gray-50 ${selectedEvent?.id === e.id ? 'border-cvlt-blue/30 bg-blue-50/50' : 'border-gray-100'}`}
-                >
-                  <span className={`inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full ${statusDot[e.status]}`} />
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium">{e.title}</div>
-                    <div className="text-sm text-gray-500">
-                      {new Date(e.startDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long' })}
-                      {e.endDate && (
-                        <> &mdash; {new Date(e.endDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long' })}</>
-                      )}
-                      {e.location && <> · {e.location}</>}
+                <li key={e.id}>
+                  <Link
+                    href={`/calendario/${e.slug}`}
+                    className={`flex items-center gap-4 rounded border px-4 py-3 transition-colors hover:bg-gray-50 ${selectedEvent?.id === e.id ? 'border-cvlt-blue/30 bg-blue-50/50' : 'border-gray-100'}`}
+                  >
+                    <span className={`inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full ${statusDot[e.status]}`} />
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium">{e.title}</div>
+                      <div className="text-sm text-gray-500">
+                        {new Date(e.startDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long' })}
+                        {e.endDate && (
+                          <> &mdash; {new Date(e.endDate).toLocaleDateString('it-CH', { day: 'numeric', month: 'long' })}</>
+                        )}
+                        {e.location && <> · {e.location}</>}
+                      </div>
                     </div>
-                  </div>
-                  {e.status === 'tentative' && (
-                    <span className="flex-shrink-0 rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">Provvisorio</span>
-                  )}
+                    {e.status === 'tentative' && (
+                      <span className="flex-shrink-0 rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">Provvisorio</span>
+                    )}
+                  </Link>
                 </li>
               ))}
             </ul>
