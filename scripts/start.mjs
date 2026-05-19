@@ -35,16 +35,6 @@ console.log(`Node.js ${process.version} — pid ${process.pid}`)
 logMemory()
 setInterval(logMemory, 300000)
 
-console.log('[MIGRATE] Running pending migrations...')
-try {
-  const { execSync } = await import('child_process')
-  execSync('npx payload migrate', { stdio: 'inherit', env: { ...process.env } })
-  console.log('[MIGRATE] Done.')
-} catch (e) {
-  console.error('[MIGRATE] Migration failed:', e)
-  process.exit(1)
-}
-
 await import('../.next/standalone/server.js')
 
 setTimeout(async () => {
