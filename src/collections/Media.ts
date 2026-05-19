@@ -1,4 +1,6 @@
 import type { CollectionConfig } from 'payload'
+import { existsSync, renameSync } from 'fs'
+import { resolve, join } from 'path'
 import { isAdmin, isLoggedIn } from './Users'
 
 function sanitizeFilename(name: string): string {
@@ -23,7 +25,7 @@ export const Media: CollectionConfig = {
     defaultColumns: ['filename', 'alt', 'updatedAt'],
   },
   upload: {
-    mimeTypes: ['image/*', 'video/mp4', 'video/x-m4v', 'video/webm', 'video/quicktime'],
+    mimeTypes: ['image/*', 'video/mp4', 'video/x-m4v', 'video/webm', 'video/quicktime', 'application/pdf'],
     imageSizes: [
       { name: 'thumbnail', width: 400, formatOptions: { format: 'webp' } },
       { name: 'medium', width: 1024, formatOptions: { format: 'webp' } },
@@ -54,7 +56,17 @@ export const Media: CollectionConfig = {
     beforeChange: [
       ({ data, req }) => {
         if (req?.file?.name) {
-          data.filename = sanitizeFilename(req.file.name)
+          const diskFilename = data.filename
+          const sanitized = sanitizeFilename(req.file.name)
+          if (diskFilename && diskFilename !== sanitized) {
+            const mediaDir = resolve(process.cwd(), 'media')
+            const oldPath = join(mediaDir, diskFilename)
+            const newPath = join(mediaDir, sanitized)
+            if (existsSync(oldPath)) {
+              renameSync(oldPath, newPath)
+            }
+          }
+          data.filename = sanitized
         }
         return data
       },

@@ -2,6 +2,7 @@
 
 ## High priority
 
+- [ ] Calendario page: soluzione per far vedere dettagli evento (lista prossimi eventi ma dettagli compaiono sotto al calendario)
 - [ ] In comitato page make person's containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Update "Info volo" page: add formal agreements with Locarno airport (airspace/TMA info already present)
 - [ ] Refactor code base. Some fixes probably "messed" up the code base and made it a bit messy. I should go through the code and refactor it to make it cleaner and more maintainable. This could include things like:

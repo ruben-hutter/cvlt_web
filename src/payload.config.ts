@@ -78,7 +78,7 @@ export default buildConfig({
       UnderlineFeature(),
       StrikethroughFeature(),
       InlineCodeFeature(),
-      LinkFeature(),
+      LinkFeature({ enabledCollections: ['media'] }),
       AlignFeature(),
       BlockquoteFeature(),
       HorizontalRuleFeature(),

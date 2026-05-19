@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { RichText } from '@payloadcms/richtext-lexical/react'
+import { richTextConverters, populateLexicalLinks } from '@/lib/richtext'
 import { eventJsonLd, breadcrumbJsonLd } from '@/lib/jsonld'
 import type { Metadata } from 'next'
 
@@ -68,6 +69,10 @@ export default async function EventPage({ params }: Args) {
     if (!event) notFound()
   } catch {
     notFound()
+  }
+
+  if (event.description) {
+    event.description = await populateLexicalLinks(event.description, payload)
   }
 
   // Find all published news linked to this event
@@ -154,7 +159,7 @@ export default async function EventPage({ params }: Args) {
 
           {event.description && (
             <div className="mt-6 prose prose-gray max-w-none">
-              <RichText data={event.description} />
+              <RichText data={event.description} converters={richTextConverters} />
             </div>
           )}
 
