@@ -7,6 +7,7 @@ import config from '@payload-config'
 import { NewsLayout } from '../../components/RichTextImage'
 import { ArticleLightbox } from '../../components/ArticleLightbox'
 import { articleJsonLd, breadcrumbJsonLd } from '@/lib/jsonld'
+import { populateLexicalLinks } from '@/lib/richtext'
 import type { Metadata } from 'next'
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://cvlt.ch'
@@ -79,6 +80,17 @@ export default async function NewsArticlePage({ params }: Args) {
 
   const article = result.docs[0]
   if (!article) notFound()
+
+  if (article.layout) {
+    for (const block of article.layout as any[]) {
+      if (block.blockType === 'richText' && block.content) {
+        block.content = await populateLexicalLinks(block.content, payload)
+      }
+      if (block.blockType === 'textImage' && block.text) {
+        block.text = await populateLexicalLinks(block.text, payload)
+      }
+    }
+  }
 
   const relatedEvent = article.relatedEvent && typeof article.relatedEvent === 'object'
     ? article.relatedEvent

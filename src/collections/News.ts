@@ -142,21 +142,26 @@ const GalleryBlock: Block = {
   ],
 }
 
-const QuoteBlock: Block = {
-  slug: 'quote',
-  labels: { singular: 'Citazione', plural: 'Citazioni' },
+const AttachmentBlock: Block = {
+  slug: 'attachment',
+  labels: { singular: 'Allegato', plural: 'Allegati' },
   admin: { disableBlockName: true },
   fields: [
     {
-      name: 'text',
-      type: 'textarea',
-      label: 'Testo',
+      name: 'file',
+      type: 'upload',
+      label: 'File',
+      relationTo: 'media',
       required: true,
+      filterOptions: { mimeType: { equals: 'application/pdf' } },
     },
     {
-      name: 'author',
+      name: 'label',
       type: 'text',
-      label: 'Autore',
+      label: 'Etichetta',
+      admin: {
+        description: 'Testo visualizzato per il link. Se vuoto, verrà usato il nome del file.',
+      },
     },
   ],
 }
@@ -268,7 +273,7 @@ export const News: CollectionConfig = {
       type: 'blocks',
       label: 'Contenuto',
       required: true,
-      blocks: [RichTextBlock, ImageBlock, TextImageBlock, GalleryBlock, QuoteBlock],
+      blocks: [RichTextBlock, ImageBlock, TextImageBlock, GalleryBlock, AttachmentBlock],
     },
     {
       name: 'author',
