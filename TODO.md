@@ -2,33 +2,8 @@
 
 ## High priority
 
-- [x] If possible add to the events in the calendar, the link to the event page -> When i subscribe the calendar, i want to be able to have the link in the description so that i can click on it and go to the website to see more info about the event.
-- [~] Implement remaining SEO improvements (plan at `plans/cvlt-seo-performance-improvements.md` — sitemap, robots.txt, lang attr, 301 redirects, basic meta already done; structured data, per-page OG, image filename sanitization, WebP still pending)
-    - **Session notes (May 2026):** All code changes are done and typecheck passes. NOT YET COMMITTED. Review before committing.
-    - **What was done:**
-      1. `src/lib/jsonld.ts` (new) — JSON-LD helpers (Organization, WebSite, Article, Event, BreadcrumbList)
-      2. `src/app/(frontend)/opengraph-image.tsx` (new) — default OG image via Edge ImageResponse
-      3. Root `layout.tsx` — Organization JSON-LD, OG image ref, title template (`%s - CVLT`), improved description
-      4. All 14 static pages — added `description` and `alternates.canonical`, switched to short titles (template handles suffix)
-      5. Dynamic pages (`notizie/[slug]`, `calendario/[slug]`, `galleria/[slug]`) — OG image, description, canonical, JSON-LD in `generateMetadata` + page JSX
-      6. `src/collections/Media.ts` — filename sanitization (`beforeChange` hook: lowercase, strip accents, spaces→hyphens) + WebP `formatOptions` on image sizes
-      7. `scripts/regenerate-webp.mjs` (new) — one-time migration to re-process existing media as WebP
-    - **To verify before commit:**
-      - Run `npm run dev` and check pages load correctly
-      - View page source to verify `<script type="application/ld+json">` is present
-      - Check OG image at `/opengraph-image` route
-      - Verify meta descriptions in `<head>` on various pages
-    - **After deploying to production:**
-      - Run `node scripts/regenerate-webp.mjs` on server to convert existing images
-      - Submit updated sitemap to Google Search Console
-      - Test OG images with Facebook Debugger / Twitter Card Validator
-- [ ] Create automated generation of whatsapp message / news when a new news entry is published on the website.
-    - Maybe use the RSS feed to trigger some program (maybe write one myself with a cronjob) that checks for new news and then sends a message to the whatsapp group or to myself (also on telegram or other platforms) so that i can just copy and paste it.
-    - Same API or so would be great also for Instagram generation!
 - [ ] In comitato page make person's containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Update "Info volo" page: add formal agreements with Locarno airport (airspace/TMA info already present)
-- [x] Check hyprlinks for stazioni meteo in "Vento" page
-- [x] Agent workflow improvements: `/deploy` command (commit+push+merge), `/idea` command (quick plans), `AGENTS.md` with worktree+git workflow, screenshot feedback loop, `external_directory` permission for worktree access
 - [ ] Refactor code base. Some fixes probably "messed" up the code base and made it a bit messy. I should go through the code and refactor it to make it cleaner and more maintainable. This could include things like:
     - Removing duplicate code
     - Organizing files and folders better
@@ -40,6 +15,9 @@
 
 ## Medium priority
 
+- [ ] Create automated generation of whatsapp message / news when a new news entry is published on the website.
+    - Maybe use the RSS feed to trigger some program (maybe write one myself with a cronjob) that checks for new news and then sends a message to the whatsapp group or to myself (also on telegram or other platforms) so that i can just copy and paste it.
+    - Same API or so would be great also for Instagram generation!
 - [ ] Aggiungere link ai siti di volo (nuovo sito FSVL)
 - [ ] Multiple languages (german, french, english)
     - Maybe start with just the homepage and the news section
@@ -64,6 +42,8 @@
 
 ## Done
 
+- [x] Agent workflow improvements: `/deploy` command (commit+push+merge), `/idea` command (quick plans), `AGENTS.md` with worktree+git workflow, screenshot feedback loop, `external_directory` permission for worktree access
+- [x] Subscribed calendar: event page links in iCal descriptions so subscribers can click through to the website
 - [x] Avere una lista (magari nella db) come per le richieste di adesione, anche per le richieste di contatto e ordini dallo shop, in modo da poterle gestire e sopratutto tenere traccia anche qualora non dovesse funzionare l'invio mail
 - [x] Improve foehn forecast resilience: retry on DNS failures, reduce log noise, pre-seed cache on deploy (plan at `plans/foehn-dns-resilience.md`)
 - [x] Aggiungere link al sito vento.cvlt.ch così da accontentare anche quelli difficili ;)
@@ -97,6 +77,7 @@
 - [x] **Security audit — PhotoAlbums access control**: create/update/delete restricted to admin only
 - [x] Bump Next.js 15.3.9 → 15.4.11
 - [x] Footer credits link to GitHub
+- [x] SEO improvements: JSON-LD structured data, OG image, per-page meta/canonical, Media filename sanitization, WebP
 - [x] Subscribed calendar: reserve dates exported as separate TENTATIVE events with "- riserva" suffix in iCal
 - [x] Wind station hyperlinks: all stations link to their respective sources (MeteoSwiss, Wunderground, SLF, Holfuy, OpenWindMap, Tencia)
 - [x] Checkout README.md file

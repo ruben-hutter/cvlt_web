@@ -525,9 +525,14 @@ export function InfoVoloContent() {
             href="https://www.meteosvizzera.admin.ch"
           />
           <LinkCard
-            title="SHV / FSVL Meteo"
-            description="Previsioni meteo della federazione"
-            href="https://www.meteo-shv.ch/"
+            title="SHV / FSVL Meteo (iOS)"
+            description="App meteo ufficiale della federazione – previsioni, favonio e stazioni"
+            href="https://apps.apple.com/ch/app/shv-fsvl/id6761252391"
+          />
+          <LinkCard
+            title="SHV / FSVL Meteo (Android)"
+            description="App meteo ufficiale della federazione – previsioni, favonio e stazioni"
+            href="https://play.google.com/store/apps/details?id=ch.shv_fsvl"
           />
           <LinkCard
             title="Soaring Meteo"
