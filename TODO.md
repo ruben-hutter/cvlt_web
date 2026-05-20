@@ -13,6 +13,7 @@
     - Breaking down large functions into smaller ones
     - Overall improving readability and maintainability of the code base
 - [ ] Make the two charts on the vento page just one! First part is mesured data and second part is forecast. Think of a way to visually make the difference clear but still have it as one chart.
+- [ ] **Media filename migration script**: write a one-time script to rename existing files on disk + update DB records so all media filenames are SEO-friendly (lowercase, hyphens, no spaces/parens). Most files were imported via seed script with original dirty names (e.g. `traversata (1)-3.jpg`, `photo_106@01-05-2026_20-53-46.jpg`). The `beforeOperation` hook now sanitizes new uploads, but existing media still has dirty filenames.
 
 ## Medium priority
 
