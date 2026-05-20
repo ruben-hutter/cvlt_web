@@ -35,6 +35,9 @@ console.log(`Node.js ${process.version} — pid ${process.pid}`)
 logMemory()
 setInterval(logMemory, 300000)
 
+process.chdir(projectRoot)
+console.log(`[START] Working directory: ${process.cwd()}`)
+
 await import('../.next/standalone/server.js')
 
 setTimeout(async () => {
