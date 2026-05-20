@@ -1,6 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import { existsSync, renameSync } from 'fs'
-import { resolve, join } from 'path'
 import { isAdmin, isLoggedIn } from './Users'
 
 function sanitizeFilename(name: string): string {
@@ -42,6 +40,13 @@ export const Media: CollectionConfig = {
     totp: { disableAccessWrapper: { read: true } },
   },
   hooks: {
+    beforeOperation: [
+      ({ req, operation }) => {
+        if ((operation === 'create' || operation === 'update') && req.file?.name) {
+          req.file.name = sanitizeFilename(req.file.name)
+        }
+      },
+    ],
     beforeValidate: [
       ({ data, req }) => {
         if (data && !data.alt) {
@@ -49,24 +54,6 @@ export const Media: CollectionConfig = {
           if (filename) {
             data.alt = filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
           }
-        }
-        return data
-      },
-    ],
-    beforeChange: [
-      ({ data, req }) => {
-        if (req?.file?.name) {
-          const diskFilename = data.filename
-          const sanitized = sanitizeFilename(req.file.name)
-          if (diskFilename && diskFilename !== sanitized) {
-            const mediaDir = resolve(process.cwd(), 'media')
-            const oldPath = join(mediaDir, diskFilename)
-            const newPath = join(mediaDir, sanitized)
-            if (existsSync(oldPath)) {
-              renameSync(oldPath, newPath)
-            }
-          }
-          data.filename = sanitized
         }
         return data
       },
