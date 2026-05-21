@@ -33,7 +33,7 @@ export const Media: CollectionConfig = {
   access: {
     read: () => true,
     create: isLoggedIn,
-    update: isAdmin,
+    update: isLoggedIn,
     delete: isAdmin,
   },
   custom: {
