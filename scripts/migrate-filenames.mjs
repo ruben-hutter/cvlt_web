@@ -195,14 +195,13 @@ if (errors > 0) {
 
 console.log('[MIGRATE] Updating database...')
 
-const stmt = await db.prepare(
-  'UPDATE media SET filename = ?, sizes_thumbnail_filename = ?, sizes_medium_filename = ? WHERE id = ?'
-)
+const sql = 'UPDATE media SET filename = ?, sizes_thumbnail_filename = ?, sizes_medium_filename = ? WHERE id = ?'
 let dbUpdated = 0
 
 for (const { id, newFilename, sizeUpdates } of dbUpdates) {
   try {
-    await stmt.execute({
+    await db.execute({
+      sql,
       args: [
         newFilename,
         sizeUpdates.thumb || null,
