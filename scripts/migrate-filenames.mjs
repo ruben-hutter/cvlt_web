@@ -104,6 +104,7 @@ for (const [oldBase, info] of dirtyBasenames) {
 
     if (newName !== file) {
       fileRenames.push({ oldName: file, newName, isMain: file === info.filename })
+      usedNames.delete(file)
       usedNames.add(newName)
 
       if (file === info.filename) {
@@ -117,7 +118,14 @@ for (const [oldBase, info] of dirtyBasenames) {
   }
 
   if (newMainFilename) {
-    dbUpdates.push({ id: info.id, oldFilename: info.filename, newFilename: newMainFilename })
+    const sizeUpdates = {}
+    if (info.thumbFilename && typeof info.thumbFilename === 'string') {
+      sizeUpdates.thumb = sanitizeFilename(info.thumbFilename)
+    }
+    if (info.mediumFilename && typeof info.mediumFilename === 'string') {
+      sizeUpdates.medium = sanitizeFilename(info.mediumFilename)
+    }
+    dbUpdates.push({ id: info.id, oldFilename: info.filename, newFilename: newMainFilename, sizeUpdates })
   }
 }
 
@@ -178,12 +186,21 @@ if (errors > 0) {
 
 console.log('[MIGRATE] Updating database...')
 
-const stmt = await db.prepare('UPDATE media SET filename = ? WHERE id = ?')
+const stmt = await db.prepare(
+  'UPDATE media SET filename = ?, sizes_thumbnail_filename = ?, sizes_medium_filename = ? WHERE id = ?'
+)
 let dbUpdated = 0
 
-for (const { id, newFilename } of dbUpdates) {
+for (const { id, newFilename, sizeUpdates } of dbUpdates) {
   try {
-    await stmt.execute({ args: [newFilename, id] })
+    await stmt.execute({
+      args: [
+        newFilename,
+        sizeUpdates.thumb || null,
+        sizeUpdates.medium || null,
+        id,
+      ],
+    })
     dbUpdated++
     if (dbUpdated % 100 === 0) {
       console.log(`[MIGRATE] Updated ${dbUpdated}/${dbUpdates.length} DB records...`)
