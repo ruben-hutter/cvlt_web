@@ -36,7 +36,7 @@ function buildDescription(eventTitle: string, slug: string | null | undefined, e
 
   const plainParts = [`Maggiori info su: ${eventUrl}`]
   if (externalLink) plainParts.push(`Link esterno: ${externalLink}`)
-  const plainDesc = plainParts.join('\\n')
+  const plainDesc = plainParts.join('\n')
 
   const safeEventUrl = escapeHtml(safeHref(eventUrl))
   const htmlParts = [`Maggiori info su: <a href="${safeEventUrl}">${safeEventUrl}</a>`]
