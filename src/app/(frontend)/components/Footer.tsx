@@ -120,7 +120,7 @@ export function Footer() {
         <div className="mt-10 border-t border-gray-700 pt-6 text-center text-xs text-gray-500">
           <p>© {new Date().getFullYear()} Club Volo Libero Ticino</p>
           <p className="mt-1">
-            <a href="https://github.com/ruben-hutter" className="hover:text-white" target="_blank" rel="noopener noreferrer">
+            <a href="https://rubenhutter.ch" className="hover:text-white" target="_blank" rel="noopener noreferrer">
               Credits: Ruben Hutter
             </a>
           </p>
