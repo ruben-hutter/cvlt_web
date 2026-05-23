@@ -37,7 +37,7 @@
 - [ ] Database (format is not relevant i think) that keeps track of the quantity of shop items available
     - e.g. if a t-shirt in size x and color y is sold, the quantity in the db is updated and if it reaches 0, the selection of that item in the shop is not shown anymore
 - [ ] Embed TMA Locarno data similar to https://www.pdcs.ch/aktuell/2026/04/13/luftraum-status-bern/
-- [ ] Update footer credits link from GitHub (github.com/ruben-hutter) to personal website (rubenhutter.ch) once ready
+- [x] Update footer credits link from GitHub (github.com/ruben-hutter) to personal website (rubenhutter.ch)
 - [ ] Nuovo logo
     - Concorso per membri
     - Aspettare 40esimo anniversario per lanciarlo
