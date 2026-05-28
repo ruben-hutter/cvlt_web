@@ -143,18 +143,21 @@ async function fetchPressureData(): Promise<{ data: PressurePoint[] }> {
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
+  const allTimestamps = new Set([...magMap.keys(), ...kloMap.keys(), ...mtrMap.keys()])
+
   const data: PressurePoint[] = []
-  for (const [ts, mag] of magMap) {
+  for (const ts of allTimestamps) {
     const date = parseTimestamp(ts)
     if (!date || date < sevenDaysAgo) continue
 
+    const mag = magMap.get(ts)
     const klo = kloMap.get(ts)
     const mtr = mtrMap.get(ts)
 
     data.push({
       time: date.toISOString(),
-      diffP: klo?.p != null && mag.p != null ? Math.round((mag.p - klo.p) * 100) / 100 : null,
-      diffT: klo?.t != null && mag.t != null ? Math.round((mag.t - klo.t) * 100) / 100 : null,
+      diffP: klo?.p != null && mag?.p != null ? Math.round((mag.p - klo.p) * 100) / 100 : null,
+      diffT: klo?.t != null && mag?.t != null ? Math.round((mag.t - klo.t) * 100) / 100 : null,
       windMTR: mtr?.w ?? null,
     })
   }
