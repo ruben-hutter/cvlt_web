@@ -777,7 +777,7 @@ function PressureSection({ data, loading, error, foehnData, foehnLoading, foehnE
       <div className="mt-3 space-y-4">
         <div>
           <h3 className="mb-1 text-sm font-medium text-cvlt-gray-600">
-            Dati misurati: Magadino&ndash;Kloten (MAG-KLO) e Vento Matro
+            Dati misurati: Locarno{'\u2013'}Kloten (OTL-KLO) e Vento Matro
           </h3>
           <p className="mb-2 text-xs text-cvlt-gray-400">MeteoSwiss</p>
           {loading && !data ? (

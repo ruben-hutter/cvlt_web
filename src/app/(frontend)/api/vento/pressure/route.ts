@@ -7,17 +7,17 @@ const BASE = 'https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn'
 const URLS = {
   recent: {
     klo: `${BASE}/klo/ogd-smn_klo_h_recent.csv`,
-    mag: `${BASE}/mag/ogd-smn_mag_h_recent.csv`,
+    otl: `${BASE}/otl/ogd-smn_otl_h_recent.csv`,
     mtr: `${BASE}/mtr/ogd-smn_mtr_h_recent.csv`,
   },
   now: {
     klo: `${BASE}/klo/ogd-smn_klo_h_now.csv`,
-    mag: `${BASE}/mag/ogd-smn_mag_h_now.csv`,
+    otl: `${BASE}/otl/ogd-smn_otl_h_now.csv`,
     mtr: `${BASE}/mtr/ogd-smn_mtr_h_now.csv`,
   },
   tenMin: {
     klo: `${BASE}/klo/ogd-smn_klo_t_now.csv`,
-    mag: `${BASE}/mag/ogd-smn_mag_t_now.csv`,
+    otl: `${BASE}/otl/ogd-smn_otl_t_now.csv`,
     mtr: `${BASE}/mtr/ogd-smn_mtr_t_now.csv`,
   },
 }
@@ -117,11 +117,11 @@ function mergeRows(allSets: NormalizedRow[][]): Map<string, NormalizedRow> {
 async function fetchPressureData(): Promise<{ data: PressurePoint[] }> {
   const [
     kloRecent, kloNow, kloTenMin,
-    magRecent, magNow, magTenMin,
+    otlRecent, otlNow, otlTenMin,
     mtrRecent, mtrNow, mtrTenMin,
   ] = await Promise.all([
     fetchCSVText(URLS.recent.klo), fetchCSVText(URLS.now.klo), fetchCSVText(URLS.tenMin.klo),
-    fetchCSVText(URLS.recent.mag), fetchCSVText(URLS.now.mag), fetchCSVText(URLS.tenMin.mag),
+    fetchCSVText(URLS.recent.otl), fetchCSVText(URLS.now.otl), fetchCSVText(URLS.tenMin.otl),
     fetchCSVText(URLS.recent.mtr), fetchCSVText(URLS.now.mtr), fetchCSVText(URLS.tenMin.mtr),
   ])
 
@@ -130,10 +130,10 @@ async function fetchPressureData(): Promise<{ data: PressurePoint[] }> {
     normalizeHourly(parseCSV(kloNow)),
     normalize10min(parseCSV(kloTenMin)),
   ])
-  const magMap = mergeRows([
-    normalizeHourly(parseCSV(magRecent)),
-    normalizeHourly(parseCSV(magNow)),
-    normalize10min(parseCSV(magTenMin)),
+  const otlMap = mergeRows([
+    normalizeHourly(parseCSV(otlRecent)),
+    normalizeHourly(parseCSV(otlNow)),
+    normalize10min(parseCSV(otlTenMin)),
   ])
   const mtrMap = mergeRows([
     normalizeHourly(parseCSV(mtrRecent)),
@@ -143,21 +143,21 @@ async function fetchPressureData(): Promise<{ data: PressurePoint[] }> {
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
-  const allTimestamps = new Set([...magMap.keys(), ...kloMap.keys(), ...mtrMap.keys()])
+  const allTimestamps = new Set([...otlMap.keys(), ...kloMap.keys(), ...mtrMap.keys()])
 
   const data: PressurePoint[] = []
   for (const ts of allTimestamps) {
     const date = parseTimestamp(ts)
     if (!date || date < sevenDaysAgo) continue
 
-    const mag = magMap.get(ts)
+    const otl = otlMap.get(ts)
     const klo = kloMap.get(ts)
     const mtr = mtrMap.get(ts)
 
     data.push({
       time: date.toISOString(),
-      diffP: klo?.p != null && mag?.p != null ? Math.round((mag.p - klo.p) * 100) / 100 : null,
-      diffT: klo?.t != null && mag?.t != null ? Math.round((mag.t - klo.t) * 100) / 100 : null,
+      diffP: klo?.p != null && otl?.p != null ? Math.round((otl.p - klo.p) * 100) / 100 : null,
+      diffT: klo?.t != null && otl?.t != null ? Math.round((otl.t - klo.t) * 100) / 100 : null,
       windMTR: mtr?.w ?? null,
     })
   }
