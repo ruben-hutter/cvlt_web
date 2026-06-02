@@ -43,7 +43,17 @@ const skipPaths = ['/admin', '/api/', '/_next/', '/feed']
 const knownRootPaths = new Set([
   '', 'notizie', 'calendario', 'galleria', 'vento', 'gare',
   'info-volo', 'comitato', 'statuto', 'adesione', 'quota-sociale',
-  'biposto', 'shop', 'contatto',
+  'biposto', 'shop', 'contatto', 'feed',
+])
+
+const wpStaticPrefixes = [
+  '/wp-content/', '/wp-includes/', '/wp-admin/',
+  '/wp-json/', '/wp/v2/',
+]
+
+const wpQueryParams = new Set([
+  'p', 'page_id', 'attachment_id', 'post', 'cat',
+  'm', 'w', 'day', 'monthnum', 'year', 'paged',
 ])
 
 function shouldSkip(pathname: string) {
@@ -63,11 +73,30 @@ function isOldWordPressPost(pathname: string) {
   return true
 }
 
+function isWpStaticPath(pathname: string) {
+  return wpStaticPrefixes.some(p => pathname.startsWith(p))
+}
+
+function hasWpQueryParam(url: URL) {
+  for (const key of wpQueryParams) {
+    if (url.searchParams.has(key)) return true
+  }
+  return false
+}
+
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   if (shouldSkip(pathname)) {
     return NextResponse.next()
+  }
+
+  if (isWpStaticPath(pathname)) {
+    return new NextResponse(null, { status: 410 })
+  }
+
+  if (hasWpQueryParam(request.nextUrl)) {
+    return NextResponse.redirect(new URL('/notizie', request.url), 301)
   }
 
   if (pathname !== '/' && pathname.endsWith('/')) {
