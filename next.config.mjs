@@ -77,7 +77,7 @@ const nextConfig = {
       { source: '/:section/galleria/page/:num(\\d+)', destination: '/galleria', permanent: true },
 
       // WordPress feed paths
-      { source: '/feed/:path*', destination: '/feed', permanent: true },
+      { source: '/feed/:path+', destination: '/feed', permanent: true },
       { source: '/comments/feed', destination: '/feed', permanent: true },
 
       // Old WordPress attachment/media pages
