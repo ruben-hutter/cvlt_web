@@ -66,14 +66,21 @@ Modern, clean, fast. Tailwind utility classes.
 
 This project uses **git worktrees**. The branches live in separate directories:
 
+The bare repo lives at `/home/ruben/repos/cvlt_web/` with a `.bare/` directory inside it. All worktrees are subdirectories of this bare repo:
+
 | Branch | Directory | Purpose |
 |:---|:---|:---|
-| `main` | `/home/ruben/repos/cvlt_web` | Production (cvlt.ch) |
-| `dev` | `/home/ruben/repos/cvlt_web-dev` | Development (local) |
-| `feat/*` | `/home/ruben/repos/cvlt_web-*` | Feature branches |
+| `main` | `/home/ruben/repos/cvlt_web/main` | Production (cvlt.ch) |
+| `dev` | `/home/ruben/repos/cvlt_web/dev` | Development (local) |
+| `feat/*` | `/home/ruben/repos/cvlt_web/feat-*` | Feature branches |
+
+To create a new feature worktree (run from any existing worktree):
+```bash
+git worktree add /home/ruben/repos/cvlt_web/feat-<name> -b feat/<name>
+```
 
 ### Deploy pipeline
-1. Work on `dev` branch (current directory is the dev worktree)
+1. Work on `dev` branch (current directory is `/home/ruben/repos/cvlt_web/dev`)
 2. Test locally with `npm run dev`
 3. Push to `origin dev`
 4. Create PR from dev to main (via `gh pr create`)
