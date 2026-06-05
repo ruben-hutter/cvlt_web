@@ -81,16 +81,15 @@ export function eventJsonLd(args: {
     name: args.title,
     startDate: args.startDate,
     ...(args.endDate && { endDate: args.endDate }),
-    ...(args.location && {
-      location: {
-        '@type': 'Place',
-        name: args.location,
-        address: {
-          '@type': 'PostalAddress',
-          addressCountry: 'CH',
-        },
+    location: {
+      '@type': 'Place',
+      name: args.location || 'Ticino, Svizzera',
+      address: {
+        '@type': 'PostalAddress',
+        addressRegion: 'Ticino',
+        addressCountry: 'CH',
       },
-    }),
+    },
     eventStatus: statusMap[args.status || 'confirmed'] || 'https://schema.org/EventScheduled',
     ...(args.description && { description: args.description }),
     image: `${args.baseUrl}/logo_CVLT.png`,
