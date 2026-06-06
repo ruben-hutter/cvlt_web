@@ -51,7 +51,7 @@ export default async function GalleryPage() {
     albums = result.docs.map((album) => {
       const firstPhotoId = album.photos?.[0]
       const cover = firstPhotoId ? coverMap.get(String(firstPhotoId)) : null
-      const coverUrl = cover?.sizes?.thumbnail?.url || cover?.url || null
+      const coverUrl = cover?.sizes?.thumbnail?.url || cover?.sizes?.medium?.url || cover?.url || null
       const coverMimeType = cover?.mimeType || ''
       return {
         id: album.id,
