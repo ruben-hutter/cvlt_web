@@ -56,6 +56,16 @@ const wpQueryParams = new Set([
   'm', 'w', 'day', 'monthnum', 'year', 'paged',
 ])
 
+const wpGonePrefixes = [
+  '/category/', '/tag/', '/author/', '/archives/',
+  '/date/', '/blog/', '/comments/', '/search/',
+  '/page/', '/feed/', '/events/',
+]
+
+const wpGoneSuffixes = [
+  '/attachment/', '/feed',
+]
+
 function shouldSkip(pathname: string) {
   return skipPaths.some(p => pathname.startsWith(p))
 }
@@ -70,6 +80,7 @@ function isOldWordPressPost(pathname: string) {
   if (pathname.includes('.')) return false
   const slug = segments[0]
   if (knownRootPaths.has(slug)) return false
+  if (/^gallery-/.test(slug)) return false
   return true
 }
 
@@ -84,6 +95,20 @@ function hasWpQueryParam(url: URL) {
   return false
 }
 
+function isWpGonePath(pathname: string) {
+  if (wpGonePrefixes.some(p => pathname.startsWith(p))) return true
+  if (wpGoneSuffixes.some(s => pathname.endsWith(s))) return true
+  const segments = pathname.split('/').filter(Boolean)
+  if (segments.length === 1 && /^20\d{2}$/.test(segments[0])) return true
+  if (segments.length === 2 && /^20\d{2}$/.test(segments[0]) && /^\d{2}$/.test(segments[1])) return true
+  if (segments.length >= 3 && /^20\d{2}$/.test(segments[0]) && /^\d{2}$/.test(segments[1]) && /^\d{2}$/.test(segments[2])) return true
+  return false
+}
+
+function isWpPhpFile(pathname: string) {
+  return pathname.endsWith('.php')
+}
+
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
@@ -91,12 +116,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  if (isWpStaticPath(pathname)) {
+  if (isWpStaticPath(pathname) || isWpPhpFile(pathname)) {
+    return new NextResponse(null, { status: 410 })
+  }
+
+  if (isWpGonePath(pathname)) {
     return new NextResponse(null, { status: 410 })
   }
 
   if (hasWpQueryParam(request.nextUrl)) {
-    return NextResponse.redirect(new URL('/notizie', request.url), 301)
+    return new NextResponse(null, { status: 410 })
   }
 
   if (pathname !== '/' && pathname.endsWith('/')) {
@@ -105,7 +134,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (isOldWordPressPost(pathname)) {
-    return NextResponse.redirect(new URL('/notizie', request.url), 301)
+    return new NextResponse(null, { status: 410 })
   }
 
   const response = NextResponse.next()
