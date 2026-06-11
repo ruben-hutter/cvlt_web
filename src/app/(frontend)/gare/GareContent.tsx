@@ -64,10 +64,21 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
 
 const hikeAndFlyRaces = [
   { date: '16.5', backup: '', name: 'MisoXperience', organizer: 'Pietro Zala (Davide Joerger)', location: 'Grono', catOpen: true, catFun: false, href: '/calendario/misoxperience' },
-  { date: '30.5', backup: '31.5', name: 'Ticino X-Race', organizer: 'Matteo Monzeglio', location: 'Tesserete', catOpen: true, catFun: true, href: '/calendario/ticino-x-race' },
+  { date: '30.5', backup: '31.5', name: 'Ticino X-Race', organizer: 'Matteo Monzeglio', location: 'Tesserete', catOpen: true, catFun: true, href: '/calendario/ticino-x-race', cancelled: true },
   { date: '20.6', backup: '21.6', name: 'Coppa Monte Generoso', organizer: 'TVLMG', location: 'Mendrisio', catOpen: true, catFun: true, href: '/calendario/coppa-monte-generoso' },
   { date: '19.9', backup: '20.9', name: 'Run in Fly', organizer: 'Gael Droz', location: 'Locarno', catOpen: true, catFun: true, href: '/calendario/run-in-fly-gia-belli-in-fly-2' },
   { date: '26–27.9', backup: '3–4.10', name: 'Lema Air', organizer: 'Claudio Cattaneo', location: 'Miglieglia', catOpen: true, catFun: false, href: '/calendario/lema-air' },
+]
+
+const classificaRaces = ['MisoXperience', 'Coppa M. Generoso', 'Run in Fly', 'Lema Air']
+
+type classificaPilotEntry = { name: string; races: (number | null)[] }
+const classificaOpen2026: classificaPilotEntry[] = [
+  { name: 'Aaron Mathis', races: [100, null, null, null] },
+  { name: 'Etan Studer', races: [90, null, null, null] },
+  { name: 'Fabian Guggisberg', races: [80, null, null, null] },
+  { name: 'Deborah Acierno', races: [70, null, null, null] },
+  { name: 'Pietro Zala', races: [70, null, null, null] },
 ]
 
 const cccHallOfFame: { year: number; link?: string; results: { cat: string; name: string; points: string }[] }[] = [
@@ -404,20 +415,29 @@ export function GareContent() {
                 const cardContent = (
                   <>
                     <div className="flex items-start justify-between gap-2">
-                      <div className="font-medium text-cvlt-blue">{race.name}</div>
+                      <div className={`font-medium ${race.cancelled ? 'text-cvlt-gray-400 line-through' : 'text-cvlt-blue'}`}>{race.name}</div>
                       <div className="flex gap-1.5 whitespace-nowrap">
-                        {race.catOpen && <span className="rounded bg-cvlt-blue/10 px-1.5 py-0.5 text-xs font-medium text-cvlt-blue">Open</span>}
-                        {race.catFun && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">Fun</span>}
+                        {race.cancelled && <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">Annullata</span>}
+                        {!race.cancelled && race.catOpen && <span className="rounded bg-cvlt-blue/10 px-1.5 py-0.5 text-xs font-medium text-cvlt-blue">Open</span>}
+                        {!race.cancelled && race.catFun && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">Fun</span>}
                       </div>
                     </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 text-cvlt-gray-600">
+                    <div className={`mt-1 flex flex-wrap items-center gap-x-3 ${race.cancelled ? 'text-cvlt-gray-400' : 'text-cvlt-gray-600'}`}>
                       <span>{race.date}{race.backup ? ` (${race.backup})` : ''}</span>
                       <span>&middot;</span>
                       <span>{race.location}</span>
                     </div>
-                    <div className="mt-0.5 text-xs text-cvlt-gray-500">{race.organizer}</div>
+                    <div className={`mt-0.5 text-xs ${race.cancelled ? 'text-cvlt-gray-400' : 'text-cvlt-gray-500'}`}>{race.organizer}</div>
                   </>
                 )
+
+                if (race.cancelled) {
+                  return (
+                    <div key={race.name} className="rounded-lg border border-cvlt-gray-200 bg-cvlt-gray-50 p-3 text-sm opacity-70">
+                      {cardContent}
+                    </div>
+                  )
+                }
 
                 return race.href ? (
                   <Link key={race.name} href={race.href} className="block rounded-lg border border-cvlt-gray-200 p-3 text-sm transition-colors hover:border-cvlt-blue/30 hover:bg-cvlt-blue/5">
@@ -446,11 +466,13 @@ export function GareContent() {
                 </thead>
                 <tbody>
                   {hikeAndFlyRaces.map((race) => (
-                    <tr key={race.name} className="border-b border-cvlt-gray-100 last:border-b-0">
-                      <td className="py-2 pr-3 font-medium text-cvlt-gray-900">{race.date}</td>
+                    <tr key={race.name} className={`border-b border-cvlt-gray-100 last:border-b-0 ${race.cancelled ? 'opacity-50' : ''}`}>
+                      <td className={`py-2 pr-3 font-medium ${race.cancelled ? 'text-cvlt-gray-400' : 'text-cvlt-gray-900'}`}>{race.date}</td>
                       <td className="py-2 pr-3 text-cvlt-gray-500">{race.backup || '-'}</td>
                       <td className="py-2 pr-3 font-medium">
-                        {race.href ? (
+                        {race.cancelled ? (
+                          <span className="text-cvlt-gray-400 line-through">{race.name}</span>
+                        ) : race.href ? (
                           <Link href={race.href} className="text-cvlt-blue transition-colors hover:text-cvlt-blue-dark hover:underline">
                             {race.name}
                           </Link>
@@ -460,8 +482,18 @@ export function GareContent() {
                       </td>
                       <td className="py-2 pr-3 text-cvlt-gray-700">{race.organizer}</td>
                       <td className="py-2 pr-3 text-cvlt-gray-700">{race.location}</td>
-                      <td className="py-2 pr-1 text-center">{race.catOpen ? <span className="rounded bg-cvlt-blue/10 px-1.5 py-0.5 text-xs font-medium text-cvlt-blue">sì</span> : '-'}</td>
-                      <td className="py-2 text-center">{race.catFun ? <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">sì</span> : '-'}</td>
+                      <td className="py-2 pr-1 text-center">
+                        {race.cancelled ? (
+                          <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">Annullata</span>
+                        ) : race.catOpen ? (
+                          <span className="rounded bg-cvlt-blue/10 px-1.5 py-0.5 text-xs font-medium text-cvlt-blue">sì</span>
+                        ) : '-'}
+                      </td>
+                      <td className="py-2 text-center">
+                        {race.cancelled ? null : race.catFun ? (
+                          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">sì</span>
+                        ) : '-'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -509,9 +541,37 @@ export function GareContent() {
           </Section>
 
           <Section title="Classifica 2026">
-            <p className="text-cvlt-gray-500 italic">
-              La classifica verrà pubblicata qui dopo le prime gare della stagione.
-            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-cvlt-gray-200 text-xs font-semibold uppercase tracking-wide text-cvlt-gray-500">
+                    <th className="pb-2 pr-3">#</th>
+                    <th className="pb-2 pr-3">Pilota</th>
+                    {classificaRaces.map((r) => (
+                      <th key={r} className="pb-2 pr-3 text-center">{r}</th>
+                    ))}
+                    <th className="pb-2 text-right">Totale</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {classificaOpen2026.map((pilot, i) => {
+                    const total = pilot.races.reduce<number>((sum, p) => sum + (p ?? 0), 0)
+                    return (
+                      <tr key={pilot.name} className="border-b border-cvlt-gray-100 last:border-b-0">
+                        <td className="py-1.5 pr-3 text-cvlt-gray-500">{i + 1}</td>
+                        <td className="py-1.5 pr-3 font-medium text-cvlt-gray-900">{pilot.name}</td>
+                        {pilot.races.map((pts, j) => (
+                          <td key={j} className="py-1.5 pr-3 text-center tabular-nums text-cvlt-gray-700">
+                            {pts !== null ? pts : '-'}
+                          </td>
+                        ))}
+                        <td className="py-1.5 text-right font-semibold tabular-nums text-cvlt-gray-900">{total}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </Section>
         </div>
       </div>

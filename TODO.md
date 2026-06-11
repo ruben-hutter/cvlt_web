@@ -2,6 +2,8 @@
 
 ## High priority
 
+- [ ] Think about changing the race leaderboard in a way that you can look up also in the future the results of the past years (similar to hall of fame)
+    - Maybe add also a place where to download the pdf of the results
 - [ ] In comitato page make person's containers "flip" on click and behing them show more info (maybe motivation or contact info)
 - [ ] Update "Info volo" page: add formal agreements with Locarno airport (airspace/TMA info already present)
 - [ ] Refactor code base. Some fixes probably "messed" up the code base and made it a bit messy. I should go through the code and refactor it to make it cleaner and more maintainable. This could include things like:
