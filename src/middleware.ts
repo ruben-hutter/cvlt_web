@@ -54,6 +54,7 @@ const wpStaticPrefixes = [
 const wpQueryParams = new Set([
   'p', 'page_id', 'attachment_id', 'post', 'cat',
   'm', 'w', 'day', 'monthnum', 'year', 'paged',
+  'mobile', '_page', 'option', 'Itemid', 'task', 'view',
 ])
 
 const wpGonePrefixes = [
