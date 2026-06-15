@@ -51,20 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }))
 
-    const albums = await payload.find({
-      collection: 'photo-albums',
-      limit: 0,
-      select: { slug: true, updatedAt: true },
-    })
-
-    const albumPages: MetadataRoute.Sitemap = albums.docs.map((doc) => ({
-      url: `${BASE_URL}/galleria/${doc.slug}`,
-      lastModified: new Date(doc.updatedAt as string),
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    }))
-
-    return [...staticPages, ...newsPages, ...eventPages, ...albumPages]
+    return [...staticPages, ...newsPages, ...eventPages]
   } catch {
     return staticPages
   }
