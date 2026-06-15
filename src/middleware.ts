@@ -131,7 +131,7 @@ export function middleware(request: NextRequest) {
 
   if (pathname !== '/' && pathname.endsWith('/')) {
     const url = new URL(pathname.replace(/\/+$/, '') + request.nextUrl.search, request.url)
-    return NextResponse.redirect(url, 308)
+    return NextResponse.redirect(url, 301)
   }
 
   if (isOldWordPressPost(pathname)) {

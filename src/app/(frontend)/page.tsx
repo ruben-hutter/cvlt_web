@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: 'CVLT - Club Volo Libero Ticino',
   description:
     'Club Volo Libero Ticino — notizie, eventi, meteo e galleria del club di parapendio e deltaplano del Canton Ticino.',
-  alternates: { canonical: '/' },
+  alternates: { canonical: `${baseUrl}/` },
 }
 
 function getThumbnailUrl(article: any): string | null {
