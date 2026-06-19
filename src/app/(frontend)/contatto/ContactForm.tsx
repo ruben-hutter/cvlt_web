@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { isValidEmail } from '@/lib/forms'
+import { isValidEmail, useFormRenderTime } from '@/lib/forms'
 import { uiFieldClass, uiPrimaryButtonClass } from '@/lib/ui'
 
 export function ContactForm() {
@@ -9,8 +9,11 @@ export function ContactForm() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
+  const [honeypot, setHoneypot] = useState('')
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+
+  const renderTime = useFormRenderTime()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -28,7 +31,7 @@ export function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, lastName, email, message }),
+        body: JSON.stringify({ firstName, lastName, email, message, website: honeypot, renderTs: renderTime }),
       })
 
       if (!res.ok) {
@@ -128,6 +131,18 @@ export function ContactForm() {
           className={uiFieldClass}
         />
       </div>
+
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        className="absolute h-0 w-0 opacity-0"
+        style={{ position: 'absolute', left: '-9999px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}
+      />
 
       <button
         type="submit"

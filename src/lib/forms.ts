@@ -81,3 +81,8 @@ export function isValidPhone(phone: string): boolean {
   const digits = phone.replaceAll(/\D/g, '')
   return digits.length >= 10 && digits.length <= 15
 }
+
+export function useFormRenderTime(): number {
+  const ref = useRef(Date.now())
+  return ref.current
+}
