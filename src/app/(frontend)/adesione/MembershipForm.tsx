@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useAddressSearch, formatPhone, isValidEmail, isValidPhone } from '@/lib/forms'
+import { useAddressSearch, formatPhone, isValidEmail, isValidPhone, useFormRenderTime } from '@/lib/forms'
 import type { AddressSuggestion } from '@/lib/forms'
 import { uiFieldClass, uiPrimaryButtonClass } from '@/lib/ui'
 
@@ -36,8 +36,11 @@ export function MembershipForm() {
   const [errorMsg, setErrorMsg] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
+  const [honeypot, setHoneypot] = useState('')
   const suggestionsRef = useRef<HTMLDivElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
+
+  const renderTime = useFormRenderTime()
 
   const suggestions = useAddressSearch(data.address)
 
@@ -116,6 +119,8 @@ export function MembershipForm() {
         body: JSON.stringify({
           ...data,
           city: `${data.zip} ${data.city}`.trim(),
+          website: honeypot,
+          renderTs: renderTime,
         }),
       })
 
@@ -334,6 +339,18 @@ export function MembershipForm() {
           className={uiFieldClass}
         />
       </div>
+
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        className="absolute h-0 w-0 opacity-0"
+        style={{ position: 'absolute', left: '-9999px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}
+      />
 
       <button
         type="submit"

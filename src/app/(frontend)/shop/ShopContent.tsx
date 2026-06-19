@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Lightbox from 'yet-another-react-lightbox'
 import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import 'yet-another-react-lightbox/styles.css'
-import { useAddressSearch, formatPhone, isValidEmail, isValidPhone } from '@/lib/forms'
+import { useAddressSearch, formatPhone, isValidEmail, isValidPhone, useFormRenderTime } from '@/lib/forms'
 import type { AddressSuggestion } from '@/lib/forms'
 import {
   calculateTshirt2023Discount,
@@ -149,8 +149,11 @@ export function ShopContent() {
   const [postalCode, setPostalCode] = useState('')
   const [city, setCity] = useState('')
   const [notes, setNotes] = useState('')
+  const [honeypot, setHoneypot] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1)
+
+  const renderTime = useFormRenderTime()
 
   const [isPreparingCheckout, setIsPreparingCheckout] = useState(false)
   const [isConfirmingOrder, setIsConfirmingOrder] = useState(false)
@@ -430,6 +433,8 @@ export function ShopContent() {
           notes,
           paymentMethod,
           items: cartItems,
+          website: honeypot,
+          renderTs: renderTime,
         }),
       })
 
@@ -861,6 +866,18 @@ export function ShopContent() {
               placeholder="Richieste particolari, consegna, ecc."
             />
           </div>
+
+          <input
+            type="text"
+            name="website"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            className="absolute h-0 w-0 opacity-0"
+            style={{ position: 'absolute', left: '-9999px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}
+          />
 
           <div>
             <label className="mb-2 block text-sm font-medium">Metodo di pagamento <span className="text-red-500">*</span></label>

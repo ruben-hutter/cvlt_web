@@ -5,6 +5,7 @@ import config from '@payload-config'
 import { sendShopOrderNotification } from '@/lib/mail'
 import { getServerUrl, requireEnv } from '@/lib/env'
 import { rateLimit } from '@/lib/rate-limit'
+import { extractClientIp, isBlockedEmailDomain, validateAntispamFields } from '@/lib/antispam'
 import {
   normalizeCartTotal,
   type CartItem,
@@ -24,6 +25,8 @@ type PrepareRequest = {
   notes?: string
   paymentMethod: PaymentMethod
   items: CartItem[]
+  website?: string
+  renderTs?: number | string
 }
 
 type ConfirmRequest = {
@@ -204,7 +207,15 @@ async function saveOrderToDb(order: OrderPayload) {
 }
 
 async function handlePrepare(body: PrepareRequest) {
-  const { firstName, lastName, email, phone, address, postalCode, city, notes, paymentMethod, items } = body
+  const { firstName, lastName, email, phone, address, postalCode, city, notes, paymentMethod, items, website, renderTs } = body
+
+  const antispam = validateAntispamFields({ honeypot: website, renderTs })
+  if (!antispam.ok) {
+    if (antispam.reason === 'honeypot') {
+      return NextResponse.json({ success: true, orderRef: crypto.randomUUID(), paymentMethod: 'invoice', paymentStatus: 'pending_invoice' })
+    }
+    return NextResponse.json({ error: 'Verifica anti-spam non superata. Ricarica la pagina e riprova.' }, { status: 400 })
+  }
 
   if (
     !firstName ||
@@ -218,6 +229,10 @@ async function handlePrepare(body: PrepareRequest) {
     items.length === 0
   ) {
     return NextResponse.json({ error: 'Dati ordine incompleti.' }, { status: 400 })
+  }
+
+  if (isBlockedEmailDomain(email)) {
+    return NextResponse.json({ error: 'Indirizzo email non valido.' }, { status: 400 })
   }
 
   if (!items.every(isValidCartItem)) {
@@ -324,8 +339,8 @@ async function handleConfirm(body: ConfirmRequest) {
 }
 
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
-  const { allowed } = rateLimit({ key: `shop-order:${ip}`, limit: 10, windowMs: 60_000 })
+  const ip = extractClientIp(request)
+  const { allowed } = rateLimit({ key: `shop-order:${ip}`, limit: 3, windowMs: 60_000 })
   if (!allowed) {
     return NextResponse.json({ error: 'Troppe richieste. Riprova più tardi.' }, { status: 429 })
   }
