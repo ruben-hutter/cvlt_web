@@ -17,7 +17,7 @@ const pilots: Pilot[] = [
   { name: 'Bisi Fabrizio', phone: '+41793498677', email: 'bisif60@gmail.com' },
   { name: 'Bomio Alessio', phone: '+41795050433', email: 'as.bomio@bluewin.ch' },
   { name: 'Cattaneo Claudio', phone: '+41792390666', email: 'info@parapendio.ch', website: 'parapendio.ch' },
-  { name: 'Cavargna Eros', phone: '+41793671502'},
+  { name: 'Cavargna Eros', phone: '+41793671502', email: 'eroscavargna@gmail.com' },
   { name: 'Cioldi Elio', phone: '+41796255918', email: 'eliocioldi@gmail.com', website: 'revolutionair.ch' },
   { name: 'Coda Andrea', phone: '+41765611311', email: 'andrea.coda@bluewin.ch' },
   { name: 'Coda Luca', phone: '+41793703445', email: 'luca.coda@bluewin.ch' },
