@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import type { WindStation, StationsResponse } from '../types'
 import { computeWindLevel, formatCloudBase, fetchWithTimeout } from '../types'
 import { cachedFetch } from '../cache'
+import { rateLimit } from '@/lib/rate-limit'
+import { extractClientIp } from '@/lib/antispam'
 
 const MCH_URL =
   'https://s3-eu-central-1.amazonaws.com/app-prod-static-fra.meteoswiss-app.ch/v1/currentWeather.json'
@@ -90,7 +92,11 @@ async function fetchMCHData(): Promise<StationsResponse> {
   return { timestamp, stations, fetchedAt: new Date().toISOString() }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { allowed } = rateLimit({ key: `vento-mch:${extractClientIp(request)}`, limit: 30, windowMs: 60_000 })
+  if (!allowed) {
+    return NextResponse.json({ error: 'Troppe richieste.' }, { status: 429 })
+  }
   try {
     const data = await cachedFetch('vento-mch', 300, fetchMCHData)
     return NextResponse.json(data, {

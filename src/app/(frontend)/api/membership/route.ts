@@ -3,7 +3,9 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { sendMembershipNotification } from '@/lib/mail'
 import { rateLimit } from '@/lib/rate-limit'
-import { extractClientIp, isBlockedEmailDomain, validateAntispamFields } from '@/lib/antispam'
+import { extractClientIp, isBlockedEmailDomain, validateAntispamFields, isValidEmailFormat, isWithinLimit } from '@/lib/antispam'
+
+const VALID_MEMBERSHIP_TYPES = new Set(['active', 'family', 'supporter'])
 
 export async function POST(request: Request) {
   const ip = extractClientIp(request)
@@ -28,8 +30,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Tutti i campi obbligatori devono essere compilati.' }, { status: 400 })
     }
 
-    if (isBlockedEmailDomain(email)) {
+    if (
+      typeof firstName !== 'string' || typeof lastName !== 'string' ||
+      typeof address !== 'string' || typeof city !== 'string' ||
+      typeof email !== 'string' || typeof phone !== 'string' ||
+      typeof membershipType !== 'string'
+    ) {
+      return NextResponse.json({ error: 'Dati non validi.' }, { status: 400 })
+    }
+
+    if (!VALID_MEMBERSHIP_TYPES.has(membershipType)) {
+      return NextResponse.json({ error: 'Tipo di iscrizione non valido.' }, { status: 400 })
+    }
+
+    if (
+      !isWithinLimit(firstName, 'name') || !isWithinLimit(lastName, 'name') ||
+      !isWithinLimit(address, 'address') || !isWithinLimit(city, 'city') ||
+      !isWithinLimit(phone, 'phone') || !isWithinLimit(notes, 'notes')
+    ) {
+      return NextResponse.json({ error: 'Testo troppo lungo.' }, { status: 400 })
+    }
+
+    if (!isValidEmailFormat(email) || isBlockedEmailDomain(email)) {
       return NextResponse.json({ error: 'Indirizzo email non valido.' }, { status: 400 })
+    }
+
+    const phoneDigits = phone.replaceAll(/\D/g, '')
+    if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+      return NextResponse.json({ error: 'Numero di telefono non valido.' }, { status: 400 })
     }
 
     const payload = await getPayload({ config })
@@ -43,7 +71,7 @@ export async function POST(request: Request) {
         city,
         email,
         phone,
-        membershipType,
+        membershipType: membershipType as 'active' | 'family' | 'supporter',
         notes: notes || '',
       },
     })

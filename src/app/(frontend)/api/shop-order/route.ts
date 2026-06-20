@@ -5,7 +5,7 @@ import config from '@payload-config'
 import { sendShopOrderNotification } from '@/lib/mail'
 import { getServerUrl, requireEnv } from '@/lib/env'
 import { rateLimit } from '@/lib/rate-limit'
-import { extractClientIp, isBlockedEmailDomain, validateAntispamFields } from '@/lib/antispam'
+import { extractClientIp, isBlockedEmailDomain, validateAntispamFields, isValidEmailFormat, isWithinLimit } from '@/lib/antispam'
 import {
   normalizeCartTotal,
   type CartItem,
@@ -231,7 +231,25 @@ async function handlePrepare(body: PrepareRequest) {
     return NextResponse.json({ error: 'Dati ordine incompleti.' }, { status: 400 })
   }
 
-  if (isBlockedEmailDomain(email)) {
+  if (
+    typeof firstName !== 'string' || typeof lastName !== 'string' ||
+    typeof email !== 'string' || typeof phone !== 'string' ||
+    typeof address !== 'string' || typeof postalCode !== 'string' ||
+    typeof city !== 'string'
+  ) {
+    return NextResponse.json({ error: 'Dati non validi.' }, { status: 400 })
+  }
+
+  if (
+    !isWithinLimit(firstName, 'name') || !isWithinLimit(lastName, 'name') ||
+    !isWithinLimit(phone, 'phone') || !isWithinLimit(address, 'address') ||
+    !isWithinLimit(postalCode, 'postalCode') || !isWithinLimit(city, 'city') ||
+    !isWithinLimit(notes, 'notes') || items.length > 50
+  ) {
+    return NextResponse.json({ error: 'Dati ordine troppo lunghi.' }, { status: 400 })
+  }
+
+  if (!isValidEmailFormat(email) || isBlockedEmailDomain(email)) {
     return NextResponse.json({ error: 'Indirizzo email non valido.' }, { status: 400 })
   }
 

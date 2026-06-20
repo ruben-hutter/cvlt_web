@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { fetchWithTimeout } from '../types'
 import { cachedFetch } from '../cache'
+import { rateLimit } from '@/lib/rate-limit'
+import { extractClientIp } from '@/lib/antispam'
 
 const BASE = 'https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn'
 
@@ -166,7 +168,11 @@ async function fetchPressureData(): Promise<{ data: PressurePoint[] }> {
   return { data }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { allowed } = rateLimit({ key: `vento-pressure:${extractClientIp(request)}`, limit: 30, windowMs: 60_000 })
+  if (!allowed) {
+    return NextResponse.json({ error: 'Troppe richieste.' }, { status: 429 })
+  }
   try {
     const result = await cachedFetch('vento-pressure', 300, fetchPressureData)
     return NextResponse.json(result)
