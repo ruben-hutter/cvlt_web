@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import type { WindStation, StationsResponse } from '../types'
 import { computeWindLevel, formatCloudBase, fetchWithTimeout } from '../types'
 import { cachedFetch } from '../cache'
+import { rateLimit } from '@/lib/rate-limit'
+import { extractClientIp } from '@/lib/antispam'
 
 // ── PWS (Weather Underground) ──────────────────────────────────────────────
 const PWS_BASE =
@@ -353,7 +355,11 @@ async function fetchAllOthers(): Promise<StationsResponse> {
   return { timestamp, stations, fetchedAt: now.toISOString() }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { allowed } = rateLimit({ key: `vento-others:${extractClientIp(request)}`, limit: 30, windowMs: 60_000 })
+  if (!allowed) {
+    return NextResponse.json({ error: 'Troppe richieste.' }, { status: 429 })
+  }
   try {
     const data = await cachedFetch('vento-others', 300, fetchAllOthers)
     return NextResponse.json(data, {

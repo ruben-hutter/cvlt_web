@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { fetchWithTimeout } from '../types'
 import { decompress } from './decompress'
 import { cachedFetch } from '../cache'
+import { rateLimit } from '@/lib/rate-limit'
+import { extractClientIp } from '@/lib/antispam'
 import { readFile, writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 
@@ -122,7 +124,11 @@ async function fetchFoehnData(): Promise<{ data: FoehnPoint[] }> {
   return { data: capped }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { allowed } = rateLimit({ key: `vento-foehn:${extractClientIp(request)}`, limit: 30, windowMs: 60_000 })
+  if (!allowed) {
+    return NextResponse.json({ error: 'Troppe richieste.' }, { status: 429 })
+  }
   try {
     const result = await cachedFetch('vento-foehn', 1800, fetchFoehnData)
     return NextResponse.json(result, {

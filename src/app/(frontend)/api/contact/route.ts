@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { sendContactNotification } from '@/lib/mail'
 import { rateLimit } from '@/lib/rate-limit'
-import { extractClientIp, isBlockedEmailDomain, validateAntispamFields } from '@/lib/antispam'
+import { extractClientIp, isBlockedEmailDomain, validateAntispamFields, isValidEmailFormat, isWithinLimit } from '@/lib/antispam'
 
 export async function POST(request: Request) {
   const ip = extractClientIp(request)
@@ -27,7 +27,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Tutti i campi obbligatori devono essere compilati.' }, { status: 400 })
     }
 
-    if (isBlockedEmailDomain(email)) {
+    if (typeof firstName !== 'string' || typeof lastName !== 'string' || typeof email !== 'string' || typeof message !== 'string') {
+      return NextResponse.json({ error: 'Dati non validi.' }, { status: 400 })
+    }
+
+    if (!isWithinLimit(firstName, 'name') || !isWithinLimit(lastName, 'name') || !isWithinLimit(message, 'message')) {
+      return NextResponse.json({ error: 'Testo troppo lungo.' }, { status: 400 })
+    }
+
+    if (!isValidEmailFormat(email) || isBlockedEmailDomain(email)) {
       return NextResponse.json({ error: 'Indirizzo email non valido.' }, { status: 400 })
     }
 

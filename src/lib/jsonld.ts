@@ -1,5 +1,5 @@
 function jsonLdScript(data: Record<string, unknown>) {
-  return JSON.stringify(data)
+  return JSON.stringify(data).replace(/</g, '\\u003c')
 }
 
 export function organizationJsonLd(baseUrl: string) {

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { LakeLevel, LakesResponse } from '../types'
 import { cachedFetch } from '../cache'
+import { rateLimit } from '@/lib/rate-limit'
+import { extractClientIp } from '@/lib/antispam'
 
 const LAKES = [
   {
@@ -76,7 +78,11 @@ async function fetchAllLakes(): Promise<LakesResponse> {
   return { lakes, fetchedAt: new Date().toISOString() }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { allowed } = rateLimit({ key: `vento-lakes:${extractClientIp(request)}`, limit: 30, windowMs: 60_000 })
+  if (!allowed) {
+    return NextResponse.json({ error: 'Troppe richieste.' }, { status: 429 })
+  }
   try {
     const data = await cachedFetch('vento-lakes', 86400, fetchAllLakes)
     return NextResponse.json(data, {

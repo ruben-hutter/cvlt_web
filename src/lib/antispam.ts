@@ -94,3 +94,33 @@ export function validateAntispamFields(params: {
 
   return { ok: true }
 }
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export function isValidEmailFormat(email: string): boolean {
+  return EMAIL_RE.test(email) && email.length <= 254
+}
+
+const FIELD_LIMITS = {
+  name: 100,
+  email: 254,
+  phone: 30,
+  address: 200,
+  postalCode: 20,
+  city: 100,
+  message: 5000,
+  notes: 2000,
+} as const
+
+export type FieldName = keyof typeof FIELD_LIMITS
+
+export function isWithinLimit(value: string | undefined | null, field: FieldName): boolean {
+  if (!value) return true
+  return value.length <= FIELD_LIMITS[field]
+}
+
+export function isWithinArrayLimit(items: unknown[], max: number): boolean {
+  return Array.isArray(items) && items.length <= max
+}
+
+export { FIELD_LIMITS }
