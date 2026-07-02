@@ -5,8 +5,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import type { Metadata } from 'next'
 import { TwintButton } from './components/TwintButton'
-import { getPublishedNewsWithFeaturedFirst } from './lib/news'
-import { FeaturedNewsBadge } from './components/FeaturedNewsBadge'
+import { getPublishedNewsWithFeaturedFirst, getThumbnailUrl, getAlbumImagePool, pickFallbackImage } from './lib/news'
+import { NewsCard } from './components/NewsCard'
 import { websiteJsonLd } from '@/lib/jsonld'
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://cvlt.ch'
@@ -18,26 +18,16 @@ export const metadata: Metadata = {
   alternates: { canonical: `${baseUrl}/` },
 }
 
-function getThumbnailUrl(article: any): string | null {
-  if (article.thumbnail && typeof article.thumbnail === 'object') {
-    return article.thumbnail.url
-  }
-  for (const block of article.layout || []) {
-    if (block.blockType === 'image' && block.image?.url) return block.image.url
-    if (block.blockType === 'textImage' && block.image?.url) return block.image.url
-    if (block.blockType === 'gallery' && block.images?.[0]?.image?.url) return block.images[0].image.url
-  }
-  return null
-}
-
 export default async function HomePage() {
   let news = { docs: [] as any[] }
   let events = { docs: [] as any[] }
   let albums = { docs: [] as any[] }
+  let imagePool: string[][] = []
 
   try {
     const payload = await getPayload({ config })
     news.docs = await getPublishedNewsWithFeaturedFirst({ payload, limit: 8, depth: 1 })
+    imagePool = await getAlbumImagePool(payload)
 
     events = await payload.find({
       collection: 'events',
@@ -121,50 +111,21 @@ export default async function HomePage() {
             ) : (
               <div className="mt-6 space-y-4">
                 {news.docs.map((article) => {
-                  const thumb = getThumbnailUrl(article)
                   const event = article.relatedEvent && typeof article.relatedEvent === 'object'
-                    ? article.relatedEvent : null
+                    ? { title: article.relatedEvent.title }
+                    : null
                   return (
-                    <Link
+                    <NewsCard
                       key={article.id}
-                      href={`/notizie/${article.slug}`}
-                      className="group flex gap-4 rounded-lg border border-cvlt-gray-200 p-4 transition-all hover:border-cvlt-blue/30 hover:shadow-md"
-                    >
-                      {thumb && (
-                        <img
-                          src={thumb}
-                          alt=""
-                          width={72}
-                          height={72}
-                          style={{ width: 72, height: 72, objectFit: 'cover', flexShrink: 0 }}
-                          className="rounded-md"
-                        />
-                      )}
-                      <div className="min-w-0">
-                        <time className="text-xs font-medium text-cvlt-gray-500">
-                          {new Date(article.publishDate).toLocaleDateString('it-CH', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </time>
-                        <h3 className="mt-1 text-base font-semibold text-cvlt-gray-900 group-hover:text-cvlt-blue">
-                          {article.title}
-                        </h3>
-                        {article.tag === 'featured' && <FeaturedNewsBadge />}
-                        {event && (
-                          <span
-                            className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-cvlt-blue-light px-2 py-0.5 text-xs font-medium text-cvlt-blue"
-                          >
-                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
-                            </svg>
-                            {event.title}
-                          </span>
-                        )}
-                      </div>
-                    </Link>
+                      variant="row"
+                      id={article.id}
+                      title={article.title}
+                      slug={article.slug}
+                      publishDate={article.publishDate}
+                      thumbnailUrl={getThumbnailUrl(article) ?? pickFallbackImage(article.id, imagePool)}
+                      tag={article.tag ?? null}
+                      relatedEvent={event}
+                    />
                   )
                 })}
               </div>
