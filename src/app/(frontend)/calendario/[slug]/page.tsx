@@ -7,6 +7,8 @@ import config from '@payload-config'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import { richTextConverters, populateLexicalLinks } from '@/lib/richtext'
 import { eventJsonLd, breadcrumbJsonLd } from '@/lib/jsonld'
+import { getThumbnailUrl, getAlbumImagePool, pickFallbackImage } from '../../lib/news'
+import { NewsCard } from '../../components/NewsCard'
 import type { Metadata } from 'next'
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://cvlt.ch'
@@ -91,18 +93,6 @@ export default async function EventPage({ params }: Args) {
     depth: 1,
   })
 
-  function getThumbnailUrl(article: any): string | null {
-    if (article.thumbnail && typeof article.thumbnail === 'object') {
-      return article.thumbnail.sizes?.thumbnail?.url || article.thumbnail.url
-    }
-    for (const block of article.layout || []) {
-      if (block.blockType === 'image' && block.image?.url) return block.image.sizes?.thumbnail?.url || block.image.url
-      if (block.blockType === 'textImage' && block.image?.url) return block.image.sizes?.thumbnail?.url || block.image.url
-      if (block.blockType === 'gallery' && block.images?.[0]?.image?.url) return block.images[0].image.sizes?.thumbnail?.url || block.images[0].image.url
-    }
-    return null
-  }
-
   // Find related photo albums
   const albumResult = await payload.find({
     collection: 'photo-albums',
@@ -112,6 +102,9 @@ export default async function EventPage({ params }: Args) {
     limit: 10,
     depth: 1,
   })
+
+  // Pool of album photos used as fallback thumbnails for image-less news
+  const imagePool = await getAlbumImagePool(payload)
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
@@ -172,39 +165,20 @@ export default async function EventPage({ params }: Args) {
                 <section>
                   <h2 className="text-lg font-bold text-cvlt-gray-900">Notizie</h2>
                   <div className="mt-4 space-y-4">
-                    {newsResult.docs.map((article) => {
-                      const thumb = getThumbnailUrl(article)
-                      return (
-                        <Link
-                          key={article.id}
-                          href={`/notizie/${article.slug}`}
-                          className="group flex gap-4 rounded-lg border border-cvlt-gray-200 p-4 transition-all hover:border-cvlt-blue/30 hover:shadow-md"
-                        >
-                          {thumb && (
-                            <img
-                              src={thumb}
-                              alt=""
-                              width={72}
-                              height={72}
-                              style={{ width: 72, height: 72, objectFit: 'cover', flexShrink: 0 }}
-                              className="rounded-md"
-                            />
-                          )}
-                          <div className="min-w-0">
-                            <time className="text-xs font-medium text-cvlt-gray-500">
-                              {new Date(article.publishDate).toLocaleDateString('it-CH', {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                              })}
-                            </time>
-                            <h3 className="mt-1 text-base font-semibold text-cvlt-gray-900 group-hover:text-cvlt-blue">
-                              {article.title}
-                            </h3>
-                          </div>
-                        </Link>
-                      )
-                    })}
+                    {newsResult.docs.map((article) => (
+                      <NewsCard
+                        key={article.id}
+                        variant="row"
+                        showRelatedEvent={false}
+                        id={article.id}
+                        title={article.title}
+                        slug={article.slug}
+                        publishDate={article.publishDate}
+                        thumbnailUrl={getThumbnailUrl(article) ?? pickFallbackImage(article.id, imagePool)}
+                        tag={article.tag ?? null}
+                        relatedEvent={null}
+                      />
+                    ))}
                   </div>
                 </section>
               )}

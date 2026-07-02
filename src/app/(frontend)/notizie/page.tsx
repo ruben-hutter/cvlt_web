@@ -2,7 +2,12 @@ export const dynamic = 'force-dynamic'
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { getPublishedNewsWithFeaturedFirst } from '../lib/news'
+import {
+  getPublishedNewsWithFeaturedFirst,
+  getThumbnailUrl,
+  getAlbumImagePool,
+  pickFallbackImage,
+} from '../lib/news'
 import { NewsFilter } from './NewsFilter'
 
 export const metadata = {
@@ -12,24 +17,16 @@ export const metadata = {
   alternates: { canonical: '/notizie' },
 }
 
-function getThumbnailUrl(article: any): string | null {
-  if (article.thumbnail && typeof article.thumbnail === 'object') {
-    return article.thumbnail.sizes?.thumbnail?.url || article.thumbnail.url
-  }
-  for (const block of article.layout || []) {
-    if (block.blockType === 'image' && block.image?.url) return block.image.sizes?.thumbnail?.url || block.image.url
-    if (block.blockType === 'textImage' && block.image?.url) return block.image.sizes?.thumbnail?.url || block.image.url
-    if (block.blockType === 'gallery' && block.images?.[0]?.image?.url) return block.images[0].image.sizes?.thumbnail?.url || block.images[0].image.url
-  }
-  return null
-}
-
 export default async function NewsPage() {
   let articles: any[] = []
+  let pool: string[][] = []
 
   try {
     const payload = await getPayload({ config })
-    articles = await getPublishedNewsWithFeaturedFirst({ payload, limit: 50, depth: 1 })
+    ;[articles, pool] = await Promise.all([
+      getPublishedNewsWithFeaturedFirst({ payload, limit: 50, depth: 1 }),
+      getAlbumImagePool(payload),
+    ])
   } catch (e) {
     console.error('[NOTIZIE] DB query failed:', e)
   }
@@ -39,7 +36,7 @@ export default async function NewsPage() {
     title: a.title,
     slug: a.slug,
     publishDate: a.publishDate,
-    thumbnailUrl: getThumbnailUrl(a),
+    thumbnailUrl: getThumbnailUrl(a) ?? pickFallbackImage(a.id, pool),
     tag: a.tag ?? null,
     relatedEvent:
       a.relatedEvent && typeof a.relatedEvent === 'object'

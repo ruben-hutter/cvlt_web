@@ -8,23 +8,12 @@ import { NewsLayout } from '../../components/RichTextImage'
 import { ArticleLightbox } from '../../components/ArticleLightbox'
 import { articleJsonLd, breadcrumbJsonLd } from '@/lib/jsonld'
 import { populateLexicalLinks } from '@/lib/richtext'
+import { getThumbnailUrl } from '../../lib/news'
 import type { Metadata } from 'next'
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://cvlt.ch'
 
 type Args = { params: Promise<{ slug: string }> }
-
-function getThumbnailUrl(article: any): string | null {
-  if (article.thumbnail && typeof article.thumbnail === 'object') {
-    return article.thumbnail.url
-  }
-  for (const block of article.layout || []) {
-    if (block.blockType === 'image' && block.image?.url) return block.image.url
-    if (block.blockType === 'textImage' && block.image?.url) return block.image.url
-    if (block.blockType === 'gallery' && block.images?.[0]?.image?.url) return block.images[0].image.url
-  }
-  return null
-}
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { slug } = await params
