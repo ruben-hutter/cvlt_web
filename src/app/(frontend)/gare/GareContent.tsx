@@ -73,12 +73,49 @@ const hikeAndFlyRaces = [
 const classificaRaces = ['MisoXperience', 'Coppa M. Generoso', 'Run in Fly', 'Lema Air']
 
 type classificaPilotEntry = { name: string; races: (number | null)[] }
-const classificaOpen2026: classificaPilotEntry[] = [
+const classifica2026: classificaPilotEntry[] = [
+  { name: 'Etan Studer', races: [85, 50, null, null] },
   { name: 'Aaron Mathis', races: [100, null, null, null] },
-  { name: 'Etan Studer', races: [90, null, null, null] },
-  { name: 'Fabian Guggisberg', races: [80, null, null, null] },
-  { name: 'Deborah Acierno', races: [70, null, null, null] },
-  { name: 'Pietro Zala', races: [70, null, null, null] },
+  { name: 'Elia Sartoris', races: [null, 100, null, null] },
+  { name: 'Deborah Acierno', races: [60, 28, null, null] },
+  { name: 'Anton Soekeland', races: [null, 85, null, null] },
+  { name: 'Fabian Guggisberg', races: [70, null, null, null] },
+  { name: 'Tennessee Candelari', races: [null, 70, null, null] },
+  { name: 'Pietro Zala', races: [60, null, null, null] },
+  { name: 'Andrea Iati', races: [null, 60, null, null] },
+  { name: 'Stefano Tonello', races: [null, 55, null, null] },
+  { name: 'Renzo Zanotta', races: [null, 50, null, null] },
+  { name: 'Claudia Acerbis', races: [null, 45, null, null] },
+  { name: 'Antony Quarry', races: [null, 43, null, null] },
+  { name: 'Vittorio Scartazzini', races: [null, 40, null, null] },
+  { name: 'Alex Bernasconi', races: [null, 35, null, null] },
+  { name: 'Katrina Merckle', races: [null, 35, null, null] },
+  { name: 'Siegfried Studer', races: [null, 30, null, null] },
+  { name: 'Tamara Hobi', races: [null, 30, null, null] },
+  { name: 'Jan Schmid', races: [null, 29, null, null] },
+  { name: 'Fabrizio Coduri', races: [null, 27, null, null] },
+  { name: 'Luca Limido', races: [null, 25, null, null] },
+  { name: 'Diego Uccellani', races: [null, 22, null, null] },
+  { name: 'Marco Marciani', races: [null, 20, null, null] },
+  { name: 'Luca Bernaschina', races: [null, 18, null, null] },
+  { name: 'Stefano Maffioletti', races: [null, 15, null, null] },
+  { name: 'Marco Dorici', races: [null, 14, null, null] },
+  { name: 'Daniele Tessaro', races: [null, 13, null, null] },
+  { name: 'Juan Quadri', races: [null, 12, null, null] },
+  { name: 'Hugo Cardoso', races: [null, 12, null, null] },
+  { name: 'Sacha Kessel', races: [null, 10, null, null] },
+  { name: 'Lorenzo Naso', races: [null, 9, null, null] },
+  { name: 'Diego Bodini', races: [null, 8, null, null] },
+  { name: 'Fabrizio Ronchetti', races: [null, 7, null, null] },
+  { name: 'Jan Buchli', races: [null, 6, null, null] },
+  { name: 'Julien Bucciarelli', races: [null, 5, null, null] },
+  { name: 'Sofie Fiori', races: [null, 4, null, null] },
+  { name: 'Giacomo Waltenspühl', races: [null, 3, null, null] },
+  { name: 'Michele Facco', races: [null, 2, null, null] },
+  { name: 'Fernando Waltenspühl', races: [null, 1, null, null] },
+  { name: 'Maurizio Carluccio', races: [null, 0, null, null] },
+  { name: 'Nadir Dazzi', races: [null, 0, null, null] },
+  { name: 'Matteo Paolocci', races: [null, 0, null, null] },
 ]
 
 const cccHallOfFame: { year: number; link?: string; results: { cat: string; name: string; points: string }[] }[] = [
@@ -319,6 +356,54 @@ function HallOfFame() {
   )
 }
 
+function ClassificaTable({ title, pilots }: { title?: string; pilots: classificaPilotEntry[] }) {
+  return (
+    <div>
+      {title ? <h4 className="mb-2 text-sm font-semibold uppercase tracking-wide text-cvlt-gray-500">{title}</h4> : null}
+      <div className="overflow-x-auto">
+        <table className="w-full table-fixed text-left text-sm">
+          <colgroup>
+            <col style={{ width: '6%' }} />
+            <col style={{ width: '30%' }} />
+            <col style={{ width: '13%' }} />
+            <col style={{ width: '16%' }} />
+            <col style={{ width: '13%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '10%' }} />
+          </colgroup>
+          <thead>
+            <tr className="border-b border-cvlt-gray-200 text-xs font-semibold uppercase tracking-wide text-cvlt-gray-500">
+              <th className="pb-2 pr-3">#</th>
+              <th className="pb-2 pr-3">Pilota</th>
+              {classificaRaces.map((r) => (
+                <th key={r} className="pb-2 pr-3 text-center">{r}</th>
+              ))}
+              <th className="pb-2 text-right">Totale</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pilots.map((pilot, i) => {
+              const total = pilot.races.reduce<number>((sum, p) => sum + (p ?? 0), 0)
+              return (
+                <tr key={pilot.name} className="border-b border-cvlt-gray-100 last:border-b-0">
+                  <td className="py-1.5 pr-3 text-cvlt-gray-500">{i + 1}</td>
+                  <td className="py-1.5 pr-3 font-medium text-cvlt-gray-900">{pilot.name}</td>
+                  {pilot.races.map((pts, j) => (
+                    <td key={j} className="py-1.5 pr-3 text-center tabular-nums text-cvlt-gray-700">
+                      {pts !== null ? pts : '-'}
+                    </td>
+                  ))}
+                  <td className="py-1.5 text-right font-semibold tabular-nums text-cvlt-gray-900">{total}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 export function GareContent() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
@@ -541,37 +626,7 @@ export function GareContent() {
           </Section>
 
           <Section title="Classifica 2026">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-cvlt-gray-200 text-xs font-semibold uppercase tracking-wide text-cvlt-gray-500">
-                    <th className="pb-2 pr-3">#</th>
-                    <th className="pb-2 pr-3">Pilota</th>
-                    {classificaRaces.map((r) => (
-                      <th key={r} className="pb-2 pr-3 text-center">{r}</th>
-                    ))}
-                    <th className="pb-2 text-right">Totale</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {classificaOpen2026.map((pilot, i) => {
-                    const total = pilot.races.reduce<number>((sum, p) => sum + (p ?? 0), 0)
-                    return (
-                      <tr key={pilot.name} className="border-b border-cvlt-gray-100 last:border-b-0">
-                        <td className="py-1.5 pr-3 text-cvlt-gray-500">{i + 1}</td>
-                        <td className="py-1.5 pr-3 font-medium text-cvlt-gray-900">{pilot.name}</td>
-                        {pilot.races.map((pts, j) => (
-                          <td key={j} className="py-1.5 pr-3 text-center tabular-nums text-cvlt-gray-700">
-                            {pts !== null ? pts : '-'}
-                          </td>
-                        ))}
-                        <td className="py-1.5 text-right font-semibold tabular-nums text-cvlt-gray-900">{total}</td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <ClassificaTable pilots={classifica2026} />
           </Section>
         </div>
       </div>
