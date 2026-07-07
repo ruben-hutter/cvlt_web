@@ -8,7 +8,6 @@ import 'yet-another-react-lightbox/styles.css'
 import { useAddressSearch, formatPhone, isValidEmail, isValidPhone, useFormRenderTime } from '@/lib/forms'
 import type { AddressSuggestion } from '@/lib/forms'
 import {
-  calculateTshirt2023Discount,
   formatCurrency,
   SHOP_PENDING_ORDER_TOKEN_STORAGE_KEY,
   type CartItem,
@@ -21,12 +20,14 @@ type Variant = {
   label: string
   sizes: string[]
   price?: number
+  compareAtPrice?: number
 }
 
 type Product = {
   name: string
   edition: string
   price: number
+  compareAtPrice?: number
   priceLabel?: string
   image: string
   description?: string
@@ -55,11 +56,12 @@ const products: Product[] = [
   {
     name: 'Maglietta Tecnica',
     edition: 'ed. 2024 - Unisex',
-    price: 30,
+    price: 15,
+    compareAtPrice: 30,
     image: '/shop/maglietta-tecnica-2024.png',
     variants: [
       { label: 'Blu (inserti bianchi)', sizes: ['S', 'L', 'XXL'] },
-      { label: 'Bianca (inserti blu)', sizes: ['S', 'M', 'L', 'XXL'] },
+      { label: 'Bianca (inserti blu)', sizes: ['S', 'L', 'XXL'] },
     ],
   },
   {
@@ -68,10 +70,9 @@ const products: Product[] = [
     price: 25,
     image: '/shop/tshirt-uomo-2023.png',
     variants: [
-      { label: 'Grigia (cotone)', sizes: ['S', 'M', 'XL', 'XXL'], price: 25 },
-      { label: 'Gialla (tecnica)', sizes: ['S', 'M', 'XL', 'XXL'], price: 30 },
+      { label: 'Grigia (cotone)', sizes: ['S', 'M', 'XL', 'XXL'], price: 10, compareAtPrice: 25 },
+      { label: 'Gialla (tecnica)', sizes: ['S', 'M', 'XL', 'XXL'], price: 15, compareAtPrice: 30 },
     ],
-    promo: 'Entrambi i colori: CHF 50.- invece di 55.-',
   },
   {
     name: 'T-Shirt Donna',
@@ -79,10 +80,9 @@ const products: Product[] = [
     price: 25,
     image: '/shop/tshirt-donna-2023.png',
     variants: [
-      { label: 'Grigia (cotone)', sizes: ['M', 'L'], price: 25 },
-      { label: 'Gialla (tecnica)', sizes: ['M', 'L'], price: 30 },
+      { label: 'Grigia (cotone)', sizes: ['M', 'L'], price: 10, compareAtPrice: 25 },
+      { label: 'Gialla (tecnica)', sizes: ['M', 'L'], price: 15, compareAtPrice: 30 },
     ],
-    promo: 'Entrambi i colori: CHF 50.- invece di 55.-',
   },
   {
     name: 'Giacca Fleece Uomo',
@@ -90,7 +90,7 @@ const products: Product[] = [
     price: 55,
     image: '/shop/fleece-uomo-2023.jpg',
     variants: [
-      { label: 'Grigia', sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+      { label: 'Grigia', sizes: ['S', 'L', 'XL', 'XXL'] },
     ],
   },
   {
@@ -106,6 +106,7 @@ const products: Product[] = [
     name: 'Cappellino CVLT',
     edition: 'ed. 2021',
     price: 15,
+    compareAtPrice: 25,
     image: '/shop/cap-2021.jpeg',
     variants: [
       { label: 'Blu scuro', sizes: ['S/M', 'L/XL'] },
@@ -183,12 +184,10 @@ export function ShopContent() {
     return initial
   })
 
-  const total = useMemo(
+  const finalTotal = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
     [cartItems],
   )
-  const tshirt2023Discount = useMemo(() => calculateTshirt2023Discount(cartItems), [cartItems])
-  const finalTotal = useMemo(() => Math.max(total - tshirt2023Discount, 0), [total, tshirt2023Discount])
   const cartCount = useMemo(() => cartItems.reduce((sum, item) => sum + item.quantity, 0), [cartItems])
 
   const canStartCheckout =
@@ -516,6 +515,8 @@ export function ShopContent() {
             const selection = selectionByProduct[i]
             const selectedVariant = product.variants[selection?.variantIndex ?? 0]
             const unitPrice = selectedVariant?.price || product.price
+            const oldPrice = selectedVariant?.compareAtPrice || product.compareAtPrice
+            const isOnSale = !!oldPrice && oldPrice > unitPrice
 
             return (
               <div key={`${product.name}-${product.edition}`} className="overflow-hidden rounded-lg border border-cvlt-gray-200">
@@ -530,9 +531,24 @@ export function ShopContent() {
                 </button>
 
                 <div className="p-4">
-                  <h2 className="text-base font-semibold text-cvlt-gray-900">{product.name}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-semibold text-cvlt-gray-900">{product.name}</h2>
+                    {isOnSale && (
+                      <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700">Saldi</span>
+                    )}
+                  </div>
                   <p className="text-xs text-cvlt-gray-500">{product.edition}</p>
-                  <p className="mt-2 text-lg font-bold text-cvlt-blue">{formatCurrency(unitPrice)}</p>
+                  {isOnSale ? (
+                    <p className="mt-2 text-lg font-bold">
+                      <span className="relative inline-block text-cvlt-gray-400">
+                        {formatCurrency(oldPrice)}
+                        <span aria-hidden="true" className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-current" />
+                      </span>{' '}
+                      <span className="text-red-600">{formatCurrency(unitPrice)}</span>
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-lg font-bold text-cvlt-blue">{formatCurrency(unitPrice)}</p>
+                  )}
 
                   <div className="mt-3 space-y-3">
                     <div>
@@ -737,10 +753,6 @@ export function ShopContent() {
           )}
 
           <div className="space-y-1 text-right">
-            <div className="text-sm text-cvlt-gray-600">Subtotale: {formatCurrency(total)}</div>
-            {tshirt2023Discount > 0 && (
-              <div className="text-sm font-semibold text-emerald-700">Sconto promo T-Shirt 2023: -{formatCurrency(tshirt2023Discount)}</div>
-            )}
             <div className="text-lg font-bold text-cvlt-gray-900">Totale: {formatCurrency(finalTotal)}</div>
           </div>
 
