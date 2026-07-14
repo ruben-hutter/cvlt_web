@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { WindStation, StationsResponse } from '../types'
-import { computeWindLevel, formatCloudBase, fetchWithTimeout } from '../types'
+import { computeWindLevel, formatCloudBase, fetchWithTimeout, msToKmh } from '../types'
 import { cachedFetch } from '../cache'
 import { rateLimit } from '@/lib/rate-limit'
 import { extractClientIp } from '@/lib/antispam'
@@ -231,7 +231,7 @@ async function fetchHolfuyStations(): Promise<(WindStation & { lat: number })[]>
 const PIOUPIOU_URL = 'https://api.pioupiou.fr/v1/live'
 
 const WINDBIRD_STATIONS: Record<number, { name: string; elev: number; lat: number }> = {
-  2068: { name: 'AlpeMatro', elev: 1140, lat: 46.137 },
+  2175: { name: 'AlpeMatro', elev: 1140, lat: 46.137 },
   2075: { name: 'Carlazzo', elev: 920, lat: 46.054 },
   1322: { name: 'StaMariaGR', elev: 1218, lat: 46.267 },
 }
@@ -266,6 +266,105 @@ async function fetchWindbirdStations(): Promise<(WindStation & { lat: number })[
         lastUpdate: obsTime,
         lat: d.location?.latitude ?? info.lat,
         sourceUrl: `https://www.openwindmap.org/windbird-${idStr}`,
+      }
+      return station
+    }),
+  )
+
+  for (const r of settled) {
+    if (r.status === 'fulfilled' && r.value) stations.push(r.value)
+  }
+  return stations
+}
+
+// ── OASI (Cantone Ticino) ──────────────────────────────────────────────────
+const OASI_BASE = 'https://www.oasi.ti.ch/web/rest/measure/'
+
+const OASI_STATIONS: Record<string, { name: string; elev: number; lat: number; code: string }> = {
+  Camignolo: { name: 'Camignolo', elev: 435, lat: 46.146, code: 'air_525 01 01' },
+}
+
+type OasiParam = 'WD' | 'WS' | 'WSgust' | 'T'
+
+function zurichDateString(d: Date): string {
+  return d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })
+}
+
+// OASI returns naive timestamps in Europe/Zurich local time (no designator).
+function parseZurichNaiveTime(naive: string): number | null {
+  const asUtc = Date.parse(`${naive}Z`)
+  if (Number.isNaN(asUtc)) return null
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Zurich',
+    timeZoneName: 'shortOffset',
+  }).formatToParts(new Date(asUtc))
+  const off = parts.find((p) => p.type === 'timeZoneName')?.value ?? ''
+  const m = off.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/)
+  let offsetMin = 0
+  if (m) {
+    offsetMin = (parseInt(m[2], 10) * 60 + parseInt(m[3] || '0', 10)) * (m[1] === '-' ? -1 : 1)
+  }
+  return asUtc - offsetMin * 60_000
+}
+
+type OasiReading = { value: number; time: number | null } | null
+
+async function fetchOASIParameter(code: string, param: OasiParam): Promise<OasiReading> {
+  const today = zurichDateString(new Date())
+  const url = `${OASI_BASE}?domain=meteo&resolution=h&locations=${encodeURIComponent(code)}&from=${today}&to=${today}&parameter=${param}`
+  const res = await fetchWithTimeout(url)
+  if (!res.ok) return null
+  const json = await res.json()
+  const data = json?.locations?.[0]?.data
+  if (!Array.isArray(data) || data.length === 0) return null
+  const now = Date.now()
+  for (let i = data.length - 1; i >= 0; i--) {
+    const point = data[i]
+    const val = point?.values?.[0]?.value
+    if (typeof val !== 'number' || Number.isNaN(val)) continue
+    const time = parseZurichNaiveTime(point.date)
+    if (time != null && time > now) continue
+    return { value: val, time }
+  }
+  return null
+}
+
+async function fetchOASIStations(): Promise<(WindStation & { lat: number })[]> {
+  const stations: (WindStation & { lat: number })[] = []
+
+  const settled = await Promise.allSettled(
+    Object.values(OASI_STATIONS).map(async (info) => {
+      const [wd, ws, wsgust, t] = await Promise.all([
+        fetchOASIParameter(info.code, 'WD'),
+        fetchOASIParameter(info.code, 'WS'),
+        fetchOASIParameter(info.code, 'WSgust'),
+        fetchOASIParameter(info.code, 'T'),
+      ])
+
+      const windDir = wd && wd.value >= 0 && wd.value <= 360 ? Math.round(wd.value) : null
+      const windAvg = ws ? msToKmh(ws.value) : null
+      const windGust = wsgust ? msToKmh(wsgust.value) : null
+      const tempVal = t && Math.abs(t.value) < 100 ? t.value : null
+
+      if (windAvg == null && windGust == null && windDir == null) return null
+
+      const times = [wd?.time, ws?.time, wsgust?.time, t?.time].filter(
+        (x): x is number => x != null,
+      )
+      const lastUpdate = times.length ? Math.max(...times) : null
+
+      const station: WindStation & { lat: number } = {
+        name: `OASI-${info.name}`,
+        isPeak: info.elev > 700,
+        windDir,
+        windAvg,
+        windGust,
+        windLevel: computeWindLevel(windDir, windAvg, windGust),
+        temp: tempVal != null ? `${Math.round(tempVal)}°C` : null,
+        cloudBase: null,
+        lastUpdate,
+        lat: info.lat,
+        sourceUrl: 'https://www.oasi.ti.ch/',
       }
       return station
     }),
@@ -331,15 +430,16 @@ async function fetchFaidoStation(): Promise<(WindStation & { lat: number }) | nu
 // ── Main route ─────────────────────────────────────────────────────────────
 
 async function fetchAllOthers(): Promise<StationsResponse> {
-  const [pwsList, slfList, holfuyList, windbirdList, faido] = await Promise.all([
+  const [pwsList, slfList, holfuyList, windbirdList, oasiList, faido] = await Promise.all([
     fetchPWSStations().catch(() => [] as (WindStation & { lat: number })[]),
     fetchSLFStations().catch(() => [] as (WindStation & { lat: number })[]),
     fetchHolfuyStations().catch(() => [] as (WindStation & { lat: number })[]),
     fetchWindbirdStations().catch(() => [] as (WindStation & { lat: number })[]),
+    fetchOASIStations().catch(() => [] as (WindStation & { lat: number })[]),
     fetchFaidoStation().catch(() => null),
   ])
 
-  const all = [...pwsList, ...slfList, ...holfuyList, ...windbirdList]
+  const all = [...pwsList, ...slfList, ...holfuyList, ...windbirdList, ...oasiList]
   if (faido) all.push(faido)
 
   all.sort((a, b) => b.lat - a.lat)

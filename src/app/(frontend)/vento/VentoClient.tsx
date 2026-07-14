@@ -247,6 +247,7 @@ const STATION_REGIONS: Record<string, string> = {
   'PWS-Rivera': 'sottoceneri',
   'HFY-Alpe Foppa': 'sottoceneri',
   'WBD-Carlazzo': 'sottoceneri',
+  'OASI-Camignolo': 'sottoceneri',
   'HFY-Mte Lema': 'sottoceneri',
   'Lugano': 'sottoceneri',
   'Generoso': 'sottoceneri',
