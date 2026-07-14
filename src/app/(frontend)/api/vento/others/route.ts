@@ -364,7 +364,7 @@ async function fetchOASIStations(): Promise<(WindStation & { lat: number })[]> {
         cloudBase: null,
         lastUpdate,
         lat: info.lat,
-        sourceUrl: 'https://www.oasi.ti.ch/',
+        sourceUrl: 'https://www.oasi.ti.ch/web/dati/meteo.html',
       }
       return station
     }),
