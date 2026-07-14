@@ -47,6 +47,10 @@ export function computeWindLevel(
   return 'light'
 }
 
+export function msToKmh(ms: number): number {
+  return Math.round(ms * 3.6)
+}
+
 export function formatCloudBase(hBase: number): string | null {
   if (hBase <= 0) return null
   const rounded = Math.round((hBase + 50) / 100) * 100
