@@ -61,7 +61,7 @@ const products: Product[] = [
     image: '/shop/maglietta-tecnica-2024.png',
     variants: [
       { label: 'Blu (inserti bianchi)', sizes: ['S', 'L', 'XXL'] },
-      { label: 'Bianca (inserti blu)', sizes: ['S', 'L', 'XXL'] },
+      { label: 'Bianca (inserti blu)', sizes: ['S', 'L'] },
     ],
   },
   {
@@ -71,7 +71,7 @@ const products: Product[] = [
     image: '/shop/tshirt-uomo-2023.png',
     variants: [
       { label: 'Grigia (cotone)', sizes: ['S', 'M', 'XL', 'XXL'], price: 10, compareAtPrice: 25 },
-      { label: 'Gialla (tecnica)', sizes: ['S', 'M', 'XL', 'XXL'], price: 15, compareAtPrice: 30 },
+      { label: 'Gialla (tecnica)', sizes: ['S', 'XL'], price: 15, compareAtPrice: 30 },
     ],
   },
   {
@@ -99,7 +99,7 @@ const products: Product[] = [
     price: 55,
     image: '/shop/fleece-donna-2023.jpg',
     variants: [
-      { label: 'Grigia', sizes: ['S', 'M', 'L', 'XL'] },
+      { label: 'Grigia', sizes: ['S', 'L', 'XL'] },
     ],
   },
   {
