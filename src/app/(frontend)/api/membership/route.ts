@@ -74,6 +74,7 @@ export async function POST(request: Request) {
         membershipType: membershipType as 'active' | 'family' | 'supporter',
         notes: notes || '',
       },
+      overrideAccess: true,
     })
 
     try {
