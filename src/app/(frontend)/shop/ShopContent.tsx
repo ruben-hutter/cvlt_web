@@ -14,26 +14,8 @@ import {
   type PaymentMethod,
   type PaymentStatus,
 } from '@/lib/shop'
+import { shopProducts, catalogKey } from '@/lib/shop-catalog'
 import { uiFieldClass, uiPrimaryButtonClass, uiSecondaryButtonClass, uiSelectClass } from '@/lib/ui'
-
-type Variant = {
-  label: string
-  sizes: string[]
-  price?: number
-  compareAtPrice?: number
-}
-
-type Product = {
-  name: string
-  edition: string
-  price: number
-  compareAtPrice?: number
-  priceLabel?: string
-  image: string
-  description?: string
-  variants: Variant[]
-  promo?: string
-}
 
 type ProductSelection = {
   variantIndex: number
@@ -41,78 +23,26 @@ type ProductSelection = {
   quantity: number
 }
 
-const products: Product[] = [
-  {
-    name: 'Maglietta 100% Cotone Bio',
-    edition: 'ed. 2025 - Unisex',
-    price: 25,
-    image: '/shop/maglietta-bio-2025.jpg',
-    variants: [
-      { label: 'Sapphire', sizes: ['M', 'L'] },
-      { label: 'Dusty Indigo', sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
-      { label: 'Royal', sizes: ['S', 'M', 'L', 'XL'] },
-    ],
-  },
-  {
-    name: 'Maglietta Tecnica',
-    edition: 'ed. 2024 - Unisex',
-    price: 15,
-    compareAtPrice: 30,
-    image: '/shop/maglietta-tecnica-2024.png',
-    variants: [
-      { label: 'Blu (inserti bianchi)', sizes: ['S', 'L', 'XXL'] },
-      { label: 'Bianca (inserti blu)', sizes: ['S', 'L'] },
-    ],
-  },
-  {
-    name: 'T-Shirt Uomo',
-    edition: 'ed. 2023',
-    price: 25,
-    image: '/shop/tshirt-uomo-2023.png',
-    variants: [
-      { label: 'Grigia (cotone)', sizes: ['S', 'M', 'XL', 'XXL'], price: 10, compareAtPrice: 25 },
-      { label: 'Gialla (tecnica)', sizes: ['S', 'XL'], price: 15, compareAtPrice: 30 },
-    ],
-  },
-  {
-    name: 'T-Shirt Donna',
-    edition: 'ed. 2023',
-    price: 25,
-    image: '/shop/tshirt-donna-2023.png',
-    variants: [
-      { label: 'Grigia (cotone)', sizes: ['M', 'L'], price: 10, compareAtPrice: 25 },
-      { label: 'Gialla (tecnica)', sizes: ['M', 'L'], price: 15, compareAtPrice: 30 },
-    ],
-  },
-  {
-    name: 'Giacca Fleece Uomo',
-    edition: 'ed. 2023',
-    price: 55,
-    image: '/shop/fleece-uomo-2023.jpg',
-    variants: [
-      { label: 'Grigia', sizes: ['S', 'L', 'XL', 'XXL'] },
-    ],
-  },
-  {
-    name: 'Giacca Fleece Donna',
-    edition: 'ed. 2023',
-    price: 55,
-    image: '/shop/fleece-donna-2023.jpg',
-    variants: [
-      { label: 'Grigia', sizes: ['S', 'L', 'XL'] },
-    ],
-  },
-  {
-    name: 'Cappellino CVLT',
-    edition: 'ed. 2021',
-    price: 15,
-    compareAtPrice: 25,
-    image: '/shop/cap-2021.jpeg',
-    variants: [
-      { label: 'Blu scuro', sizes: ['S/M', 'L/XL'] },
-    ],
-  },
-]
+function sizeAvailable(
+  productName: string,
+  variantLabel: string,
+  size: string,
+  availability: Record<string, number>,
+) {
+  return availability[catalogKey(productName, variantLabel, size)] ?? 0
+}
+
+function firstAvailableSize(
+  productName: string,
+  variantLabel: string,
+  sizes: { size: string }[],
+  availability: Record<string, number>,
+) {
+  for (const entry of sizes) {
+    if (sizeAvailable(productName, variantLabel, entry.size, availability) > 0) return entry.size
+  }
+  return sizes[0]?.size ?? ''
+}
 
 function itemKey(item: CartItem) {
   return `${item.productName}__${item.variant}__${item.size}`
@@ -136,7 +66,7 @@ function paymentStatusLabel(value: PaymentStatus) {
   return value === 'pending_invoice' ? 'Da pagare (fattura)' : 'Pagato (TWINT)'
 }
 
-export function ShopContent() {
+export function ShopContent({ availability }: { availability: Record<string, number> }) {
   const searchParams = useSearchParams()
   const [lightboxIndex, setLightboxIndex] = useState(-1)
   const [cartItems, setCartItems] = useState<CartItem[]>([])
@@ -174,10 +104,13 @@ export function ShopContent() {
 
   const [selectionByProduct, setSelectionByProduct] = useState<Record<number, ProductSelection>>(() => {
     const initial: Record<number, ProductSelection> = {}
-    products.forEach((product, index) => {
+    shopProducts.forEach((product, index) => {
+      const firstVariant = product.variants[0]
       initial[index] = {
         variantIndex: 0,
-        size: product.variants[0]?.sizes[0] || '',
+        size: firstVariant
+          ? firstAvailableSize(product.name, firstVariant.label, firstVariant.sizes, availability)
+          : '',
         quantity: 1,
       }
     })
@@ -314,20 +247,27 @@ export function ShopContent() {
   }
 
   function addToCart(productIndex: number) {
-    const product = products[productIndex]
+    const product = shopProducts[productIndex]
     const selection = selectionByProduct[productIndex]
     if (!product || !selection) return
 
     const variant = product.variants[selection.variantIndex]
     if (!variant || !selection.size || selection.quantity <= 0) return
 
+    const available = sizeAvailable(product.name, variant.label, selection.size, availability)
+    if (available <= 0) {
+      setFeedbackError('Questa taglia è attualmente esaurita.')
+      return
+    }
+
+    const quantity = Math.min(selection.quantity, available)
     const unitPrice = variant.price || product.price
     const newItem: CartItem = {
       productName: product.name,
       edition: product.edition,
       variant: variant.label,
       size: selection.size,
-      quantity: selection.quantity,
+      quantity,
       unitPrice,
     }
 
@@ -336,9 +276,12 @@ export function ShopContent() {
       const existing = prev.find((item) => itemKey(item) === key)
       if (!existing) return [...prev, newItem]
 
-      return prev.map((item) =>
-        itemKey(item) === key ? { ...item, quantity: Math.min(item.quantity + newItem.quantity, 99) } : item,
-      )
+      return prev.map((item) => {
+        if (itemKey(item) !== key) return item
+        const max = sizeAvailable(item.productName, item.variant, item.size, availability)
+        const merged = Math.min(item.quantity + newItem.quantity, max)
+        return { ...item, quantity: Math.max(merged, item.quantity) }
+      })
     })
 
     setFeedbackError(null)
@@ -351,7 +294,12 @@ export function ShopContent() {
 
   function increaseCartQuantity(item: CartItem) {
     setCartItems((prev) =>
-      prev.map((x) => (itemKey(x) === itemKey(item) ? { ...x, quantity: Math.min(x.quantity + 1, 99) } : x)),
+      prev.map((x) => {
+        if (itemKey(x) !== itemKey(item)) return x
+        const max = sizeAvailable(x.productName, x.variant, x.size, availability)
+        if (x.quantity >= max) return x
+        return { ...x, quantity: x.quantity + 1 }
+      }),
     )
   }
 
@@ -511,12 +459,15 @@ export function ShopContent() {
       <div className="mt-4 flex gap-6 sm:mt-8">
         <div className="min-w-0 flex-1">
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {products.map((product, i) => {
+          {shopProducts.map((product, i) => {
             const selection = selectionByProduct[i]
             const selectedVariant = product.variants[selection?.variantIndex ?? 0]
             const unitPrice = selectedVariant?.price || product.price
             const oldPrice = selectedVariant?.compareAtPrice || product.compareAtPrice
             const isOnSale = !!oldPrice && oldPrice > unitPrice
+            const selectedAvailable = selectedVariant && selection?.size
+              ? sizeAvailable(product.name, selectedVariant.label, selection.size, availability)
+              : 0
 
             return (
               <div key={`${product.name}-${product.edition}`} className="overflow-hidden rounded-lg border border-cvlt-gray-200">
@@ -567,7 +518,10 @@ export function ShopContent() {
                           const nextVariant = product.variants[variantIndex]
                           updateSelection(i, {
                             variantIndex,
-                            size: nextVariant?.sizes[0] || '',
+                            size: nextVariant
+                              ? firstAvailableSize(product.name, nextVariant.label, nextVariant.sizes, availability)
+                              : '',
+                            quantity: 1,
                           })
                         }}
                       >
@@ -596,14 +550,23 @@ export function ShopContent() {
                           id={`size-${i}`}
                           className={uiSelectClass}
                           value={selection?.size || ''}
-                        onChange={(event) => updateSelection(i, { size: event.target.value })}
+                        onChange={(event) => updateSelection(i, { size: event.target.value, quantity: 1 })}
                       >
-                        {selectedVariant?.sizes.map((size) => (
-                          <option key={size} value={size}>
-                            {size}
-                          </option>
-                        ))}
+                        {selectedVariant?.sizes.map((sizeEntry) => {
+                          const available = sizeAvailable(product.name, selectedVariant.label, sizeEntry.size, availability)
+                          return (
+                            <option key={sizeEntry.size} value={sizeEntry.size} disabled={available <= 0}>
+                              {sizeEntry.size}
+                              {available <= 0 ? ' — Esaurito' : available <= 5 ? ` (${available} disp.)` : ''}
+                            </option>
+                          )
+                        })}
                       </select>
+                      {selectedAvailable <= 0 ? (
+                        <p className="mt-1 text-xs font-medium text-rose-600">Taglia esaurita</p>
+                      ) : selectedAvailable <= 5 ? (
+                        <p className="mt-1 text-xs font-medium text-amber-700">Solo {selectedAvailable} disponibili</p>
+                      ) : null}
                     </div>
 
                     <div>
@@ -617,6 +580,7 @@ export function ShopContent() {
                         <button
                           type="button"
                           className={uiSecondaryButtonClass}
+                          disabled={selectedAvailable <= 0}
                           onClick={() =>
                             updateSelection(i, {
                               quantity: Math.max((selection?.quantity ?? 1) - 1, 1),
@@ -629,9 +593,10 @@ export function ShopContent() {
                         <button
                           type="button"
                           className={uiSecondaryButtonClass}
+                          disabled={selectedAvailable <= 0 || (selection?.quantity ?? 1) >= selectedAvailable}
                           onClick={() =>
                             updateSelection(i, {
-                              quantity: Math.min((selection?.quantity ?? 1) + 1, 20),
+                              quantity: Math.min((selection?.quantity ?? 1) + 1, Math.max(selectedAvailable, 1)),
                             })
                           }
                         >
@@ -644,9 +609,10 @@ export function ShopContent() {
                   <button
                     type="button"
                     className={`${uiPrimaryButtonClass} mt-4 w-full`}
+                    disabled={selectedAvailable <= 0}
                     onClick={() => addToCart(i)}
                   >
-                    Aggiungi al carrello
+                    {selectedAvailable <= 0 ? 'Esaurito' : 'Aggiungi al carrello'}
                   </button>
 
                   {product.promo && (
@@ -706,7 +672,11 @@ export function ShopContent() {
             <p className="text-sm text-cvlt-gray-600">Nessun articolo nel carrello.</p>
           ) : (
             <div className="space-y-3">
-              {cartItems.map((item) => (
+              {cartItems.map((item) => {
+                const available = sizeAvailable(item.productName, item.variant, item.size, availability)
+                const soldOut = available <= 0
+                const overLimit = item.quantity > available
+                return (
                 <div key={itemKey(item)} className="rounded-lg border border-cvlt-gray-200 p-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -716,6 +686,16 @@ export function ShopContent() {
                         <span>{item.variant}</span>
                         <span>Taglia {item.size}</span>
                       </div>
+                      {soldOut ? (
+                        <p className="mt-1 text-xs font-medium text-rose-600">Esaurito — rimuovi dall'ordine</p>
+                      ) : available <= 5 ? (
+                        <p className="mt-1 text-xs font-medium text-amber-700">Solo {available} disponibili</p>
+                      ) : null}
+                      {overLimit && !soldOut && (
+                        <p className="mt-0.5 text-xs font-medium text-rose-600">
+                          Riduci la quantità a {available}
+                        </p>
+                      )}
                     </div>
                     <div className="text-right text-sm font-semibold text-cvlt-gray-900 whitespace-nowrap">
                       {formatCurrency(item.quantity * item.unitPrice)}
@@ -734,6 +714,7 @@ export function ShopContent() {
                       <button
                         type="button"
                         className={`${uiSecondaryButtonClass} px-2 py-0.5 text-xs`}
+                        disabled={soldOut || item.quantity >= available}
                         onClick={() => increaseCartQuantity(item)}
                       >
                         +
@@ -748,7 +729,8 @@ export function ShopContent() {
                     </button>
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
           )}
 
@@ -949,7 +931,7 @@ export function ShopContent() {
         open={lightboxIndex >= 0}
         close={() => setLightboxIndex(-1)}
         index={lightboxIndex}
-        slides={products.map((p) => ({ src: p.image, alt: p.name }))}
+        slides={shopProducts.map((p) => ({ src: p.image, alt: p.name }))}
         plugins={[Fullscreen]}
       />
 

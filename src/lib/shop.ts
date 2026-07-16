@@ -12,6 +12,8 @@ export type PaymentStatus = 'paid' | 'pending_invoice'
 
 export const SHOP_PENDING_ORDER_TOKEN_STORAGE_KEY = 'cvlt-shop-pending-order-token'
 
+export const SHOP_RESERVATION_TTL_MS = 2 * 60 * 60 * 1000
+
 export function formatCurrency(value: number) {
   return `CHF ${value.toFixed(2)}`
 }

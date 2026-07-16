@@ -11,7 +11,9 @@
     "db:migrate": "payload migrate",
     "db:migrate:status": "payload migrate:status",
     "deploy:timed": "bash scripts/deploy-timed.sh",
-    "start": "node scripts/start.mjs"
+    "start": "node scripts/start.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.79.1",
@@ -38,6 +40,7 @@
     "@types/nodemailer": "^7.0.11",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.10"
   }
 }

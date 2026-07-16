@@ -7,11 +7,12 @@ export const ShopOrders: CollectionConfig = {
   lockDocuments: false,
   admin: {
     useAsTitle: 'orderRef',
+    group: 'Shop',
     defaultColumns: ['orderRef', 'fullName', 'total', 'paymentMethod', 'paymentStatus', 'createdAt'],
   },
   access: {
     read: isAdmin,
-    create: () => true,
+    create: () => false,
     update: isAdmin,
     delete: isAdmin,
   },

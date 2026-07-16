@@ -1,5 +1,8 @@
 import { Suspense } from 'react'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import { ShopContent } from './ShopContent'
+import { getAvailabilityMap } from '@/lib/shop-stock'
 
 export const metadata = {
   title: 'Shop',
@@ -7,10 +10,15 @@ export const metadata = {
   alternates: { canonical: '/shop' },
 }
 
-export default function ShopPage() {
+export const revalidate = 0
+
+export default async function ShopPage() {
+  const payload = await getPayload({ config })
+  const availability = await getAvailabilityMap(payload)
+
   return (
     <Suspense>
-      <ShopContent />
+      <ShopContent availability={availability} />
     </Suspense>
   )
 }

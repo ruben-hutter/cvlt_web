@@ -16,6 +16,7 @@ dist/
 # database
 db/
 .backups/
+.tmp/
 
 # runtime
 logs/

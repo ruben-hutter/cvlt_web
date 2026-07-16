@@ -8,10 +8,19 @@ import { rateLimit } from '@/lib/rate-limit'
 import { extractClientIp, isBlockedEmailDomain, validateAntispamFields, isValidEmailFormat, isWithinLimit } from '@/lib/antispam'
 import {
   normalizeCartTotal,
+  SHOP_RESERVATION_TTL_MS,
   type CartItem,
   type PaymentMethod,
   type PaymentStatus,
 } from '@/lib/shop'
+import { buildCatalogLookup, catalogKey } from '@/lib/shop-catalog'
+import {
+  consumeReservation,
+  decrementStockForSale,
+  InsufficientStockError,
+  reserveItems,
+} from '@/lib/shop-stock'
+import type { ReservationItem } from '@/collections/ShopReservations'
 
 type PrepareRequest = {
   action: 'prepare'
@@ -116,10 +125,16 @@ function isValidCartItem(item: CartItem) {
     item.size.length > 0 &&
     Number.isInteger(item.quantity) &&
     item.quantity > 0 &&
-    item.quantity <= 20 &&
-    Number.isFinite(item.unitPrice) &&
-    item.unitPrice > 0
+    item.quantity <= 20
   )
+}
+
+function formatStockKey(stockKey: string) {
+  const parts = stockKey.split('__')
+  const productName = parts[0] ?? ''
+  const variant = parts[1] ?? ''
+  const size = parts[2] ?? ''
+  return `${productName} (${variant}, taglia ${size})`
 }
 
 function hasMaxTwoDecimals(value: number) {
@@ -203,6 +218,7 @@ async function saveOrderToDb(order: OrderPayload) {
       total: order.total,
       items: order.items,
     },
+    overrideAccess: true,
   })
 }
 
@@ -261,7 +277,27 @@ async function handlePrepare(body: PrepareRequest) {
     return NextResponse.json({ error: 'Metodo di pagamento non valido.' }, { status: 400 })
   }
 
-  const total = normalizeCartTotal(items)
+  const lookup = buildCatalogLookup()
+  const reservationItems: ReservationItem[] = []
+  const validatedItems: CartItem[] = []
+  for (const item of items) {
+    const key = catalogKey(item.productName, item.variant, item.size)
+    const entry = lookup.get(key)
+    if (!entry) {
+      return NextResponse.json({ error: 'Articolo non valido o non più disponibile.' }, { status: 400 })
+    }
+    validatedItems.push({
+      productName: entry.productName,
+      edition: entry.edition,
+      variant: entry.variant,
+      size: entry.size,
+      quantity: item.quantity,
+      unitPrice: entry.unitPrice,
+    })
+    reservationItems.push({ key, qty: item.quantity })
+  }
+
+  const total = normalizeCartTotal(validatedItems)
   if (!Number.isFinite(total) || total <= 0 || !hasMaxTwoDecimals(total)) {
     return NextResponse.json({ error: 'Totale ordine non valido.' }, { status: 400 })
   }
@@ -280,8 +316,10 @@ async function handlePrepare(body: PrepareRequest) {
     paymentStatus: paymentMethod === 'twint' ? 'paid' : 'pending_invoice',
     total,
     createdAt: new Date().toISOString(),
-    items,
+    items: validatedItems,
   }
+
+  const payload = await getPayload({ config })
 
   if (paymentMethod === 'invoice') {
     if (await isOrderConfirmed(order.orderRef)) {
@@ -292,6 +330,18 @@ async function handlePrepare(body: PrepareRequest) {
         paymentMethod: order.paymentMethod,
         paymentStatus: order.paymentStatus,
       })
+    }
+
+    try {
+      await decrementStockForSale(payload, reservationItems)
+    } catch (error) {
+      if (error instanceof InsufficientStockError) {
+        return NextResponse.json(
+          { error: `Articolo esaurito: ${formatStockKey(error.stockKey)}. Riprova più tardi.` },
+          { status: 409 },
+        )
+      }
+      throw error
     }
 
     await saveOrderToDb(order)
@@ -310,6 +360,18 @@ async function handlePrepare(body: PrepareRequest) {
     })
   }
 
+  try {
+    await reserveItems(payload, reservationItems, order.orderRef, SHOP_RESERVATION_TTL_MS)
+  } catch (error) {
+    if (error instanceof InsufficientStockError) {
+      return NextResponse.json(
+        { error: `Articolo esaurito: ${formatStockKey(error.stockKey)}. Riprova più tardi.` },
+        { status: 409 },
+      )
+    }
+    throw error
+  }
+
   const orderToken = signOrderPayload(order)
   const checkoutUrl = buildCheckoutUrl(order)
 
@@ -324,7 +386,7 @@ async function handleConfirm(body: ConfirmRequest) {
 
   const order = verifyOrderToken(orderToken)
   const createdAtMs = new Date(order.createdAt).getTime()
-  const isExpired = Number.isNaN(createdAtMs) || Date.now() - createdAtMs > 1000 * 60 * 60 * 24
+  const isExpired = Number.isNaN(createdAtMs) || Date.now() - createdAtMs > SHOP_RESERVATION_TTL_MS
 
   if (isExpired) {
     return NextResponse.json({ error: 'Ordine scaduto, riprovare dal carrello.' }, { status: 400 })
@@ -338,6 +400,15 @@ async function handleConfirm(body: ConfirmRequest) {
       paymentMethod: order.paymentMethod,
       paymentStatus: order.paymentStatus,
     })
+  }
+
+  const payload = await getPayload({ config })
+  const consumed = await consumeReservation(payload, order.orderRef)
+  if (!consumed) {
+    return NextResponse.json(
+      { error: 'La prenotazione è scaduta o non più valida. Riprova dal carrello.' },
+      { status: 409 },
+    )
   }
 
   await saveOrderToDb(order)

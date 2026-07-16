@@ -7,11 +7,12 @@ export const ContactSubmissions: CollectionConfig = {
   lockDocuments: false,
   admin: {
     useAsTitle: 'fullName',
+    group: 'Richieste',
     defaultColumns: ['fullName', 'email', 'createdAt'],
   },
   access: {
     read: isAdmin,
-    create: () => true,
+    create: () => false,
     update: isAdmin,
     delete: isAdmin,
   },

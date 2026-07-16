@@ -49,6 +49,7 @@ export async function POST(request: Request) {
         email,
         message,
       },
+      overrideAccess: true,
     })
 
     try {

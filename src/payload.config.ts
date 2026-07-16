@@ -36,6 +36,8 @@ import { MembershipSubmissions } from './collections/MembershipSubmissions'
 import { News } from './collections/News'
 import { PhotoAlbums } from './collections/PhotoAlbums'
 import { ShopOrders } from './collections/ShopOrders'
+import { ShopReservations } from './collections/ShopReservations'
+import { ShopStock } from './collections/ShopStock'
 import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -63,7 +65,7 @@ export default buildConfig({
       ],
     },
   },
-  collections: [News, Events, PhotoAlbums, MembershipSubmissions, ContactSubmissions, ShopOrders, Media, Users],
+  collections: [News, Events, PhotoAlbums, MembershipSubmissions, ContactSubmissions, ShopOrders, ShopStock, ShopReservations, Media, Users],
   db: sqliteAdapter({
     client: {
       url: requireEnv('DATABASE_URI'),
